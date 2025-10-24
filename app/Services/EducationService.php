@@ -76,7 +76,7 @@ class EducationService implements EducationInterface
 
             if ($validate->fails()) {
                 return [
-                    'message' => 'Validation Error',
+                    'message' => __('services.validation_error'),
                     'payload' => $validate->errors(),
                     'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
                 ];
@@ -238,13 +238,13 @@ class EducationService implements EducationInterface
             
             if ($data) {
                 return [
-                    'message' => 'Data is deleted successfully',
+                    'message' => __('services.data_deleted_successfully'),
                     'payload' => $data,
                     'status' => CoreConstants::STATUS_CODE_SUCCESS
                 ];
             } else {
                 return [
-                    'message' => 'Nothing to Delete',
+                    'message' => __('services.nothing_to_delete'),
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_ERROR
                 ];

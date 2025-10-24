@@ -197,7 +197,7 @@ class ProjectService implements ProjectInterface
             }
             if ($file->move($pathName, $fileName)) {
                 return [
-                    'message' => 'File is successfully saved',
+                    'message' => __('services.file_saved_successfully'),
                     'payload' => [
                         'file' => $pathName.$fileName
                     ],
@@ -263,7 +263,7 @@ class ProjectService implements ProjectInterface
 
             if (count($savedFileArray)) {
                 return [
-                    'message' => 'Files are successfully saved',
+                    'message' => __('services.files_saved_successfully'),
                     'payload' => [
                         'files' => $savedFileArray
                     ],
@@ -271,7 +271,7 @@ class ProjectService implements ProjectInterface
                 ];
             } else {
                 return [
-                    'message' => 'No file could not be saved',
+                    'message' => __('services.no_file_could_be_saved'),
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_ERROR
                 ];

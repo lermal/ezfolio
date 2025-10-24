@@ -98,7 +98,7 @@ class AdminService implements AdminInterface
                 ];
 
                 return [
-                    'message' => 'Successfully logged in',
+                    'message' => __('services.successfully_logged_in'),
                     'payload' => [
                         'admin' => $this->guard()->user(),
                         'token' => $tokenDetails
@@ -107,7 +107,7 @@ class AdminService implements AdminInterface
                 ];
             } else {
                 return [
-                    'message' => 'Incorrect credentials',
+                    'message' => __('services.incorrect_credentials'),
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_UNAUTHORIZED
                 ];
@@ -115,7 +115,7 @@ class AdminService implements AdminInterface
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
-                'message' => 'Something went wrong.',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
@@ -165,7 +165,7 @@ class AdminService implements AdminInterface
             ];
             
             return [
-                'message' => 'Signup is successful',
+                'message' => __('services.signup_successful'),
                 'payload' => [
                     'admin' => $this->guard()->user(),
                     'token' => $tokenDetails
@@ -175,7 +175,7 @@ class AdminService implements AdminInterface
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
-                'message' => 'Something went wrong.',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
@@ -193,14 +193,14 @@ class AdminService implements AdminInterface
         try {
             $admin = $this->model->create($data);
             return [
-                'message' => 'Successfully created.',
+                'message' => __('services.successfully_created'),
                 'payload' => $admin,
                 'status' => CoreConstants::STATUS_CODE_SUCCESS
             ];
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
-                'message' => 'Something went wrong.',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
@@ -241,7 +241,7 @@ class AdminService implements AdminInterface
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
-                'message' => 'Something went wrong.',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
@@ -262,13 +262,13 @@ class AdminService implements AdminInterface
             
             if ($data) {
                 return [
-                    'message' => 'Admin found.',
+                    'message' => __('services.admin_found'),
                     'payload' => $data,
                     'status' => CoreConstants::STATUS_CODE_SUCCESS
                 ];
             } else {
                 return [
-                    'message' => 'Found no admin with that email address.',
+                    'message' => __('services.admin_not_found'),
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_NOT_FOUND
                 ];
@@ -276,7 +276,7 @@ class AdminService implements AdminInterface
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
-                'message' => 'Something went wrong.',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
@@ -302,7 +302,7 @@ class AdminService implements AdminInterface
         $admin->notify(new AdminResetPasswordNotification($token));
 
         return [
-            'message' => 'We have emailed your password reset link!',
+            'message' => __('services.password_reset_email_sent'),
             'payload' => null,
             'status' => CoreConstants::STATUS_CODE_SUCCESS
         ];
@@ -335,7 +335,7 @@ class AdminService implements AdminInterface
         AdminPasswordResets::where('email', $email)->delete();
 
         return [
-            'message' => 'Token is deleted successfully.',
+            'message' => __('services.token_deleted_successfully'),
             'payload' => null,
             'status' => CoreConstants::STATUS_CODE_SUCCESS
         ];
@@ -357,7 +357,7 @@ class AdminService implements AdminInterface
         ]);
 
         return [
-            'message' => 'Successfully created.',
+            'message' => __('services.successfully_created'),
             'payload' => $token,
             'status' => CoreConstants::STATUS_CODE_SUCCESS
         ];
@@ -409,7 +409,7 @@ class AdminService implements AdminInterface
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
-                'message' => 'Something went wrong.',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
@@ -429,7 +429,7 @@ class AdminService implements AdminInterface
         $admin->save();
 
         return [
-            'message' => 'Your password has been reset!',
+            'message' => __('services.password_reset_successfully'),
             'payload' => $admin,
             'status' => CoreConstants::STATUS_CODE_SUCCESS
         ];
@@ -451,13 +451,13 @@ class AdminService implements AdminInterface
 
         if ($data) {
             return [
-                'message' => 'Token found.',
+                'message' => __('services.token_found'),
                 'payload' => $data,
                 'status' => CoreConstants::STATUS_CODE_SUCCESS
             ];
         } else {
             return [
-                'message' => 'Invalid password reset token. Please try again',
+                'message' => __('services.invalid_password_reset_token'),
                 'payload' => null,
                 'status' => CoreConstants::STATUS_CODE_NOT_FOUND
             ];
@@ -474,7 +474,7 @@ class AdminService implements AdminInterface
         $me = $this->guard()->user();
 
         return [
-            'message' => 'Admin found',
+            'message' => __('services.admin_found'),
             'payload' => $me,
             'status' => CoreConstants::STATUS_CODE_SUCCESS
         ];
@@ -497,7 +497,7 @@ class AdminService implements AdminInterface
             ];
 
             return [
-                'message' => 'Token refreshed',
+                'message' => __('services.token_refreshed'),
                 'payload' => $tokenDetails,
                 'status' => CoreConstants::STATUS_CODE_SUCCESS
             ];
@@ -506,26 +506,26 @@ class AdminService implements AdminInterface
 
             if ($th instanceof \Tymon\JWTAuth\Exceptions\TokenBlacklistedException) {
                 return [
-                    'message' => 'Token is Blacklisted',
+                    'message' => __('services.token_blacklisted'),
                     'payload' => CoreConstants::TOKEN_BLACKLISTED,
                     'status' => CoreConstants::STATUS_CODE_ERROR
                 ];
             } elseif ($th instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
                 return [
-                    'message' => 'Token is Expired',
+                    'message' => __('services.token_expired'),
                     'payload' => CoreConstants::TOKEN_EXPIRED,
                     'status' => CoreConstants::STATUS_CODE_ERROR
                 ];
             } elseif ($th instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
                 return [
-                    'message' => 'Token is Invalid',
+                    'message' => __('services.token_invalid'),
                     'payload' => CoreConstants::TOKEN_INVALID,
                     'status' => CoreConstants::STATUS_CODE_ERROR
                 ];
             }
 
             return [
-                'message' => 'Something went wrong.',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
@@ -569,7 +569,7 @@ class AdminService implements AdminInterface
             ]);
 
             return [
-                'message' => 'Credential is successfully updated',
+                'message' => __('services.credentials_updated_successfully'),
                 'payload' => $admin,
                 'status' => CoreConstants::STATUS_CODE_SUCCESS
             ];
@@ -603,7 +603,7 @@ class AdminService implements AdminInterface
                 ];
             } else {
                 return [
-                    'message' => 'No result is found',
+                    'message' => 'Результат не найден',
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_NOT_FOUND
                 ];
@@ -787,7 +787,7 @@ class AdminService implements AdminInterface
             }
 
             return [
-                'message' => 'Stats are fetched Successfully',
+                'message' => __('services.stats_fetched_successfully'),
                 'payload' => $data,
                 'status'  => CoreConstants::STATUS_CODE_SUCCESS
             ];

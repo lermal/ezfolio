@@ -105,7 +105,7 @@ class FrontendService implements FrontendInterface
 
             if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
                 return [
-                    'message' => 'Projects are fetched successfully',
+                    'message' => __('services.projects_fetched_successfully'),
                     'payload' => $result['payload'],
                     'status' => CoreConstants::STATUS_CODE_SUCCESS
                 ];

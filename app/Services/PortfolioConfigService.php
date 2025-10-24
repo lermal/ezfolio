@@ -103,13 +103,13 @@ class PortfolioConfigService implements PortfolioConfigInterface
                         ->first();
             if ($result) {
                 return [
-                    'message' => 'Config is fetched successfully',
+                    'message' => __('services.config_fetched_successfully'),
                     'payload' => $result,
                     'status' => CoreConstants::STATUS_CODE_SUCCESS
                 ];
             } else {
                 return [
-                    'message' => 'Config is not found',
+                    'message' => __('services.config_not_found'),
                     'payload' => null,
                     'status'  => CoreConstants::STATUS_CODE_NOT_FOUND
                 ];
@@ -303,7 +303,7 @@ class PortfolioConfigService implements PortfolioConfigInterface
             }
 
             return [
-                'message' => 'Configs are fetched successfully',
+                'message' => __('services.configs_fetched_successfully'),
                 'payload' => $data,
                 'status' => CoreConstants::STATUS_CODE_SUCCESS
             ];
@@ -345,7 +345,7 @@ class PortfolioConfigService implements PortfolioConfigInterface
             
             if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
                 return [
-                    'message' => 'Config is successfully updated',
+                    'message' => __('services.config_updated_successfully'),
                     'payload' => $result['payload'],
                     'status' => CoreConstants::STATUS_CODE_SUCCESS
                 ];
@@ -470,7 +470,7 @@ class PortfolioConfigService implements PortfolioConfigInterface
             }
             if ($count) {
                 return [
-                    'message' => 'SEO info is successfully saved',
+                    'message' => __('services.seo_info_saved_successfully'),
                     'payload' => [
                         'count' => $count,
                         'inserted' => $inserted
@@ -479,7 +479,7 @@ class PortfolioConfigService implements PortfolioConfigInterface
                 ];
             } else {
                 return [
-                    'message' => 'Nothing is updated',
+                    'message' => __('services.nothing_is_updated'),
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_ERROR
                 ];

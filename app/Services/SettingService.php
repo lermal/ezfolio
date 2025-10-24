@@ -72,7 +72,7 @@ class SettingService implements SettingInterface
 
             if ($result) {
                 return [
-                    'message' => 'Data is saved successfully',
+                    'message' => __('services.data_saved_successfully'),
                     'payload' => $result,
                     'status' => CoreConstants::STATUS_CODE_SUCCESS
                 ];
@@ -110,13 +110,13 @@ class SettingService implements SettingInterface
 
             if ($result) {
                 return [
-                    'message' => 'Setting is fetched successfully',
+                    'message' => __('services.setting_fetched_successfully'),
                     'payload' => $result,
                     'status' => CoreConstants::STATUS_CODE_SUCCESS
                 ];
             } else {
                 return [
-                    'message' => 'Setting is not found',
+                    'message' => __('services.setting_not_found'),
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_NOT_FOUND
                 ];
@@ -239,7 +239,7 @@ class SettingService implements SettingInterface
             $data['demoMode'] = Config::get('custom.demo_mode');
             
             return [
-                'message' => 'Settings are fetched successfully',
+                'message' => __('services.settings_fetched_successfully'),
                 'payload' => $data,
                 'status' => CoreConstants::STATUS_CODE_SUCCESS
             ];
@@ -308,7 +308,7 @@ class SettingService implements SettingInterface
             $file = DotenvEditor::save();
             if ($file) {
                 return [
-                    'message' => 'Site name is successfully updated',
+                    'message' => __('services.site_name_updated_successfully'),
                     'payload' => $newName,
                     'status' => CoreConstants::STATUS_CODE_SUCCESS
                 ];

@@ -72,7 +72,7 @@ class AdminController extends Controller
         
         if ($request->ajax() || $request->wantsJson()) {
             return response([
-                'message' => 'App is optimized successfully',
+                'message' => __('controllers.app_optimized_successfully'),
                 'payload' => null,
                 'status'  => CoreConstants::STATUS_CODE_SUCCESS
             ]);

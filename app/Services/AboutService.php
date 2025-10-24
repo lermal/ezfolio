@@ -42,13 +42,13 @@ class AboutService implements AboutInterface
 
             if ($result) {
                 return [
-                    'message' => 'Data is fetched successfully',
+                    'message' => __('services.data_fetched_successfully'),
                     'payload' => $result,
                     'status' => CoreConstants::STATUS_CODE_SUCCESS
                 ];
             } else {
                 return [
-                    'message' => 'No result found',
+                    'message' => __('services.no_result_found'),
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_NOT_FOUND
                 ];
@@ -56,7 +56,7 @@ class AboutService implements AboutInterface
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
-                'message' => 'Something went wrong',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
@@ -79,7 +79,7 @@ class AboutService implements AboutInterface
 
             if ($validate->fails()) {
                 return [
-                    'message' => 'Bad Request',
+                    'message' => __('services.bad_request'),
                     'payload' => $validate->errors(),
                     'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
                 ];
@@ -128,13 +128,13 @@ class AboutService implements AboutInterface
 
             if ($result) {
                 return [
-                    'message' => 'Data is successfully updated',
+                    'message' => __('services.data_updated_successfully'),
                     'payload' => $result,
                     'status' => CoreConstants::STATUS_CODE_SUCCESS
                 ];
             } else {
                 return [
-                    'message' => 'Something went wrong',
+                    'message' => __('services.something_went_wrong'),
                     'payload' => null,
                     'status'  => CoreConstants::STATUS_CODE_ERROR
                 ];
@@ -142,7 +142,7 @@ class AboutService implements AboutInterface
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
-                'message' => 'Something went wrong',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
@@ -164,7 +164,7 @@ class AboutService implements AboutInterface
 
             if ($validate->fails()) {
                 return [
-                    'message' => 'Bad Request',
+                    'message' => __('services.bad_request'),
                     'payload' => $validate->errors(),
                     'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
                 ];
@@ -198,7 +198,7 @@ class AboutService implements AboutInterface
 
                 if ($updateResponse) {
                     return [
-                        'message' => 'Avatar is successfully saved',
+                        'message' => __('services.avatar_saved_successfully'),
                         'payload' => [
                             'file' => $pathName.$fileName
                         ],
@@ -206,14 +206,14 @@ class AboutService implements AboutInterface
                     ];
                 } else {
                     return [
-                        'message' => 'Something went wrong',
+                        'message' => __('services.something_went_wrong'),
                         'payload' => null,
                         'status' => CoreConstants::STATUS_CODE_ERROR
                     ];
                 }
             } else {
                 return [
-                    'message' => 'File could not be saved',
+                    'message' => __('services.file_could_not_be_saved'),
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_ERROR
                 ];
@@ -221,7 +221,7 @@ class AboutService implements AboutInterface
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
-                'message' => 'Something went wrong',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
@@ -239,7 +239,7 @@ class AboutService implements AboutInterface
         try {
             if (!file_exists($file)) {
                 return [
-                    'message' => 'The file can\'t be found',
+                    'message' => __('services.file_not_found'),
                     'payload' => $file,
                     'status' => CoreConstants::STATUS_CODE_NOT_FOUND
                 ];
@@ -261,7 +261,7 @@ class AboutService implements AboutInterface
 
                 if ($updateResponse) {
                     return [
-                        'message' => 'File is deleted successfully',
+                        'message' => __('services.file_deleted_successfully'),
                         'payload' => [
                             'file' => $defaultAvatar
                         ],
@@ -269,14 +269,14 @@ class AboutService implements AboutInterface
                     ];
                 } else {
                     return [
-                        'message' => 'Something went wrong',
+                        'message' => __('services.something_went_wrong'),
                         'payload' => null,
                         'status' => CoreConstants::STATUS_CODE_ERROR
                     ];
                 }
             } else {
                 return [
-                    'message' => 'File could not be deleted',
+                    'message' => __('services.file_could_not_be_deleted'),
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_ERROR
                 ];
@@ -284,7 +284,7 @@ class AboutService implements AboutInterface
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
-                'message' => 'Something went wrong',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
@@ -306,7 +306,7 @@ class AboutService implements AboutInterface
 
             if ($validate->fails()) {
                 return [
-                    'message' => 'Bad Request',
+                    'message' => __('services.bad_request'),
                     'payload' => $validate->errors(),
                     'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
                 ];
@@ -340,7 +340,7 @@ class AboutService implements AboutInterface
 
                 if ($updateResponse) {
                     return [
-                        'message' => 'cover is successfully saved',
+                        'message' => __('services.cover_saved_successfully'),
                         'payload' => [
                             'file' => $pathName.$fileName
                         ],
@@ -348,14 +348,14 @@ class AboutService implements AboutInterface
                     ];
                 } else {
                     return [
-                        'message' => 'Something went wrong',
+                        'message' => __('services.something_went_wrong'),
                         'payload' => null,
                         'status' => CoreConstants::STATUS_CODE_ERROR
                     ];
                 }
             } else {
                 return [
-                    'message' => 'File could not be saved',
+                    'message' => __('services.file_could_not_be_saved'),
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_ERROR
                 ];
@@ -363,7 +363,7 @@ class AboutService implements AboutInterface
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
-                'message' => 'Something went wrong',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
@@ -381,7 +381,7 @@ class AboutService implements AboutInterface
         try {
             if (!file_exists($file)) {
                 return [
-                    'message' => 'The file can\'t be found',
+                    'message' => __('services.file_not_found'),
                     'payload' => $file,
                     'status' => CoreConstants::STATUS_CODE_NOT_FOUND
                 ];
@@ -403,7 +403,7 @@ class AboutService implements AboutInterface
 
                 if ($updateResponse) {
                     return [
-                        'message' => 'File is deleted successfully',
+                        'message' => __('services.file_deleted_successfully'),
                         'payload' => [
                             'file' => $defaultCover
                         ],
@@ -411,14 +411,14 @@ class AboutService implements AboutInterface
                     ];
                 } else {
                     return [
-                        'message' => 'Something went wrong',
+                        'message' => __('services.something_went_wrong'),
                         'payload' => null,
                         'status' => CoreConstants::STATUS_CODE_ERROR
                     ];
                 }
             } else {
                 return [
-                    'message' => 'File could not be deleted',
+                    'message' => __('services.file_could_not_be_deleted'),
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_ERROR
                 ];
@@ -426,7 +426,7 @@ class AboutService implements AboutInterface
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
-                'message' => 'Something went wrong',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
@@ -448,7 +448,7 @@ class AboutService implements AboutInterface
 
             if ($validate->fails()) {
                 return [
-                    'message' => 'Bad Request',
+                    'message' => __('services.bad_request'),
                     'payload' => $validate->errors(),
                     'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
                 ];
@@ -482,7 +482,7 @@ class AboutService implements AboutInterface
                 
                 if ($updateResponse) {
                     return [
-                        'message' => 'CV is successfully saved',
+                        'message' => __('services.cv_saved_successfully'),
                         'payload' => [
                             'file' => $pathName.$fileName
                         ],
@@ -490,14 +490,14 @@ class AboutService implements AboutInterface
                     ];
                 } else {
                     return [
-                        'message' => 'Something went wrong',
+                        'message' => __('services.something_went_wrong'),
                         'payload' => null,
                         'status' => CoreConstants::STATUS_CODE_ERROR
                     ];
                 }
             } else {
                 return [
-                    'message' => 'File could not be saved',
+                    'message' => __('services.file_could_not_be_saved'),
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_ERROR
                 ];
@@ -505,7 +505,7 @@ class AboutService implements AboutInterface
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
-                'message' => 'Something went wrong',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
@@ -523,7 +523,7 @@ class AboutService implements AboutInterface
         try {
             if (!file_exists($file)) {
                 return [
-                    'message' => 'The file can\'t be found',
+                    'message' => __('services.file_not_found'),
                     'payload' => $file,
                     'status' => CoreConstants::STATUS_CODE_NOT_FOUND
                 ];
@@ -543,7 +543,7 @@ class AboutService implements AboutInterface
 
                 if ($updateResponse) {
                     return [
-                        'message' => 'File is deleted successfully',
+                        'message' => __('services.file_deleted_successfully'),
                         'payload' => [
                             'file' => null
                         ],
@@ -551,14 +551,14 @@ class AboutService implements AboutInterface
                     ];
                 } else {
                     return [
-                        'message'  => 'Something went wrong',
+                        'message'  => __('services.something_went_wrong'),
                         'payload' => null,
                         'status'  => CoreConstants::STATUS_CODE_ERROR
                     ];
                 }
             } else {
                 return [
-                    'message'  => 'File could not be deleted',
+                    'message'  => __('services.file_could_not_be_deleted'),
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_ERROR
                 ];
@@ -566,7 +566,7 @@ class AboutService implements AboutInterface
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
-                'message' => 'Something went wrong',
+                'message' => __('services.something_went_wrong'),
                 'payload' => $th->getMessage(),
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
