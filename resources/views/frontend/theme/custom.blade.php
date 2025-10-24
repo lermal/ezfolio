@@ -150,7 +150,7 @@
             <div class="row min-vh-100 align-items-center">
                 <div class="col-lg-8 mx-auto text-center text-white">
                     <div class="hero-content" data-aos="fade-up">
-                        <h1 class="display-4 fw-bold mb-4">{{$about->name}}</h1>
+                        <h1 class="display-4 fw-bold mb-4" style="color: var(--accent-color);">{{$about->name}}</h1>
                         <p class="lead mb-4">
                             <span id="typed-strings"></span>
                         </p>
