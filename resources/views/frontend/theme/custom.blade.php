@@ -159,11 +159,6 @@
                                 <i class="fas fa-download me-2"></i>{{__('custom.info.download_cv')}}
                             </a>
                         @endif
-                        <div class="scroll-indicator">
-                            <a href="#about" class="scroll-down">
-                                <i class="fas fa-chevron-down"></i>
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -193,27 +188,27 @@
                         <div class="about-info">
                             <div class="info-item">
                                 <i class="fas fa-user text-primary me-3"></i>
-                                <span class="fw-bold">{{__('custom.info.name')}}:</span>
+                                <span class="fw-bold">{{__('custom.info.name')}}: </span>
                                 <span>{{ $about->name }}</span>
                             </div>
                             @if ($about->email && $about->email !== '')
                             <div class="info-item">
                                 <i class="fas fa-envelope text-primary me-3"></i>
-                                <span class="fw-bold">{{__('custom.info.email')}}:</span>
+                                <span class="fw-bold">{{__('custom.info.email')}}: </span>
                                 <span>{{$about->email}}</span>
                             </div>
                             @endif
                             @if ($about->phone && $about->phone !== '')
                             <div class="info-item">
                                 <i class="fas fa-phone text-primary me-3"></i>
-                                <span class="fw-bold">{{__('custom.info.phone')}}:</span>
+                                <span class="fw-bold">{{__('custom.info.phone')}}: </span>
                                 <span>{{$about->phone}}</span>
                             </div>
                             @endif
                             @if ($about->address && $about->address !== '')
                             <div class="info-item">
                                 <i class="fas fa-map-marker-alt text-primary me-3"></i>
-                                <span class="fw-bold">{{__('custom.info.address')}}:</span>
+                                <span class="fw-bold">{{__('custom.info.address')}}: </span>
                                 <span>{{$about->address}}</span>
                             </div>
                             @endif
