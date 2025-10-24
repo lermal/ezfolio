@@ -1,0 +1,401 @@
+/* Custom Theme - Additional Styles */
+
+/* Custom Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Custom Components */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, var(--accent-color), #667eea);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.floating {
+    animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* Enhanced Cards */
+.card-hover {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.card-hover:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+/* Custom Badges */
+.badge-custom {
+    background: linear-gradient(135deg, var(--accent-color), rgba(var(--accent-color-rgb), 0.8));
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Loading States */
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Custom Form Elements */
+.form-floating-custom {
+    position: relative;
+}
+
+.form-floating-custom input,
+.form-floating-custom textarea {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 1rem 1rem 0.5rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.form-floating-custom label {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    color: #6c757d;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.form-floating-custom input:focus,
+.form-floating-custom textarea:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--accent-color-rgb), 0.25);
+}
+
+.form-floating-custom input:focus + label,
+.form-floating-custom textarea:focus + label,
+.form-floating-custom input:not(:placeholder-shown) + label,
+.form-floating-custom textarea:not(:placeholder-shown) + label {
+    top: 0.25rem;
+    left: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--accent-color);
+    background: white;
+    padding: 0 0.25rem;
+}
+
+/* Custom Progress Bars */
+.progress-custom {
+    height: 12px;
+    border-radius: 6px;
+    background: #e9ecef;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-custom .progress-bar {
+    background: linear-gradient(90deg, var(--accent-color), rgba(var(--accent-color-rgb), 0.8));
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-custom .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: progress-shine 2s infinite;
+}
+
+@keyframes progress-shine {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Custom Tabs */
+.tabs-custom .nav-tabs {
+    border-bottom: 2px solid #e9ecef;
+}
+
+.tabs-custom .nav-tabs .nav-link {
+    border: none;
+    border-radius: 10px 10px 0 0;
+    margin-right: 0.5rem;
+    padding: 1rem 1.5rem;
+    color: #6c757d;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.tabs-custom .nav-tabs .nav-link:hover {
+    border-color: transparent;
+    color: var(--accent-color);
+    background: rgba(var(--accent-color-rgb), 0.1);
+}
+
+.tabs-custom .nav-tabs .nav-link.active {
+    color: var(--accent-color);
+    background: white;
+    border-bottom: 2px solid var(--accent-color);
+}
+
+/* Custom Alerts */
+.alert-custom {
+    border: none;
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.alert-custom::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent-color);
+}
+
+.alert-success-custom {
+    background: rgba(40, 167, 69, 0.1);
+    color: #155724;
+}
+
+.alert-danger-custom {
+    background: rgba(220, 53, 69, 0.1);
+    color: #721c24;
+}
+
+.alert-warning-custom {
+    background: rgba(255, 193, 7, 0.1);
+    color: #856404;
+}
+
+.alert-info-custom {
+    background: rgba(23, 162, 184, 0.1);
+    color: #0c5460;
+}
+
+/* Custom Tooltips */
+.tooltip-custom {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-custom .tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 0.5rem;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.875rem;
+}
+
+.tooltip-custom .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+.tooltip-custom:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .dark-mode {
+        background-color: #1a1a1a;
+        color: #e9ecef;
+    }
+    
+    .dark-mode .card,
+    .dark-mode .service-card,
+    .dark-mode .resume-item,
+    .dark-mode .skill-item,
+    .dark-mode .contact-form {
+        background-color: #2d2d2d;
+        color: #e9ecef;
+    }
+    
+    .dark-mode .form-control {
+        background-color: #2d2d2d;
+        border-color: #495057;
+        color: #e9ecef;
+    }
+    
+    .dark-mode .form-control:focus {
+        background-color: #2d2d2d;
+        border-color: var(--accent-color);
+        color: #e9ecef;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .navbar,
+    .scroll-indicator,
+    .social-links,
+    .btn,
+    .contact-form {
+        display: none !important;
+    }
+    
+    .hero-section {
+        min-height: auto;
+        page-break-after: always;
+    }
+    
+    .section-title {
+        color: #000 !important;
+    }
+    
+    .resume-item,
+    .service-card,
+    .skill-item {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        page-break-inside: avoid;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .btn-primary {
+        background: #000;
+        border-color: #000;
+    }
+    
+    .btn-primary:hover {
+        background: #333;
+        border-color: #333;
+    }
+    
+    .form-control:focus {
+        border-color: #000;
+        box-shadow: 0 0 0 0.2rem rgba(0,0,0,0.25);
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .floating,
+    .bounce,
+    .pulse {
+        animation: none !important;
+    }
+}
