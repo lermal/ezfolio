@@ -521,16 +521,7 @@
                 @endif
             }
 
-            // Smooth scrolling for main navigation links only (not tab links)
-            $('a[href^="#"]:not(.resume-nav a)').on('click', function(event) {
-                var target = $(this.getAttribute('href'));
-                if (target.length) {
-                    event.preventDefault();
-                    $('html, body').stop().animate({
-                        scrollTop: target.offset().top - 80
-                    }, 1000);
-                }
-            });
+            // Smooth scrolling is handled by main.js
 
             // Contact form validation
             $('#contact-me-form').validate({

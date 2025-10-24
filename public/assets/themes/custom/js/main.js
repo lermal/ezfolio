@@ -171,7 +171,7 @@
 
     // Smooth scrolling
     function initSmoothScroll() {
-        $('a[href^="#"]').on('click', function(e) {
+        $('a[href^="#"]:not(.resume-nav a)').on('click', function(e) {
             const target = $(this.getAttribute('href'));
             
             if (target.length) {
