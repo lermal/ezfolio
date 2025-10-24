@@ -77,7 +77,8 @@ const ProjectPopup = (props) => {
                                         <Image
                                             src={Utils.backend + '/' + image}
                                             preview={{
-                                                mask: <div style={{color: 'white'}}>{props.translations?.preview || 'Просмотр'}</div>
+                                                mask: <div style={{color: 'white'}}>{props.translations?.preview || 'Просмотр'}</div>,
+                                                zIndex: 99999999
                                             }}
                                             width='100%'
                                             placeholder={true}

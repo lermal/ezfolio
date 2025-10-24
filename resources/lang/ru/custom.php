@@ -91,6 +91,7 @@ return [
         'link' => 'Ссылка',
         'close' => 'Закрыть',
         'preview' => 'Просмотр',
+        'description' => 'Описание',
     ],
 
     // Common

@@ -403,6 +403,7 @@
                     'link' => __('custom.projects.link'),
                     'close' => __('custom.projects.close'),
                     'preview' => __('custom.projects.preview'),
+                    'description' => __('custom.projects.description'),
                 ]) }}"
             />
         </div>
