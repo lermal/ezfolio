@@ -15,7 +15,6 @@ const thumbnailStyle = {
     height: '150px',
     width: '100%',
     transition: '0.3s ease',
-    // filter: 'opacity(0.8)',
     objectFit: 'cover'
 }
 
@@ -142,7 +141,7 @@ function App() {
                                                 className={'z-hover z-shadow'}
                                                 bordered={false}
                                                 cover={
-                                                    <div style={{opacity: '0.7'}}>
+                                                    <div>
                                                         <Image
                                                             width='100%'
                                                             src={Utils.backend + '/' + item.thumbnail}
