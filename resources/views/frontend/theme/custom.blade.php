@@ -445,7 +445,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-12 text-center">
-                    <h5 class="mb-3">{{$about->name}}</h5>
+                    <h5 class="mb-3" style="color: var(--accent-color);">{{$about->name}}</h5>
                     <p class="mb-0">©{{ now()->year }} {{__('custom.footer.all_rights_reserved')}}</p>
                 </div>
             </div>
