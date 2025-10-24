@@ -9,6 +9,7 @@ import Utils from '../../common/helpers/Utils';
 
 const accentColor = document.querySelector('[data-accentcolor]') ? document.querySelector('[data-accentcolor]').dataset.accentcolor : null;
 const demoMode = document.querySelector('[data-demomode]') ? document.querySelector('[data-demomode]').dataset.demomode : false;
+const translations = document.querySelector('[data-translations]') ? JSON.parse(document.querySelector('[data-translations]').dataset.translations) : {};
 
 const thumbnailStyle = {
     height: '150px',
@@ -104,7 +105,7 @@ function App() {
                                                 setSelectedCategory(e.target.value);
                                             }
                                         }}>
-                                            <Radio.Button>All</Radio.Button>
+                                            <Radio.Button>{translations.all || 'All'}</Radio.Button>
                                             {
                                                 categories.map((category, index) => (
                                                     <Radio.Button key={index} value={category} style={{textTransform: 'capitalize'}}>{category}</Radio.Button>
@@ -153,7 +154,7 @@ function App() {
                                                 }
                                                 actions={[
                                                     <React.Fragment key="view">
-                                                        See Details
+                                                        {translations.see_details || 'See Details'}
                                                     </React.Fragment>
                                                 ]}
                                             >
@@ -175,6 +176,7 @@ function App() {
                         title={selectedProject ? selectedProject.title : ''}
                         project={selectedProject}
                         visible={modalVisible}
+                        translations={translations}
                         handleCancel={
                             () => {
                                 setModalVisible(false);

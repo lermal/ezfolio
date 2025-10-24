@@ -84,6 +84,13 @@ return [
         'technologies' => 'Технологии',
         'demo' => 'Демо',
         'source' => 'Исходный код',
+        'all' => 'Все',
+        'see_details' => 'Подробнее',
+        'images' => 'Изображения',
+        'category' => 'Категория',
+        'link' => 'Ссылка',
+        'close' => 'Закрыть',
+        'preview' => 'Просмотр',
     ],
 
     // Common

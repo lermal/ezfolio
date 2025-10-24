@@ -61,13 +61,13 @@ const ProjectPopup = (props) => {
                     }}
                 >
                     <Button disabled={componentLoading} onClick={handleClose} style={{ marginRight: 8 }}>
-                        Close
+                        {props.translations?.close || 'Close'}
                     </Button>
                 </div>
             }
         >
             <Spin spinning={componentLoading} size="large" delay={500}>
-                <StyledTitle>Images</StyledTitle>
+                <StyledTitle>{props.translations?.images || 'Images'}</StyledTitle>
                 <Row>
                     <Col span={24}>
                         <Carousel autoplay pauseOnHover={false}>
@@ -76,7 +76,9 @@ const ProjectPopup = (props) => {
                                     <div key={index}>
                                         <Image
                                             src={Utils.backend + '/' + image}
-                                            preview={false}
+                                            preview={{
+                                                mask: <div style={{color: 'white'}}>{props.translations?.preview || 'Просмотр'}</div>
+                                            }}
                                             width='100%'
                                             placeholder={true}
                                             style={{
@@ -92,7 +94,7 @@ const ProjectPopup = (props) => {
                     </Col>
                 </Row>
                 <Divider />
-                <StyledTitle>Category</StyledTitle>
+                <StyledTitle>{props.translations?.category || 'Category'}</StyledTitle>
                 <Row>
                     <Col span={24}>
                         {
@@ -106,7 +108,7 @@ const ProjectPopup = (props) => {
                     (props.project.details !== null) && props.project.details !== '' && (
                         <React.Fragment>
                             <Divider/>
-                            <StyledTitle>Description</StyledTitle>
+                            <StyledTitle>{props.translations?.description || 'Description'}</StyledTitle>
                             <Row>
                                 <Col span={24}>
                                     {props.project.details}
@@ -119,7 +121,7 @@ const ProjectPopup = (props) => {
                     props.project.link && props.project.link !== '' && (
                         <React.Fragment>
                             <Divider/>
-                            <StyledTitle>Link</StyledTitle>
+                            <StyledTitle>{props.translations?.link || 'Link'}</StyledTitle>
                             <Row>
                                 <Col span={24}>
                                     <a href={props.project.link} target="_blank" rel="noreferrer">
@@ -141,6 +143,7 @@ ProjectPopup.propTypes = {
     project: PropTypes.object,
     componentLoading: PropTypes.bool,
     title: PropTypes.node,
+    translations: PropTypes.object,
 }
 
 export default ProjectPopup;

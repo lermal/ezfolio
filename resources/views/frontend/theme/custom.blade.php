@@ -395,6 +395,15 @@
                 id="react-project-root" 
                 data-accentcolor="{{$accentColor}}" 
                 data-demomode="{{$demoMode}}"
+                data-translations="{{ json_encode([
+                    'all' => __('custom.projects.all'),
+                    'see_details' => __('custom.projects.see_details'),
+                    'images' => __('custom.projects.images'),
+                    'category' => __('custom.projects.category'),
+                    'link' => __('custom.projects.link'),
+                    'close' => __('custom.projects.close'),
+                    'preview' => __('custom.projects.preview'),
+                ]) }}"
             />
         </div>
     </section>
