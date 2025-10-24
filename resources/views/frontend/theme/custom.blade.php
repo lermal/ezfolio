@@ -159,6 +159,11 @@
                                 <i class="fas fa-download me-2"></i>{{__('custom.info.download_cv')}}
                             </a>
                         @endif
+                        <div class="scroll-indicator">
+                            <a href="#about" class="scroll-down">
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -288,7 +293,7 @@
                                     <div class="resume-item mb-4">
                                         <div class="resume-item-header">
                                             <h4>{{$value->degree}}</h4>
-                                            <span class="badge bg-primary">{{$value->period}}</span>
+                                            <span class="badge">{{$value->period}}</span>
                                         </div>
                                         <h5 class="text-muted">{{$value->institution}}</h5>
                                         @if ($value->cgpa && $value->cgpa !== '')
@@ -311,7 +316,7 @@
                                     <div class="resume-item mb-4">
                                         <div class="resume-item-header">
                                             <h4>{{$experience->position}}</h4>
-                                            <span class="badge bg-primary">{{$experience->period}}</span>
+                                            <span class="badge">{{$experience->period}}</span>
                                         </div>
                                         <h5 class="text-muted">{{$experience->company}}</h5>
                                         <p>{{$experience->details}}</p>
