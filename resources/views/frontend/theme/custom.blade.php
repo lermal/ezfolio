@@ -32,6 +32,9 @@
     <title>{{$about->name}}</title>
     <link rel="shortcut icon" type="image/x-icon" href="{{ Utils::getFavicon() }}">
 
+    <!-- Bootstrap CSS -->
+    <link href="{{ asset('assets/common/lib/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -452,17 +455,33 @@
 
     <!-- Scripts -->
     <script src="{{ asset('assets/common/lib/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('assets/common/lib/jquery-migrate/jquery-migrate.min.js') }}"></script>
     <script src="{{ asset('assets/common/lib/bootstrap/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('assets/common/lib/jquery.easing/jquery.easing.min.js') }}"></script>
     <script src="{{ asset('assets/common/lib/typed/typed.js') }}"></script>
     <script src="{{ asset('assets/common/lib/iziToast/js/iziToast.min.js') }}"></script>
     <script src="{{ asset('assets/common/lib/jquery-validation/jquery.validate.min.js') }}"></script>
     <script src="{{ asset('assets/common/lib/aos/aos.js') }}"></script>
+    <script src="{{ asset('assets/common/lib/jquery.lazy/jquery.lazy.min.js') }}"></script>
     <script src="{{ asset('assets/themes/custom/js/main.js') }}"></script>
     <script src="{{ asset('js/client/frontend/roots/projects.js') }}"></script>
     
     <script>
-        $(function() {
+        $(document).ready(function() {
+            // Hide preloader
+            setTimeout(function() {
+                if ($('#szn-preloader').length) {
+                    $('#szn-preloader').fadeOut('slow', function() {
+                        $(this).remove();
+                    });
+                }
+            }, 500);
+
+            // Initialize lazy loading
+            if (typeof $.fn.lazy !== 'undefined') {
+                $('.lazy').lazy();
+            }
+
             // Initialize AOS
             AOS.init({
                 duration: 1000,
@@ -555,6 +574,16 @@
                     icon: type === 'success' ? 'fas fa-check' : 'fas fa-times-circle'
                 });
             }
+        });
+
+        // Fallback to hide preloader if jQuery fails
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var preloader = document.getElementById('szn-preloader');
+                if (preloader) {
+                    preloader.style.display = 'none';
+                }
+            }, 1000);
         });
     </script>
     

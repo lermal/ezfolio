@@ -13,6 +13,7 @@
     });
 
     function initCustomTheme() {
+        hidePreloader();
         initNavbar();
         initScrollEffects();
         initAnimations();
@@ -21,6 +22,15 @@
         initFormValidation();
         initTooltips();
         initLazyLoading();
+    }
+
+    // Hide preloader
+    function hidePreloader() {
+        setTimeout(function() {
+            $('#szn-preloader').fadeOut('slow', function() {
+                $(this).remove();
+            });
+        }, 500);
     }
 
     // Navbar functionality
