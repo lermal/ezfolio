@@ -491,10 +491,6 @@
             // Initialize resume tabs
             $('.resume-nav .nav-link').on('click', function(e) {
                 e.preventDefault();
-                e.stopPropagation();
-                
-                // Store current scroll position
-                var currentScroll = window.scrollY;
                 
                 // Remove active class from all nav links
                 $('.resume-nav .nav-link').removeClass('active');
@@ -508,9 +504,6 @@
                 // Show target tab pane
                 var targetTab = $(this).attr('href');
                 $(targetTab).addClass('show active');
-                
-                // Restore scroll position
-                window.scrollTo(0, currentScroll);
                 
                 return false;
             });
@@ -528,8 +521,8 @@
                 @endif
             }
 
-            // Smooth scrolling for main navigation links only
-            $('.navbar-nav a[href^="#"]').on('click', function(event) {
+            // Smooth scrolling for main navigation links only (not tab links)
+            $('a[href^="#"]:not(.resume-nav a)').on('click', function(event) {
                 var target = $(this.getAttribute('href'));
                 if (target.length) {
                     event.preventDefault();

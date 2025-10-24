@@ -272,43 +272,8 @@ h1, h2, h3, h4, h5, h6 {
     display: block;
 }
 
-/* Prevent scroll behavior for tab links */
+/* Prevent scroll behavior for tab links only */
 .resume-nav a[href^="#"] {
-    scroll-behavior: auto;
-}
-
-/* Prevent scroll behavior for all pill toggles */
-a[data-bs-toggle="pill"] {
-    scroll-behavior: auto;
-}
-
-/* Prevent scroll behavior globally for tab links */
-a[href^="#"]:not(.navbar-nav a) {
-    scroll-behavior: auto;
-}
-
-/* Ensure smooth scrolling only for main navigation */
-.navbar-nav a[href^="#"] {
-    scroll-behavior: smooth;
-}
-
-/* Prevent any scroll behavior for tab navigation */
-.resume-nav {
-    scroll-behavior: auto;
-}
-
-/* Prevent scroll behavior for tab content */
-.tab-content {
-    scroll-behavior: auto;
-}
-
-/* Prevent scroll behavior for tab panes */
-.tab-pane {
-    scroll-behavior: auto;
-}
-
-/* Prevent scroll behavior for all elements with data-bs-toggle */
-[data-bs-toggle="pill"] {
     scroll-behavior: auto;
 }
 
