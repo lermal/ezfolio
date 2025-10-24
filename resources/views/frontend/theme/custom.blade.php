@@ -188,27 +188,27 @@
                         <div class="about-info">
                             <div class="info-item">
                                 <i class="fas fa-user text-primary me-3"></i>
-                                <span class="fw-bold">{{__('custom.info.name')}}:nbsp;</span>
+                                <span class="fw-bold">{{__('custom.info.name')}}:&#160;</span>
                                 <span>{{ $about->name }}</span>
                             </div>
                             @if ($about->email && $about->email !== '')
                             <div class="info-item">
                                 <i class="fas fa-envelope text-primary me-3"></i>
-                                <span class="fw-bold">{{__('custom.info.email')}}:nbsp;</span>
+                                <span class="fw-bold">{{__('custom.info.email')}}:&#160;</span>
                                 <span><a href="mailto:{{$about->email}}">{{$about->email}}</a></span>
                             </div>
                             @endif
                             @if ($about->phone && $about->phone !== '')
                             <div class="info-item">
                                 <i class="fas fa-phone text-primary me-3"></i>
-                                <span class="fw-bold">{{__('custom.info.phone')}}:nbsp;</span>
+                                <span class="fw-bold">{{__('custom.info.phone')}}:&#160;</span>
                                 <span><a href="tel:{{$about->phone}}">{{$about->phone}}</a></span>
                             </div>
                             @endif
                             @if ($about->address && $about->address !== '')
                             <div class="info-item">
                                 <i class="fas fa-map-marker-alt text-primary me-3"></i>
-                                <span class="fw-bold">{{__('custom.info.address')}}:nbsp;</span>
+                                <span class="fw-bold">{{__('custom.info.address')}}:&#160;</span>
                                 <span>{{$about->address}}</span>
                             </div>
                             @endif
