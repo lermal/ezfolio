@@ -256,21 +256,21 @@
                             @if ($portfolioConfig['visibility']['education'])
                             <li class="nav-item">
                                 <a class="nav-link active" data-bs-toggle="pill" href="#education-tab">
-                                    <i class="fas fa-graduation-cap me-2"></i>{{__('custom.sections.education')}}
+                                    <i class="fas fa-graduation-cap me-2"></i> {{__('custom.sections.education')}}
                                 </a>
                             </li>
                             @endif
                             @if ($portfolioConfig['visibility']['experiences'])
                             <li class="nav-item">
                                 <a class="nav-link" data-bs-toggle="pill" href="#experience-tab">
-                                    <i class="fas fa-briefcase me-2"></i>{{__('custom.sections.experience')}}
+                                    <i class="fas fa-briefcase me-2"></i> {{__('custom.sections.experience')}}
                                 </a>
                             </li>
                             @endif
                             @if ($portfolioConfig['visibility']['skills'])
                             <li class="nav-item">
                                 <a class="nav-link" data-bs-toggle="pill" href="#skills-tab">
-                                    <i class="fas fa-code me-2"></i>{{__('custom.sections.skills')}}
+                                    <i class="fas fa-code me-2"></i> {{__('custom.sections.skills')}}
                                 </a>
                             </li>
                             @endif
