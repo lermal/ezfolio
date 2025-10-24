@@ -1,4 +1,8 @@
 /* Custom Theme - Additional Styles */
+:root {
+    --z-accent-color: #0168fa;
+}
+
 
 /* Custom Animations */
 @keyframes fadeInUp {
