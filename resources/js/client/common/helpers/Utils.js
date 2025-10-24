@@ -169,6 +169,11 @@ const templates = [
         title: 'Vega',
         image: window.location.origin + '/' +'assets/common/img/templates/vega.png',
     },
+    {
+        id: 'custom',
+        title: 'Custom',
+        image: window.location.origin + '/' +'assets/common/img/templates/custom.png',
+    },
 ];
 
 /**
