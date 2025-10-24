@@ -235,11 +235,14 @@ h1, h2, h3, h4, h5, h6 {
     padding: 1rem 1.5rem;
     border: 2px solid transparent;
     transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
 }
 
 .resume-nav .nav-pills .nav-link.active {
     background: var(--accent-color);
     border-color: var(--accent-color);
+    color: white;
 }
 
 .resume-nav .nav-pills .nav-link:not(.active) {
@@ -251,6 +254,21 @@ h1, h2, h3, h4, h5, h6 {
 .resume-nav .nav-pills .nav-link:not(.active):hover {
     border-color: var(--accent-color);
     color: var(--accent-color);
+    background: rgba(var(--accent-color-rgb), 0.1);
+}
+
+/* Tab Content */
+.tab-content {
+    min-height: 400px;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.show,
+.tab-pane.active {
+    display: block;
 }
 
 .resume-item {

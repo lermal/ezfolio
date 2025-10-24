@@ -488,6 +488,24 @@
                 once: true
             });
 
+            // Initialize resume tabs
+            $('.resume-nav .nav-link').on('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all nav links
+                $('.resume-nav .nav-link').removeClass('active');
+                
+                // Add active class to clicked link
+                $(this).addClass('active');
+                
+                // Hide all tab panes
+                $('.tab-content .tab-pane').removeClass('show active');
+                
+                // Show target tab pane
+                var targetTab = $(this).attr('href');
+                $(targetTab).addClass('show active');
+            });
+
             // Typed.js for hero section
             if ($('#typed-strings').length) {
                 @if($about->taglines)
