@@ -83,21 +83,21 @@
             </button>
             <div class="collapse navbar-collapse" id="ftco-nav">
                 <ul class="navbar-nav nav ml-auto">
-                    <li class="nav-item"><a href="#home-section" class="nav-link"><span>Home</span></a></li>
+                    <li class="nav-item"><a href="#home-section" class="nav-link"><span>{{__('procyon.nav.home')}}</span></a></li>
                     @if ($portfolioConfig['visibility']['about'])
-                        <li class="nav-item"><a href="#about-section" class="nav-link"><span>About</span></a></li>
+                        <li class="nav-item"><a href="#about-section" class="nav-link"><span>{{__('procyon.nav.about')}}</span></a></li>
                     @endif
                     @if ($portfolioConfig['visibility']['experiences'] || $portfolioConfig['visibility']['education'] || $portfolioConfig['visibility']['skills'])
-                        <li class="nav-item"><a href="#resume-section" class="nav-link"><span>Resume</span></a></li>
+                        <li class="nav-item"><a href="#resume-section" class="nav-link"><span>{{__('procyon.nav.resume')}}</span></a></li>
                     @endif
                     @if ($portfolioConfig['visibility']['services'])
-                        <li class="nav-item"><a href="#services-section" class="nav-link"><span>Services</span></a></li>
+                        <li class="nav-item"><a href="#services-section" class="nav-link"><span>{{__('procyon.nav.services')}}</span></a></li>
                     @endif
                     @if ($portfolioConfig['visibility']['projects'])
-                        <li class="nav-item"><a href="#projects-section" class="nav-link"><span>Projects</span></a></li>
+                        <li class="nav-item"><a href="#projects-section" class="nav-link"><span>{{__('procyon.nav.projects')}}</span></a></li>
                     @endif
                     @if ($portfolioConfig['visibility']['contact'])
-                        <li class="nav-item"><a href="#contact-section" class="nav-link"><span>Contact</span></a></li>
+                        <li class="nav-item"><a href="#contact-section" class="nav-link"><span>{{__('procyon.nav.contact')}}</span></a></li>
                     @endif
                 </ul>
             </div>
@@ -144,18 +144,18 @@
                 <div class="col-md-6 col-lg-6 pl-md-5 py-5">
                     <div class="row justify-content-start pb-3">
                         <div class="col-md-12 heading-section">
-                            <h2 class="mb-4">About Me</h2>
+                            <h2 class="mb-4">{{__('procyon.sections.about_me')}}</h2>
                             <p>{{ $about->description }}</p>
                             <ul class="about-info mt-4 px-md-0 px-2">
-                                <li class="d-flex"><span>Name:</span> <span>{{ $about->name }}</span></li>
+                                <li class="d-flex"><span>{{__('procyon.info.name')}}:</span> <span>{{ $about->name }}</span></li>
                                 @if ($about->email && $about->email !== '')
-                                <li class="d-flex"><span>Email:</span> <span>{{$about->email}}</span></li>
+                                <li class="d-flex"><span>{{__('procyon.info.email')}}:</span> <span>{{$about->email}}</span></li>
                                 @endif
                                 @if ($about->phone && $about->phone !== '')
-                                <li class="d-flex"><span>Phone:</span> <span>{{$about->phone}}</span></li>
+                                <li class="d-flex"><span>{{__('procyon.info.phone')}}:</span> <span>{{$about->phone}}</span></li>
                                 @endif
                                 @if ($about->address && $about->address !== '')
-                                <li class="d-flex"><span>Address:</span> <span>{{$about->address}}</span></li>
+                                <li class="d-flex"><span>{{__('procyon.info.address')}}:</span> <span>{{$about->address}}</span></li>
                                 @endif
                             </ul>
                         </div>
@@ -163,7 +163,7 @@
                     @if ($portfolioConfig['visibility']['cv'])
                     <div class="counter-wrap d-flex mt-md-3" data-aos="fade-up" data-aos-anchor-placement="top-bottom">
                         <div class="text">
-                            <p><a href="{{$about->cv}}" class="btn btn-primary py-3 px-3" download>Download CV</a></p>
+                            <p><a href="{{$about->cv}}" class="btn btn-primary py-3 px-3" download>{{__('procyon.info.download_cv')}}</a></p>
                         </div>
                     </div>
                     @endif
@@ -203,13 +203,13 @@
                     <nav id="navi">
                         <ul>
                             @if ($portfolioConfig['visibility']['education'])
-                            <li><a href="#page-1">Education</a></li>
+                            <li><a href="#page-1">{{__('procyon.sections.education')}}</a></li>
                             @endif
                             @if ($portfolioConfig['visibility']['experiences'])
-                            <li><a href="#page-2">Experience</a></li>
+                            <li><a href="#page-2">{{__('procyon.sections.experience')}}</a></li>
                             @endif
                             @if ($portfolioConfig['visibility']['skills'])
-                            <li><a href="#page-3">Skills</a></li>
+                            <li><a href="#page-3">{{__('procyon.sections.skills')}}</a></li>
                             @endif
                         </ul>
                     </nav>
@@ -217,7 +217,7 @@
                 <div class="col-md-9">
                     @if ($portfolioConfig['visibility']['education'])
                     <div id="page-1" class= "page one">
-                        <h2 class="heading">Education</h2>
+                        <h2 class="heading">{{__('procyon.sections.education')}}</h2>
                         @if ($education)
                             @foreach ($education as $value)
                                 <div class="resume-wrap d-flex" data-aos="fade-up" data-aos-anchor-placement="top-bottom">
@@ -228,8 +228,8 @@
                                         <span class="date">{{$value->period}}</span>
                                         <h2>{{$value->degree}}</h2>
                                         <span class="position">{{$value->institution}}</span>
-                                        <p class="mb-0">{{$value->cgpa && $value->cgpa !== '' ? 'CGPA: '.$value->cgpa : '' }}</p>
-                                        <p>{{$value->thesis && $value->thesis !== '' ? 'Thesis: '.$value->thesis : '' }}</p>
+                                        <p class="mb-0">{{$value->cgpa && $value->cgpa !== '' ? __('procyon.education.cgpa').': '.$value->cgpa : '' }}</p>
+                                        <p>{{$value->thesis && $value->thesis !== '' ? __('procyon.education.thesis').': '.$value->thesis : '' }}</p>
                                     </div>
                                 </div>
                             @endforeach
@@ -238,7 +238,7 @@
                     @endif
                     @if ($portfolioConfig['visibility']['experiences'])
                     <div id="page-2" class= "page two">
-                        <h2 class="heading">Experience</h2>
+                        <h2 class="heading">{{__('procyon.sections.experience')}}</h2>
                         @if ($experiences)
                             @foreach ($experiences as $experience)
                                 <div class="resume-wrap d-flex" data-aos="fade-up" data-aos-anchor-placement="top-bottom">
@@ -258,7 +258,7 @@
                     @endif
                     @if ($portfolioConfig['visibility']['skills'])
                     <div id="page-3" class= "page three">
-                        <h2 class="heading">Skills</h2>
+                        <h2 class="heading">{{__('procyon.sections.skills')}}</h2>
                         @if ((int)$portfolioConfig['visibility']['skillProficiency'])
                             @if (!empty($skills))
                                 <div class="row progress-circle mb-5">
@@ -328,7 +328,7 @@
         <div class="container-fluid px-md-5">
             <div class="row justify-content-center py-5 mt-5">
                 <div class="col-md-12 heading-section text-center">
-                    <h2 class="mb-4">Services</h2>
+                    <h2 class="mb-4">{{__('procyon.sections.services')}}</h2>
                 </div>
             </div>
             <div class="row">
@@ -357,7 +357,7 @@
         <div class="container-fluid px-md-0">
             <div class="row no-gutters justify-content-center pb-5">
                 <div class="col-md-12 heading-section text-center">
-                    <h2 class="mb-4">Projects</h2>
+                    <h2 class="mb-4">{{__('procyon.sections.projects')}}</h2>
                 </div>
             </div>
             <div 
@@ -375,7 +375,7 @@
         <div class="container">
             <div class="row justify-content-center mb-5 pb-3">
                 <div class="col-md-7 heading-section text-center">
-                    <h2 class="mb-4">Contact Me</h2>
+                    <h2 class="mb-4">{{__('procyon.sections.contact_me')}}</h2>
                 </div>
             </div>
     
@@ -384,19 +384,19 @@
                     <form action="#" method="POST" id="contact-me-form" class="bg-light p-4 p-md-5 contact-form" >
                         @csrf
                         <div class="form-group">
-                            <input type="text" class="form-control" id="name" name="name" placeholder="Your Name">
+                            <input type="text" class="form-control" id="name" name="name" placeholder="{{__('procyon.contact.your_name')}}">
                         </div>
                         <div class="form-group">
-                            <input type="text" class="form-control" id="email" name="email" placeholder="Your Email">
+                            <input type="text" class="form-control" id="email" name="email" placeholder="{{__('procyon.contact.your_email')}}">
                         </div>
                         <div class="form-group">
-                            <input type="text" class="form-control" id="subject" name="subject" placeholder="Subject">
+                            <input type="text" class="form-control" id="subject" name="subject" placeholder="{{__('procyon.contact.subject')}}">
                         </div>
                         <div class="form-group">
-                            <textarea id="body" name="body" cols="30" rows="7" class="form-control" placeholder="Body"></textarea>
+                            <textarea id="body" name="body" cols="30" rows="7" class="form-control" placeholder="{{__('procyon.contact.body')}}"></textarea>
                         </div>
                         <div class="form-group">
-                            <input type="submit" value="Send Message" class="btn btn-primary py-3 px-5">
+                            <input type="submit" value="{{__('procyon.contact.send_message')}}" class="btn btn-primary py-3 px-5">
                         </div>
                     </form>
                 </div>
@@ -404,19 +404,19 @@
                     <div class="align-self-stretch box text-center p-4">
                         <div class="card-body">
                             @if ($about->address)
-                                <p class="mb-0"><strong>Address</strong></p>
+                                <p class="mb-0"><strong>{{__('procyon.info.address')}}</strong></p>
                                 <p class="pb-2 text-muted">{{$about->address }}</p>
                             @endif
                             @if ($about->email)
-                                <p class="mb-0"><strong>Email</strong></p>
+                                <p class="mb-0"><strong>{{__('procyon.info.email')}}</strong></p>
                                 <p class="pb-2 text-muted">{{$about->email }}</p>
                             @endif
                             @if ($about->phone)
-                                <p class="mb-0"><strong>Phone</strong></p>
+                                <p class="mb-0"><strong>{{__('procyon.info.phone')}}</strong></p>
                                 <p class="pb-2 text-muted">{{$about->phone }}</p>
                             @endif
                             @if ($portfolioConfig['visibility']['cv'])
-                                <p class="mb-0"><strong>CV</strong></p>
+                                <p class="mb-0"><strong>{{__('procyon.info.cv')}}</strong></p>
                                 <div>
                                     <a href="{{$about->cv}}" class="text-muted" download>
                                         <svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.1" viewBox="0 0 16 16" height="1.5rem" width="1.5rem" xmlns="http://www.w3.org/2000/svg">
@@ -441,7 +441,7 @@
     @if ($portfolioConfig['visibility']['footer'])
     <footer class="footer">
         <div class="h4 title text-center text-muted">{{$about->name}}</div>
-        <div class="text-center text-muted"><p>©{{ now()->year }} All rights reserved.</p></div>
+        <div class="text-center text-muted"><p>©{{ now()->year }} {{__('procyon.footer.all_rights_reserved')}}</p></div>
         <div class="text-center text-muted">
             <small><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
             This template is made with <i class="icon-heart color-danger" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
@@ -517,7 +517,7 @@
 
                     button.attr('disabled', true);
                     button.html(`<span class="content">
-                        Sending <i class="fas fa-spinner fa-spin"></i>
+                        {{__('procyon.contact.sending')}} <i class="fas fa-spinner fa-spin"></i>
                     </span>`);
 
                     $.ajax({
@@ -546,7 +546,7 @@
                         complete: function(data) {
                             button.attr('disabled', false);
                             button.html(`<span class="content">
-                                Send <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                {{__('procyon.contact.send')}} <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M476 3.2L12.5 270.6c-18.1 10.4-15.8 35.6 2.2 43.2L121 358.4l287.3-253.2c5.5-4.9 13.3 2.6 8.6 8.3L176 407v80.5c0 23.6 28.5 32.9 42.5 15.8L282 426l124.6 52.2c14.2 6 30.4-2.9 33-18.2l72-432C515 7.8 493.3-6.8 476 3.2z">
                                     </path>
                                 </svg>
