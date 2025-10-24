@@ -1,2 +1,10 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /api/
+Disallow: /storage/
+Disallow: /vendor/
+Disallow: /command/
+Disallow: /optimize/
+Disallow: /pixel-tracker
+
+Sitemap: /sitemap.xml
