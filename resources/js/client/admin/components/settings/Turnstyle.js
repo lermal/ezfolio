@@ -1,13 +1,10 @@
 import { PageHeader, Form, Spin, Input, Select, Button, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { InfoCircleOutlined } from '@ant-design/icons';
 import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
 
-const { Option } = Select;
-
-const Turnstile = () => {
+const Turnstyle = () => {
     const [loading, setLoading] = useState(false);
     const [componentLoading, setComponentLoading] = useState(false);
     const [form] = Form.useForm();
@@ -121,4 +118,4 @@ const Turnstile = () => {
     );
 };
 
-export default Turnstile;
+export default Turnstyle;
