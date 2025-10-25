@@ -12,15 +12,18 @@ const Telegram = () => {
     const [form] = Form.useForm();
 
     useEffect(() => {
+        console.log('useEffect triggered');
         loadTelegramSetting();
     }, [])
 
     const loadTelegramSetting = (_componentLoading = true) => {
+        console.log('loadTelegramSetting called');
         setComponentLoading(_componentLoading);
 
         HTTP.get(Routes.api.admin.settings)
         .then(response => {
-            Utils.handleSuccessResponse(response, () => {
+            console.log('HTTP response received:', response);
+            if (response.data && response.data.status === 200) {
                 if (response.data.payload && response.data.payload.telegramSettings) {
                     const telegramSettings = response.data.payload.telegramSettings;
                     
@@ -33,12 +36,14 @@ const Telegram = () => {
                         TELEGRAM_CHAT_IDS: chatIdsArray,
                     });
                 }
-            })
+            }
         })
         .catch((error) => {
+            console.log('HTTP error:', error);
             Utils.handleException(error);
         })
         .finally(() => {
+            console.log('Finally block executed');
             setComponentLoading(false);
         });
     };
