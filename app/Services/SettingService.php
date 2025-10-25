@@ -690,4 +690,53 @@ class SettingService implements SettingInterface
             ];
         }
     }
+
+    /**
+     * store telegram settings
+     *
+     * @param array $data
+     * @return array
+     */
+    public function storeTelegramSettings(array $data)
+    {
+        try {
+            $validate = Validator::make($data, [
+                'TELEGRAM_BOT_TOKEN' => 'required',
+                'TELEGRAM_CHAT_IDS' => 'required|array',
+            ]);
+
+            if ($validate->fails()) {
+                return [
+                    'message' => 'Bad Request',
+                    'payload' => $validate->errors(),
+                    'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
+                ];
+            }
+            
+            $file = DotenvEditor::setKey('TELEGRAM_BOT_TOKEN', $data['TELEGRAM_BOT_TOKEN']);
+            $file = DotenvEditor::setKey('TELEGRAM_CHAT_IDS', json_encode($data['TELEGRAM_CHAT_IDS']));
+            $file = DotenvEditor::save();
+
+            if ($file) {
+                return [
+                    'message' => 'Telegram settings are successfully updated',
+                    'payload' => null,
+                    'status' => CoreConstants::STATUS_CODE_SUCCESS
+                ];
+            } else {
+                return [
+                    'message' => 'Something went wrong',
+                    'payload' => null,
+                    'status' => CoreConstants::STATUS_CODE_ERROR
+                ];
+            }
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return [
+                'message' => 'Something went wrong',
+                'payload' => $th->getMessage(),
+                'status' => CoreConstants::STATUS_CODE_ERROR
+            ];
+        }
+    }
 }
