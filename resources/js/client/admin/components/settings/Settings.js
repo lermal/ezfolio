@@ -30,7 +30,7 @@ const tabs = [
     {
         key: 'turnstile',
         title: <React.Fragment><Icon component={RiShieldCheckLine}/> Turnstile Settings</React.Fragment>,
-        content: <Turnstile/>
+        content: <div>Test Turnstile Content</div>
     }
 ]
 
