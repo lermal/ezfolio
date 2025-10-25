@@ -7,7 +7,7 @@ import { IoColorPaletteOutline } from 'react-icons/io5';
 import Themes from './Themes';
 import Mail from './Mail';
 import Turnstyle from './Turnstyle';
-import { RiMailSettingsLine, RiShieldLine } from 'react-icons/ri';
+import { RiMailSettingsLine, RiShieldKeyholeLine } from 'react-icons/ri';
 import PageWrapper from '../layout/PageWrapper';
 
 const tabs = [
@@ -28,14 +28,12 @@ const tabs = [
     },
     {
         key: 'turnstyle',
-        title: <React.Fragment><Icon component={RiShieldLine}/> Turnstyle Settings</React.Fragment>,
-        content: <div>Test Turnstyle Content</div>
+        title: <React.Fragment><Icon component={RiShieldKeyholeLine}/> Turnstyle Settings</React.Fragment>,
+        content: <Turnstyle/>
     }
 ]
 
 const Settings = () => {
-    console.log('Settings component tabs:', tabs);
-    
     return (
         <React.Fragment>
             <PageWrapper noPadding>
