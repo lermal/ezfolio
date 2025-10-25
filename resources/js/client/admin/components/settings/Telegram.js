@@ -22,12 +22,14 @@ const Telegram = () => {
         .then(response => {
             if (response.data && response.data.status === CoreConstants.STATUS_CODE_SUCCESS) {
                 if (response.data.payload && response.data.payload.telegramSettings) {
-                    const chatIdsArray = response.data.payload.telegramSettings.TELEGRAM_CHAT_IDS ? 
-                        response.data.payload.telegramSettings.TELEGRAM_CHAT_IDS.split(',') : [];
+                    const telegramSettings = response.data.payload.telegramSettings;
+                    
+                    const chatIdsArray = telegramSettings.TELEGRAM_CHAT_IDS && telegramSettings.TELEGRAM_CHAT_IDS.trim() !== '' ? 
+                        telegramSettings.TELEGRAM_CHAT_IDS.split(',') : [];
                     
                     setChatIds(chatIdsArray);
                     form.setFieldsValue({
-                        TELEGRAM_BOT_TOKEN: response.data.payload.telegramSettings.TELEGRAM_BOT_TOKEN || '',
+                        TELEGRAM_BOT_TOKEN: telegramSettings.TELEGRAM_BOT_TOKEN || '',
                         TELEGRAM_CHAT_IDS: chatIdsArray,
                     });
                 }
@@ -105,7 +107,7 @@ const Telegram = () => {
                             label="Telegram Bot Token"
                             rules={[
                                 {
-                                    required: true,
+                                    required: false,
                                     message: 'Telegram Bot Token is required'
                                 },
                             ]}
@@ -117,7 +119,7 @@ const Telegram = () => {
                         label="Telegram Chat IDs"
                         rules={[
                             {
-                                required: true,
+                                required: false,
                                 message: 'Telegram Chat IDs is required'
                             },
                         ]}

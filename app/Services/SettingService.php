@@ -240,9 +240,9 @@ class SettingService implements SettingInterface
             $data['turnstileSettings']['TURNSTILE_SECRET_KEY'] = env('TURNSTILE_SECRET_KEY');
 
             //get telegram settings
-            $data['telegramSettings']['TELEGRAM_BOT_TOKEN'] = env('TELEGRAM_BOT_TOKEN');
+            $data['telegramSettings']['TELEGRAM_BOT_TOKEN'] = env('TELEGRAM_BOT_TOKEN') ?? '';
             $telegramChatIds = env('TELEGRAM_CHAT_IDS');
-            if ($telegramChatIds) {
+            if ($telegramChatIds && $telegramChatIds !== 'null' && $telegramChatIds !== '[]') {
                 $decodedChatIds = json_decode($telegramChatIds, true);
                 $data['telegramSettings']['TELEGRAM_CHAT_IDS'] = is_array($decodedChatIds) ? implode(',', $decodedChatIds) : $telegramChatIds;
             } else {
@@ -711,8 +711,8 @@ class SettingService implements SettingInterface
     {
         try {
             $validate = Validator::make($data, [
-                'TELEGRAM_BOT_TOKEN' => 'required',
-                'TELEGRAM_CHAT_IDS' => 'required|array',
+                'TELEGRAM_BOT_TOKEN' => 'nullable|string',
+                'TELEGRAM_CHAT_IDS' => 'nullable|array',
             ]);
 
             if ($validate->fails()) {
@@ -723,8 +723,8 @@ class SettingService implements SettingInterface
                 ];
             }
             
-            $file = DotenvEditor::setKey('TELEGRAM_BOT_TOKEN', $data['TELEGRAM_BOT_TOKEN']);
-            $file = DotenvEditor::setKey('TELEGRAM_CHAT_IDS', json_encode($data['TELEGRAM_CHAT_IDS']));
+            $file = DotenvEditor::setKey('TELEGRAM_BOT_TOKEN', $data['TELEGRAM_BOT_TOKEN'] ?? '');
+            $file = DotenvEditor::setKey('TELEGRAM_CHAT_IDS', json_encode($data['TELEGRAM_CHAT_IDS'] ?? []));
             $file = DotenvEditor::save();
 
             if ($file) {
