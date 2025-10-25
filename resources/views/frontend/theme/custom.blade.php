@@ -572,17 +572,7 @@
                         data: $('#contact-me-form').serialize(),
                         type: 'post',
                         success: function(response) {
-                            if (response.status === 400) {
-                                var errorArray = response.payload;
-                                $.each(errorArray, function(key, errors) {
-                                    $.each(errors, function(key2, errorMessage) {
-                                        showNotification(errorMessage, 'error', false);
-                                    });
-                                });
-                            } else if (response.status !== 200) {
-                                showNotification(response.message, 'error', false);
-                            } else if (response.status === 200) {
-                                showNotification(response.message, 'success', false);
+                            if (response.status === 200) {
                                 $('#contact-me-form').trigger('reset');
                             }
                         },
@@ -597,22 +587,6 @@
                     });
                 }
             });
-
-            function showNotification(message = 'Что-то пошло не так', type = 'error', sticky = false) {
-                iziToast.show({
-                    title: '',
-                    message: message,
-                    messageSize: 12,
-                    position: 'topRight',
-                    theme: 'dark',
-                    pauseOnHover: true,
-                    timeout: sticky === false ? 5000 : false,
-                    progressBarColor: type === 'success' ? '#00ffb8' : '#ffafb4',
-                    color: type === 'success' ? '#565c70' : '#565c70',
-                    messageColor: type === 'success' ? '#00ffb8' : '#ffafb4',
-                    icon: type === 'success' ? 'fas fa-check' : 'fas fa-times-circle'
-                });
-            }
         });
 
         // Fallback to hide preloader if jQuery fails
