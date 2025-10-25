@@ -24,7 +24,7 @@ class AdminSeeder extends Seeder
             $adminService= resolve(AdminInterface::class);
 
             $result = $adminService->handleSignup([
-                'email' => 'admin@wewcodewizard.ru',
+                'email' => 'admin@webcodewizard.ru',
                 'password' => $password = \Illuminate\Support\Str::random(12),
                 'password_confirmation' => $password,
             ]);
