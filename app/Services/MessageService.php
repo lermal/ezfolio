@@ -5,6 +5,7 @@ namespace App\Services;
 use CoreConstants;
 use App\Models\Message;
 use App\Services\Contracts\MessageInterface;
+use App\Services\TurnstileService;
 use Log;
 use Validator;
 
@@ -18,14 +19,23 @@ class MessageService implements MessageInterface
     private $model;
 
     /**
+     * Turnstile service instance
+     *
+     * @var TurnstileService
+     */
+    private $turnstileService;
+
+    /**
      * Create a new service instance
      *
      * @param Message $message
+     * @param TurnstileService $turnstileService
      * @return void
      */
-    public function __construct(Message $message)
+    public function __construct(Message $message, TurnstileService $turnstileService)
     {
         $this->model = $message;
+        $this->turnstileService = $turnstileService;
     }
 
     /**
@@ -76,6 +86,7 @@ class MessageService implements MessageInterface
                 'email' => 'required|email',
                 'subject' => 'required|string',
                 'body' => 'required|string',
+                'cf-turnstile-response' => 'required|string',
             ]);
 
             if ($validate->fails()) {
@@ -84,6 +95,21 @@ class MessageService implements MessageInterface
                     'payload' => $validate->errors(),
                     'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
                 ];
+            }
+
+            if ($this->turnstileService->isConfigured()) {
+                $turnstileResult = $this->turnstileService->verify(
+                    $data['cf-turnstile-response'],
+                    request()->ip()
+                );
+
+                if (!$turnstileResult['success']) {
+                    return [
+                        'message' => $turnstileResult['message'],
+                        'payload' => null,
+                        'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
+                    ];
+                }
             }
 
             $newData['name'] = $data['name'];

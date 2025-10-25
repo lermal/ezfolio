@@ -395,6 +395,9 @@
                         <div class="form-group">
                             <textarea id="body" name="body" cols="30" rows="7" class="form-control" placeholder="{{__('procyon.contact.body')}}"></textarea>
                         </div>
+                        <div class="form-group text-center">
+                            <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY', '') }}" data-theme="light"></div>
+                        </div>
                         <div class="form-group">
                             <input type="submit" value="{{__('procyon.contact.send_message')}}" class="btn btn-primary py-3 px-5">
                         </div>
@@ -473,6 +476,7 @@
     <script src="{{ asset('assets/common/lib/jquery.lazy/jquery.lazy.min.js') }}"></script>
     <script src="{{ asset('assets/themes/procyon/js/main.js') }}"></script>
     <script src="{{ asset('js/client/frontend/roots/projects.js') }}"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <script>
         $(function() {
             $('.lazy').lazy();

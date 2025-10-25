@@ -437,6 +437,9 @@
                         <div class="mb-3">
                             <textarea class="form-control" id="body" name="body" rows="5" placeholder="{{__('custom.contact.body')}}" required></textarea>
                         </div>
+                        <div class="mb-3 text-center">
+                            <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY', '') }}" data-theme="light"></div>
+                        </div>
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-paper-plane me-2"></i>{{__('custom.contact.send_message')}}
@@ -475,6 +478,7 @@
     <script src="{{ asset('assets/common/lib/jquery.lazy/jquery.lazy.min.js') }}"></script>
     <script src="{{ asset('assets/themes/custom/js/main.js') }}"></script>
     <script src="{{ asset('js/client/frontend/roots/projects.js') }}"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     
     <script>
         $(document).ready(function() {

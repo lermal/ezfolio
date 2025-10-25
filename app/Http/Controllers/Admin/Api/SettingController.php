@@ -90,4 +90,11 @@ class SettingController extends Controller
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
     }
+
+    public function storeTurnstileSettings(Request $request)
+    {
+        $result = $this->setting->storeTurnstileSettings($request->all());
+
+        return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
+    }
 }

@@ -313,6 +313,11 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="row mb-3">
+                                            <div class="col text-center">
+                                                <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY', '') }}" data-theme="light"></div>
+                                            </div>
+                                        </div>
                                         <div class="row">
                                             <div class="col">
                                                 <button type="submit" class="submit-button">Send Message</button>
@@ -377,6 +382,7 @@
     <!-- Core theme JS-->
     <script src="{{ asset('assets/themes/vega/js/scripts.js') }}"></script>
     <script src="{{ asset('js/client/frontend/roots/projects.js') }}"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <script>
         $(function() {
             if ($('#szn-preloader').length) {

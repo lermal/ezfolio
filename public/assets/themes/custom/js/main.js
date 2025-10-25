@@ -269,13 +269,20 @@
         const submitBtn = form.find('button[type="submit"]');
         const originalText = submitBtn.html();
         
+        // Проверяем капчу Turnstile
+        const turnstileResponse = form.find('input[name="cf-turnstile-response"]').val();
+        if (!turnstileResponse) {
+            showNotification('Пожалуйста, пройдите проверку капчи', 'error');
+            return;
+        }
+        
         // Show loading state
         submitBtn.prop('disabled', true);
         submitBtn.html('<i class="fas fa-spinner fa-spin me-2"></i>Отправка...');
 
         // Submit via AJAX
         $.ajax({
-            url: form.attr('action') || window.location.href,
+            url: form.attr('action') || '/api/v1/messages',
             method: 'POST',
             data: form.serialize(),
             dataType: 'json',
@@ -283,8 +290,16 @@
                 if (response.status === 200) {
                     showNotification('Сообщение успешно отправлено!', 'success');
                     form[0].reset();
+                    // Сброс капчи
+                    if (window.turnstile) {
+                        window.turnstile.reset();
+                    }
                 } else {
                     showNotification(response.message || 'Произошла ошибка при отправке', 'error');
+                    // Сброс капчи при ошибке
+                    if (window.turnstile) {
+                        window.turnstile.reset();
+                    }
                 }
             },
             error: function(xhr) {
@@ -295,6 +310,10 @@
                 }
                 
                 showNotification(errorMessage, 'error');
+                // Сброс капчи при ошибке
+                if (window.turnstile) {
+                    window.turnstile.reset();
+                }
             },
             complete: function() {
                 // Restore button state

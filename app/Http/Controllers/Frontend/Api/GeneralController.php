@@ -47,7 +47,10 @@ class GeneralController extends Controller
      */
     public function store(Request $request)
     {
-        $result = resolve(MessageInterface::class)->store($request->all());
+        $data = $request->all();
+        $data['ip_address'] = $request->ip();
+        
+        $result = resolve(MessageInterface::class)->store($data);
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
     }

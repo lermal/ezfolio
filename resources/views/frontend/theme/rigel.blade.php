@@ -349,6 +349,9 @@
                                 <textarea class="form-control" name="body" id="body" rows="5" data-rule="required" data-msg="Please write something" placeholder="Body"></textarea>
                                 <div class="validate"></div>
                             </div>
+                            <div class="form-group text-center">
+                                <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY', '') }}" data-theme="light"></div>
+                            </div>
                             <div class="text-center"><button type="submit" class="submit-button">Send Message</button></div>
                         </form>
                     </div>
@@ -418,6 +421,7 @@
     <script src="{{ asset('assets/themes/rigel/js/main.js') }}"></script>
 
     <script src="{{ asset('js/client/frontend/roots/projects.js') }}"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <script>
         $(function() {
             $('.lazy').lazy();

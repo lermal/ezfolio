@@ -637,4 +637,53 @@ class SettingService implements SettingInterface
             ];
         }
     }
+
+    /**
+     * store turnstile settings
+     *
+     * @param array $data
+     * @return array
+     */
+    public function storeTurnstileSettings(array $data)
+    {
+        try {
+            $validate = Validator::make($data, [
+                'TURNSTILE_SITE_KEY' => 'required|string',
+                'TURNSTILE_SECRET_KEY' => 'required|string',
+            ]);
+
+            if ($validate->fails()) {
+                return [
+                    'message' => 'Bad Request',
+                    'payload' => $validate->errors(),
+                    'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
+                ];
+            }
+            
+            $file = DotenvEditor::setKey('TURNSTILE_SITE_KEY', $data['TURNSTILE_SITE_KEY']);
+            $file = DotenvEditor::setKey('TURNSTILE_SECRET_KEY', $data['TURNSTILE_SECRET_KEY']);
+            $file = DotenvEditor::save();
+
+            if ($file) {
+                return [
+                    'message' => 'Turnstile settings are successfully updated',
+                    'payload' => null,
+                    'status' => CoreConstants::STATUS_CODE_SUCCESS
+                ];
+            } else {
+                return [
+                    'message' => 'Something went wrong',
+                    'payload' => null,
+                    'status' => CoreConstants::STATUS_CODE_ERROR
+                ];
+            }
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return [
+                'message' => 'Something went wrong',
+                'payload' => $th->getMessage(),
+                'status' => CoreConstants::STATUS_CODE_ERROR
+            ];
+        }
+    }
 }

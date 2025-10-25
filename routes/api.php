@@ -36,6 +36,8 @@ Route::group(['prefix' => 'v1'], function () {
 
             Route::post('/mail-settings', ['App\Http\Controllers\Admin\Api\SettingController', 'storeMailSettings']);
 
+            Route::post('/turnstile-settings', ['App\Http\Controllers\Admin\Api\SettingController', 'storeTurnstileSettings']);
+
             Route::match(['get', 'post'], '/portfolio-configs', ['App\Http\Controllers\Admin\Api\PortfolioController', 'index']);
             
             Route::match(['get', 'post'], '/about', ['App\Http\Controllers\Admin\Api\PortfolioController', 'about']);
