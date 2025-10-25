@@ -541,36 +541,35 @@
 
             // Smooth scrolling is handled by main.js
 
-            // Contact form validation
-            $('#contact-me-form').validate({
-                ignore: '.cf-turnstile, input[name="cf-turnstile-response"]',
-                submitHandler: function(form, event) {
-                    const button = $('#contact-me-form button[type="submit"]');
-                    const originalText = button.html();
-                    
-                    button.prop('disabled', true);
-                    button.html('<i class="fas fa-spinner fa-spin me-2"></i> {{__('custom.contact.sending')}}');
+            // Обработка отправки формы без validate
+            $('#contact-me-form').on('submit', function(e) {
+                e.preventDefault();
 
-                    $.ajax({
-                        url: '{!! route('contact-me') !!}',
-                        dataType: 'json',
-                        data: $('#contact-me-form').serialize(),
-                        type: 'post',
-                        success: function(response) {
-                            if (response.status === 200) {
-                                $('#contact-me-form').trigger('reset');
-                            }
-                        },
-                        error: function(jqXHR, exception) {
-                            button.prop('disabled', false);
-                            button.html(originalText);
-                        },
-                        complete: function() {
-                            button.prop('disabled', false);
-                            button.html(originalText);
+                const button = $('#contact-me-form button[type="submit"]');
+                const originalText = button.html();
+                
+                button.prop('disabled', true);
+                button.html('<i class="fas fa-spinner fa-spin me-2"></i> {{__('custom.contact.sending')}}');
+
+                $.ajax({
+                    url: '{!! route('contact-me') !!}',
+                    dataType: 'json',
+                    data: $('#contact-me-form').serialize(),
+                    type: 'post',
+                    success: function(response) {
+                        if (response.status === 200) {
+                            $('#contact-me-form').trigger('reset');
                         }
-                    });
-                }
+                    },
+                    error: function(jqXHR, exception) {
+                        button.prop('disabled', false);
+                        button.html(originalText);
+                    },
+                    complete: function() {
+                        button.prop('disabled', false);
+                        button.html(originalText);
+                    }
+                });
             });
         });
 
