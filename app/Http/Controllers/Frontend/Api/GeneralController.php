@@ -50,6 +50,8 @@ class GeneralController extends Controller
         $data = $request->all();
         $data['ip_address'] = $request->ip();
         
+        event(new NewMessage($data['payload']['body'], $data['payload']['name'], $data['payload']['email'], $data['payload']['subject'], $data['payload']['created_at']));
+
         $result = resolve(MessageInterface::class)->store($data);
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
