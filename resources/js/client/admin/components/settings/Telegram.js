@@ -16,13 +16,17 @@ const Telegram = () => {
     }, [])
 
     const loadTelegramSetting = (_componentLoading = true) => {
+        console.log('Starting loadTelegramSetting, componentLoading:', _componentLoading);
         setComponentLoading(_componentLoading);
 
         HTTP.get(Routes.api.admin.settings)
         .then(response => {
+            console.log('Response received:', response.data);
             if (response.data && response.data.status === CoreConstants.STATUS_CODE_SUCCESS) {
+                console.log('Status is success, processing payload');
                 if (response.data.payload && response.data.payload.telegramSettings) {
                     const telegramSettings = response.data.payload.telegramSettings;
+                    console.log('Telegram settings found:', telegramSettings);
                     
                     const chatIdsArray = telegramSettings.TELEGRAM_CHAT_IDS && telegramSettings.TELEGRAM_CHAT_IDS.trim() !== '' ? 
                         telegramSettings.TELEGRAM_CHAT_IDS.split(',') : [];
@@ -32,8 +36,12 @@ const Telegram = () => {
                         TELEGRAM_BOT_TOKEN: telegramSettings.TELEGRAM_BOT_TOKEN || '',
                         TELEGRAM_CHAT_IDS: chatIdsArray,
                     });
+                    console.log('Form fields set successfully');
+                } else {
+                    console.log('No telegram settings in payload');
                 }
             } else {
+                console.log('Status is not success, using Utils.handleSuccessResponse');
                 Utils.handleSuccessResponse(response, () => {
                     if (response.data.payload && response.data.payload.telegramSettings) {
                         const chatIdsArray = response.data.payload.telegramSettings.TELEGRAM_CHAT_IDS ? 
@@ -49,9 +57,11 @@ const Telegram = () => {
             }
         })
         .catch((error) => {
+            console.log('Error occurred:', error);
             Utils.handleException(error);
         })
         .finally(() => {
+            console.log('Finally block executed, setting componentLoading to false');
             setComponentLoading(false);
         });
     };
@@ -81,6 +91,8 @@ const Telegram = () => {
         console.log('Failed:', errorInfo);
     };
 
+    console.log('Rendering Telegram component, componentLoading:', componentLoading);
+    
     return (
         <React.Fragment>
             <PageHeader
