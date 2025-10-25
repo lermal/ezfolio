@@ -7,7 +7,7 @@ import { IoColorPaletteOutline } from 'react-icons/io5';
 import Themes from './Themes';
 import Mail from './Mail';
 import Turnstyle from './Turnstyle';
-import { RiMailSettingsLine, RiShieldKeyholeLine } from 'react-icons/ri';
+import { RiMailSettingsLine } from 'react-icons/ri';
 import PageWrapper from '../layout/PageWrapper';
 
 const tabs = [
