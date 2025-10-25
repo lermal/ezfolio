@@ -241,13 +241,7 @@ class SettingService implements SettingInterface
 
             //get telegram settings
             $data['telegramSettings']['TELEGRAM_BOT_TOKEN'] = env('TELEGRAM_BOT_TOKEN') ?? '';
-            $telegramChatIds = env('TELEGRAM_CHAT_IDS');
-            if ($telegramChatIds && $telegramChatIds !== 'null' && $telegramChatIds !== '[]') {
-                $decodedChatIds = json_decode($telegramChatIds, true);
-                $data['telegramSettings']['TELEGRAM_CHAT_IDS'] = is_array($decodedChatIds) ? implode(',', $decodedChatIds) : $telegramChatIds;
-            } else {
-                $data['telegramSettings']['TELEGRAM_CHAT_IDS'] = '';
-            }
+            $data['telegramSettings']['TELEGRAM_CHAT_ID'] = env('TELEGRAM_CHAT_ID') ?? '';
 
             //get demo mode
             $data['demoMode'] = Config::get('custom.demo_mode');
@@ -712,7 +706,7 @@ class SettingService implements SettingInterface
         try {
             $validate = Validator::make($data, [
                 'TELEGRAM_BOT_TOKEN' => 'nullable|string',
-                'TELEGRAM_CHAT_IDS' => 'nullable|array',
+                'TELEGRAM_CHAT_ID' => 'nullable|string',
             ]);
 
             if ($validate->fails()) {
@@ -724,7 +718,7 @@ class SettingService implements SettingInterface
             }
             
             $file = DotenvEditor::setKey('TELEGRAM_BOT_TOKEN', $data['TELEGRAM_BOT_TOKEN'] ?? '');
-            $file = DotenvEditor::setKey('TELEGRAM_CHAT_IDS', json_encode($data['TELEGRAM_CHAT_IDS'] ?? []));
+            $file = DotenvEditor::setKey('TELEGRAM_CHAT_ID', $data['TELEGRAM_CHAT_ID'] ?? '');
             $file = DotenvEditor::save();
 
             if ($file) {

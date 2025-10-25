@@ -5,45 +5,36 @@ import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
 
 const Telegram = () => {
-    console.log('Telegram component is being rendered');
     const [loading, setLoading] = useState(false);
     const [componentLoading, setComponentLoading] = useState(false);
-    const [chatIds, setChatIds] = useState([]);
+    const [chatId, setChatId] = useState('');
     const [form] = Form.useForm();
 
     useEffect(() => {
-        console.log('useEffect triggered');
         loadTelegramSetting();
     }, [])
 
     const loadTelegramSetting = (_componentLoading = true) => {
-        console.log('loadTelegramSetting called');
         setComponentLoading(_componentLoading);
 
         HTTP.get(Routes.api.admin.settings)
         .then(response => {
-            console.log('HTTP response received:', response);
             if (response.data && response.data.status === 200) {
                 if (response.data.payload && response.data.payload.telegramSettings) {
                     const telegramSettings = response.data.payload.telegramSettings;
                     
-                    const chatIdsArray = telegramSettings.TELEGRAM_CHAT_IDS && telegramSettings.TELEGRAM_CHAT_IDS.trim() !== '' ? 
-                        telegramSettings.TELEGRAM_CHAT_IDS.split(',') : [];
-                    
-                    setChatIds(chatIdsArray);
+                    setChatId(telegramSettings.TELEGRAM_CHAT_ID || '');
                     form.setFieldsValue({
                         TELEGRAM_BOT_TOKEN: telegramSettings.TELEGRAM_BOT_TOKEN || '',
-                        TELEGRAM_CHAT_IDS: chatIdsArray,
+                        TELEGRAM_CHAT_ID: telegramSettings.TELEGRAM_CHAT_ID || '',
                     });
                 }
             }
         })
         .catch((error) => {
-            console.log('HTTP error:', error);
             Utils.handleException(error);
         })
         .finally(() => {
-            console.log('Finally block executed');
             setComponentLoading(false);
         });
     };
@@ -55,7 +46,7 @@ const Telegram = () => {
 
         HTTP.post(Routes.api.admin.telegramSettings, {
             TELEGRAM_BOT_TOKEN: values.TELEGRAM_BOT_TOKEN,
-            TELEGRAM_CHAT_IDS: values.TELEGRAM_CHAT_IDS,
+            TELEGRAM_CHAT_ID: values.TELEGRAM_CHAT_ID,
         })
         .then(response => {
             Utils.handleSuccessResponse(response, () => {
@@ -107,24 +98,16 @@ const Telegram = () => {
                             <Input placeholder="Enter Telegram Bot Token"/>
                         </Form.Item>
                         <Form.Item
-                        name="TELEGRAM_CHAT_IDS"
-                        label="Telegram Chat IDs"
+                        name="TELEGRAM_CHAT_ID"
+                        label="Telegram Chat ID"
                         rules={[
                             {
                                 required: false,
-                                message: 'Telegram Chat IDs is required'
+                                message: 'Telegram Chat ID is required'
                             },
                         ]}
                     >
-                        <Select
-                            mode="tags"
-                            allowClear
-                            placeholder="Enter Telegram Chat IDs"
-                        >
-                            {chatIds.map((chatId, index) => (
-                                <Select.Option key={index} value={chatId}>{chatId}</Select.Option>
-                            ))}
-                        </Select>
+                        <Input placeholder="Enter Telegram Chat ID"/>
                     </Form.Item>
                     <Form.Item>
                         <Button type="primary" htmlType="submit" loading={loading}>
