@@ -1,4 +1,4 @@
-import { PageHeader, Form, Spin, Input, Button, Typography } from 'antd';
+import { PageHeader, Form, Spin, Input, Typography, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
 import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
@@ -7,6 +7,7 @@ import Utils from '../../../common/helpers/Utils';
 const Telegram = () => {
     const [loading, setLoading] = useState(false);
     const [componentLoading, setComponentLoading] = useState(false);
+    const [chatIds, setChatIds] = useState([]);
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -20,9 +21,13 @@ const Telegram = () => {
         .then(response => {
             Utils.handleSuccessResponse(response, () => {
                 if (response.data.payload && response.data.payload.telegramSettings) {
+                    const chatIdsArray = response.data.payload.telegramSettings.TELEGRAM_CHAT_IDS ? 
+                        response.data.payload.telegramSettings.TELEGRAM_CHAT_IDS.split(',') : [];
+                    
+                    setChatIds(chatIdsArray);
                     form.setFieldsValue({
                         TELEGRAM_BOT_TOKEN: response.data.payload.telegramSettings.TELEGRAM_BOT_TOKEN || '',
-                        TELEGRAM_CHAT_IDS: response.data.payload.telegramSettings.TELEGRAM_CHAT_IDS.split(',') || [],
+                        TELEGRAM_CHAT_IDS: chatIdsArray,
                     });
                 }
             });
@@ -102,7 +107,7 @@ const Telegram = () => {
                             allowClear
                             placeholder="Enter Telegram Chat IDs"
                         >
-                            {response.data.payload.telegramSettings.TELEGRAM_CHAT_IDS.map((chatId, index) => (
+                            {chatIds.map((chatId, index) => (
                                 <Select.Option key={index} value={chatId}>{chatId}</Select.Option>
                             ))}
                         </Select>
