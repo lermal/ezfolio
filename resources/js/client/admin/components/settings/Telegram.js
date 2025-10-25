@@ -1,4 +1,4 @@
-import { PageHeader, Form, Spin, Input, Typography, Select, Button } from 'antd';
+import { PageHeader, Form, Spin, Input, Typography, Button } from 'antd';
 import React, { useEffect, useState } from 'react';
 import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
@@ -7,7 +7,6 @@ import Utils from '../../../common/helpers/Utils';
 const Telegram = () => {
     const [loading, setLoading] = useState(false);
     const [componentLoading, setComponentLoading] = useState(false);
-    const [chatId, setChatId] = useState('');
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -23,7 +22,6 @@ const Telegram = () => {
                 if (response.data.payload && response.data.payload.telegramSettings) {
                     const telegramSettings = response.data.payload.telegramSettings;
                     
-                    setChatId(telegramSettings.TELEGRAM_CHAT_ID || '');
                     form.setFieldsValue({
                         TELEGRAM_BOT_TOKEN: telegramSettings.TELEGRAM_BOT_TOKEN || '',
                         TELEGRAM_CHAT_ID: telegramSettings.TELEGRAM_CHAT_ID || '',
