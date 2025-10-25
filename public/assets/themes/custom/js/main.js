@@ -265,13 +265,7 @@
         return isValid;
     }
 
-    let isSubmitting = false;
-
     function submitForm(form) {
-        if (isSubmitting) {
-            return;
-        }
-
         const submitBtn = form.find('button[type="submit"]');
         const originalText = submitBtn.html();
         
@@ -281,8 +275,6 @@
             showNotification('Пожалуйста, пройдите проверку капчи', 'error');
             return;
         }
-        
-        isSubmitting = true;
         
         // Show loading state
         submitBtn.prop('disabled', true);
@@ -294,7 +286,6 @@
             method: 'POST',
             data: form.serialize(),
             dataType: 'json',
-            timeout: 30000, // 30 секунд таймаут
             success: function(response) {
                 if (response.status === 200) {
                     showNotification('Сообщение успешно отправлено!', 'success');
@@ -304,11 +295,7 @@
                         window.turnstile.reset();
                     }
                 } else {
-                    const errorMessage = response.message || 'Произошла ошибка при отправке';
-                    showNotification(errorMessage, 'error');
-                    
-                    handleTurnstileError(errorMessage);
-                    
+                    showNotification(response.message || 'Произошла ошибка при отправке', 'error');
                     // Сброс капчи при ошибке
                     if (window.turnstile) {
                         window.turnstile.reset();
@@ -320,12 +307,6 @@
                 
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
-                    
-                    if (errorMessage.includes('Время истекло или дублированный запрос')) {
-                        errorMessage = 'Капча устарела или запрос был отправлен повторно. Пожалуйста, обновите капчу и попробуйте снова.';
-                    }
-                    
-                    handleTurnstileError(errorMessage);
                 }
                 
                 showNotification(errorMessage, 'error');
@@ -335,8 +316,7 @@
                 }
             },
             complete: function() {
-                isSubmitting = false;
-                
+                // Restore button state
                 submitBtn.prop('disabled', false);
                 submitBtn.html(originalText);
             }
@@ -535,42 +515,3 @@ const notificationStyles = `
 const styleSheet = document.createElement('style');
 styleSheet.textContent = notificationStyles;
 document.head.appendChild(styleSheet);
-
-    function refreshTurnstile() {
-        if (window.turnstile) {
-            try {
-                window.turnstile.reset();
-                console.log('Turnstile капча обновлена');
-            } catch (error) {
-                console.error('Ошибка при обновлении Turnstile:', error);
-            }
-        }
-    }
-
-    function handleTurnstileError(errorMessage) {
-        if (errorMessage && (
-            errorMessage.includes('Время истекло') || 
-            errorMessage.includes('дублированный запрос') ||
-            errorMessage.includes('устарела') ||
-            errorMessage.includes('timeout-or-duplicate')
-        )) {
-            setTimeout(() => {
-                refreshTurnstile();
-            }, 1000);
-        }
-    }
-
-    function initTurnstile() {
-        if (window.turnstile) {
-            document.addEventListener('turnstile-error', function(event) {
-                console.warn('Turnstile error:', event.detail);
-                refreshTurnstile();
-            });
-        }
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initTurnstile);
-    } else {
-        initTurnstile();
-    }

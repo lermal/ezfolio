@@ -92,5 +92,5 @@ Route::group(['prefix' => 'v1'], function () {
     });
 
     Route::get('/frontend/projects', ['App\Http\Controllers\Frontend\Api\GeneralController', 'getProjects']);
-    Route::post('/messages', ['App\Http\Controllers\Frontend\Api\GeneralController', 'store'])->middleware('prevent.duplicate')->name('contact-me');
+    Route::post('/messages', ['App\Http\Controllers\Frontend\Api\GeneralController', 'store'])->name('contact-me');
 });
