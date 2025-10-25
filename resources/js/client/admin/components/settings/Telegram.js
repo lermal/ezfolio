@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
+import CoreConstants from '../../../common/helpers/CoreConstants';
 
 const Telegram = () => {
     const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ const Telegram = () => {
 
         HTTP.get(Routes.api.admin.settings)
         .then(response => {
-            Utils.handleSuccessResponse(response, () => {
+            if (response.data && response.data.status === CoreConstants.STATUS_CODE_SUCCESS) {
                 if (response.data.payload && response.data.payload.telegramSettings) {
                     const chatIdsArray = response.data.payload.telegramSettings.TELEGRAM_CHAT_IDS ? 
                         response.data.payload.telegramSettings.TELEGRAM_CHAT_IDS.split(',') : [];
@@ -30,7 +31,20 @@ const Telegram = () => {
                         TELEGRAM_CHAT_IDS: chatIdsArray,
                     });
                 }
-            });
+            } else {
+                Utils.handleSuccessResponse(response, () => {
+                    if (response.data.payload && response.data.payload.telegramSettings) {
+                        const chatIdsArray = response.data.payload.telegramSettings.TELEGRAM_CHAT_IDS ? 
+                            response.data.payload.telegramSettings.TELEGRAM_CHAT_IDS.split(',') : [];
+                        
+                        setChatIds(chatIdsArray);
+                        form.setFieldsValue({
+                            TELEGRAM_BOT_TOKEN: response.data.payload.telegramSettings.TELEGRAM_BOT_TOKEN || '',
+                            TELEGRAM_CHAT_IDS: chatIdsArray,
+                        });
+                    }
+                });
+            }
         })
         .catch((error) => {
             Utils.handleException(error);
