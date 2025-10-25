@@ -28,7 +28,7 @@ const tabs = [
     },
     {
         key: 'turnstyle',
-        title: <React.Fragment><Icon component={RiShieldKeyholeLine}/> Turnstyle Settings</React.Fragment>,
+        title: <React.Fragment>Turnstyle Settings</React.Fragment>,
         content: <Turnstyle/>
     }
 ]

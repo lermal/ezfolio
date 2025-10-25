@@ -37,7 +37,7 @@ class AdminSeeder extends Seeder
                 if (!empty($admin)) {
                     // Выводим сгенерированный пароль
                     $this->command->info('Администратор успешно создан!');
-                    $this->command->info('Email: admin@wewcodewizard.ru');
+                    $this->command->info('Email: admin@webcodewizard.ru');
                     $this->command->info('Пароль: ' . $password);
                     //setting table seed
                     try {
