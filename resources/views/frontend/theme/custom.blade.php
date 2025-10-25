@@ -437,9 +437,11 @@
                         <div class="mb-3">
                             <textarea class="form-control" id="body" name="body" rows="5" placeholder="{{__('custom.contact.body')}}" required></textarea>
                         </div>
+                        @if(env('TURNSTILE_SITE_KEY'))
                         <div class="mb-3 text-center">
-                            <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY', '') }}" data-theme="light"></div>
+                            <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}" data-theme="light"></div>
                         </div>
+                        @endif
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-paper-plane me-2"></i>{{__('custom.contact.send_message')}}
@@ -478,7 +480,9 @@
     <script src="{{ asset('assets/common/lib/jquery.lazy/jquery.lazy.min.js') }}"></script>
     <script src="{{ asset('assets/themes/custom/js/main.js') }}"></script>
     <script src="{{ asset('js/client/frontend/roots/projects.js') }}"></script>
+    @if(env('TURNSTILE_SITE_KEY'))
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    @endif
     
     <script>
         $(document).ready(function() {
@@ -545,6 +549,16 @@
                     subject: { required: true },
                     body: { required: true }
                 },
+                messages: {
+                    name: { required: 'Пожалуйста, введите ваше имя' },
+                    email: { 
+                        required: 'Пожалуйста, введите ваш email',
+                        email: 'Пожалуйста, введите корректный email адрес'
+                    },
+                    subject: { required: 'Пожалуйста, введите тему сообщения' },
+                    body: { required: 'Пожалуйста, введите текст сообщения' }
+                },
+                ignore: '.cf-turnstile, input[name="cf-turnstile-response"]',
                 submitHandler: function(form, event) {
                     const button = $('#contact-me-form button[type="submit"]');
                     const originalText = button.html();
@@ -552,13 +566,16 @@
                     button.prop('disabled', true);
                     button.html('<i class="fas fa-spinner fa-spin me-2"></i>{{__('custom.contact.sending')}}');
 
-                    // Get Turnstile response
-                    const turnstileResponse = $('input[name="cf-turnstile-response"]').val();
-                    if (!turnstileResponse) {
-                        showNotification('Я и так знаю, что вы не робот, но на всякий случай пройдите проверку', 'error', false);
-                        button.prop('disabled', false);
-                        button.html(originalText);
-                        return false;
+                    // Check Turnstile only if it's configured
+                    const turnstileSiteKey = '{{ env('TURNSTILE_SITE_KEY', '') }}';
+                    if (turnstileSiteKey) {
+                        const turnstileResponse = $('input[name="cf-turnstile-response"]').val();
+                        if (!turnstileResponse) {
+                            showNotification('Я и так знаю, что вы не робот, но на всякий случай пройдите проверку', 'error', false);
+                            button.prop('disabled', false);
+                            button.html(originalText);
+                            return false;
+                        }
                     }
 
                     $.ajax({
