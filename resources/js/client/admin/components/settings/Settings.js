@@ -6,6 +6,7 @@ import { AiOutlineSetting } from 'react-icons/ai';
 import { IoColorPaletteOutline } from 'react-icons/io5';
 import Themes from './Themes';
 import Mail from './Mail';
+import Turnstile from './Turnstile';
 import { RiMailSettingsLine } from 'react-icons/ri';
 import PageWrapper from '../layout/PageWrapper';
 
@@ -24,6 +25,11 @@ const tabs = [
         key: 'mail',
         title: <React.Fragment><Icon component={RiMailSettingsLine}/> Mail Settings</React.Fragment>,
         content: <Mail/>
+    },
+    {
+        key: 'turnstyle',
+        title: <React.Fragment><Icon component={RiShieldKeyholeLine}/> Turnstile Settings</React.Fragment>,
+        content: <Turnstile/>
     }
 ]
 
