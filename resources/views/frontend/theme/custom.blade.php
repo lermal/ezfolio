@@ -552,6 +552,15 @@
                     button.prop('disabled', true);
                     button.html('<i class="fas fa-spinner fa-spin me-2"></i>{{__('custom.contact.sending')}}');
 
+                    // Get Turnstile response
+                    const turnstileResponse = $('input[name="cf-turnstile-response"]').val();
+                    if (!turnstileResponse) {
+                        showNotification('Я и так знаю, что вы не робот, но на всякий случай пройдите проверку', 'error', false);
+                        button.prop('disabled', false);
+                        button.html(originalText);
+                        return false;
+                    }
+
                     $.ajax({
                         url: '{!! route('contact-me') !!}',
                         dataType: 'json',

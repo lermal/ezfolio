@@ -81,13 +81,19 @@ class MessageService implements MessageInterface
     public function store(array $data)
     {
         try {
-            $validate = Validator::make($data, [
+            $rules = [
                 'name' => 'required|string',
                 'email' => 'required|email',
                 'subject' => 'required|string',
                 'body' => 'required|string',
-                'cf-turnstile-response' => 'required|string',
-            ]);
+            ];
+
+            // Add Turnstile validation only if it's configured
+            if ($this->turnstileService->isConfigured()) {
+                $rules['cf-turnstile-response'] = 'required|string';
+            }
+
+            $validate = Validator::make($data, $rules);
 
             if ($validate->fails()) {
                 return [
