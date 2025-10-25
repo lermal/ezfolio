@@ -40,6 +40,7 @@ const api = {
         favicon: Utils.backend+'/api/'+Utils.apiVersion+'/admin/favicon',
         mailSettings: Utils.backend+'/api/'+Utils.apiVersion+'/admin/mail-settings',
         turnstileSettings: Utils.backend+'/api/'+Utils.apiVersion+'/admin/turnstile-settings',
+        telegramSettings: Utils.backend+'/api/'+Utils.apiVersion+'/admin/telegram-settings',
         portfolioConfigs: Utils.backend+'/api/'+Utils.apiVersion+'/admin/portfolio-configs',
         seo: Utils.backend+'/api/'+Utils.apiVersion+'/admin/seo',
         about: Utils.backend+'/api/'+Utils.apiVersion+'/admin/about',

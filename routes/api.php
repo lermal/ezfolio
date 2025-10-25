@@ -38,6 +38,8 @@ Route::group(['prefix' => 'v1'], function () {
 
             Route::post('/turnstile-settings', ['App\Http\Controllers\Admin\Api\SettingController', 'storeTurnstileSettings']);
 
+            Route::post('/telegram-settings', ['App\Http\Controllers\Admin\Api\SettingController', 'storeTelegramSettings']);
+
             Route::match(['get', 'post'], '/portfolio-configs', ['App\Http\Controllers\Admin\Api\PortfolioController', 'index']);
             
             Route::match(['get', 'post'], '/about', ['App\Http\Controllers\Admin\Api\PortfolioController', 'about']);

@@ -97,4 +97,11 @@ class SettingController extends Controller
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
     }
+
+    public function storeTelegramSettings(Request $request)
+    {
+        $result = $this->setting->storeTelegramSettings($request->all());
+
+        return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
+    }
 }

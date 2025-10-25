@@ -1,4 +1,4 @@
-import { PageHeader, Form, Spin, Input, Typography, Select } from 'antd';
+import { PageHeader, Form, Spin, Input, Typography, Select, Button } from 'antd';
 import React, { useEffect, useState } from 'react';
 import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
@@ -31,6 +31,12 @@ const Telegram = () => {
                     });
                 }
             });
+        })
+        .catch((error) => {
+            Utils.handleException(error);
+        })
+        .finally(() => {
+            setComponentLoading(false);
         });
     };
 
@@ -111,6 +117,11 @@ const Telegram = () => {
                                 <Select.Option key={index} value={chatId}>{chatId}</Select.Option>
                             ))}
                         </Select>
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit" loading={loading}>
+                            Save Settings
+                        </Button>
                     </Form.Item>
                 </Form>
             </Spin>

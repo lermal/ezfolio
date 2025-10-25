@@ -239,6 +239,16 @@ class SettingService implements SettingInterface
             $data['turnstileSettings']['TURNSTILE_SITE_KEY'] = env('TURNSTILE_SITE_KEY');
             $data['turnstileSettings']['TURNSTILE_SECRET_KEY'] = env('TURNSTILE_SECRET_KEY');
 
+            //get telegram settings
+            $data['telegramSettings']['TELEGRAM_BOT_TOKEN'] = env('TELEGRAM_BOT_TOKEN');
+            $telegramChatIds = env('TELEGRAM_CHAT_IDS');
+            if ($telegramChatIds) {
+                $decodedChatIds = json_decode($telegramChatIds, true);
+                $data['telegramSettings']['TELEGRAM_CHAT_IDS'] = is_array($decodedChatIds) ? implode(',', $decodedChatIds) : $telegramChatIds;
+            } else {
+                $data['telegramSettings']['TELEGRAM_CHAT_IDS'] = '';
+            }
+
             //get demo mode
             $data['demoMode'] = Config::get('custom.demo_mode');
             
