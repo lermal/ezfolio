@@ -4,7 +4,7 @@ import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
 
-const Turnstyle = () => {
+const Turnstile = () => {
     const [loading, setLoading] = useState(false);
     const [componentLoading, setComponentLoading] = useState(false);
     const [form] = Form.useForm();
@@ -19,10 +19,12 @@ const Turnstyle = () => {
         HTTP.get(Routes.api.admin.settings)
         .then(response => {
             Utils.handleSuccessResponse(response, () => {
-                form.setFieldsValue({
-                    TURNSTILE_SITE_KEY: response.data.payload.turnstileSettings.TURNSTILE_SITE_KEY,
-                    TURNSTILE_SECRET_KEY: response.data.payload.turnstileSettings.TURNSTILE_SECRET_KEY,
-                });
+                if (response.data.payload && response.data.payload.turnstileSettings) {
+                    form.setFieldsValue({
+                        TURNSTILE_SITE_KEY: response.data.payload.turnstileSettings.TURNSTILE_SITE_KEY || '',
+                        TURNSTILE_SECRET_KEY: response.data.payload.turnstileSettings.TURNSTILE_SECRET_KEY || '',
+                    });
+                }
             })
         })
         .catch((error) => {
@@ -118,4 +120,4 @@ const Turnstyle = () => {
     );
 };
 
-export default Turnstyle;
+export default Turnstile;
