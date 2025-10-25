@@ -24,9 +24,9 @@ class AdminSeeder extends Seeder
             $adminService= resolve(AdminInterface::class);
 
             $result = $adminService->handleSignup([
-                'email' => 'admin@admin.com',
-                'password' => '12345',
-                'password_confirmation' => '12345',
+                'email' => 'admin@wewcodewizard.ru',
+                'password' => $password = \Illuminate\Support\Str::random(12),
+                'password_confirmation' => $password,
             ]);
 
             if ($result['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
@@ -35,6 +35,10 @@ class AdminSeeder extends Seeder
                 $admin = $result['payload']['admin'];
 
                 if (!empty($admin)) {
+                    // Выводим сгенерированный пароль
+                    $this->command->info('Администратор успешно создан!');
+                    $this->command->info('Email: admin@wewcodewizard.ru');
+                    $this->command->info('Пароль: ' . $password);
                     //setting table seed
                     try {
                         $settingService = resolve(SettingInterface::class);
@@ -150,6 +154,15 @@ class AdminSeeder extends Seeder
             }
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
+        }
+        
+        // Выводим пароль в конце выполнения сидера
+        if (isset($password)) {
+            $this->command->line('');
+            $this->command->line('=== ДАННЫЕ ДЛЯ ВХОДА В АДМИНКУ ===');
+            $this->command->line('Email: admin@wewcodewizard.ru');
+            $this->command->line('Пароль: ' . $password);
+            $this->command->line('================================');
         }
     }
 }
