@@ -444,7 +444,7 @@
                         @endif
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-paper-plane me-2"></i>{{__('custom.contact.send_message')}}
+                                <i class="fas fa-paper-plane me-2"></i> {{__('custom.contact.send_message')}}
                             </button>
                         </div>
                     </form>
@@ -543,28 +543,13 @@
 
             // Contact form validation
             $('#contact-me-form').validate({
-                rules: {
-                    name: { required: true },
-                    email: { required: true, email: true },
-                    subject: { required: true },
-                    body: { required: true }
-                },
-                messages: {
-                    name: { required: 'Пожалуйста, введите ваше имя' },
-                    email: { 
-                        required: 'Пожалуйста, введите ваш email',
-                        email: 'Пожалуйста, введите корректный email адрес'
-                    },
-                    subject: { required: 'Пожалуйста, введите тему сообщения' },
-                    body: { required: 'Пожалуйста, введите текст сообщения' }
-                },
                 ignore: '.cf-turnstile, input[name="cf-turnstile-response"]',
                 submitHandler: function(form, event) {
                     const button = $('#contact-me-form button[type="submit"]');
                     const originalText = button.html();
                     
                     button.prop('disabled', true);
-                    button.html('<i class="fas fa-spinner fa-spin me-2"></i>{{__('custom.contact.sending')}}');
+                    button.html('<i class="fas fa-spinner fa-spin me-2"></i> {{__('custom.contact.sending')}}');
 
                     $.ajax({
                         url: '{!! route('contact-me') !!}',
@@ -577,8 +562,8 @@
                             }
                         },
                         error: function(jqXHR, exception) {
-                            console.log(jqXHR);
-                            showNotification('Произошла ошибка при отправке сообщения', 'error', false);
+                            button.prop('disabled', false);
+                            button.html(originalText);
                         },
                         complete: function() {
                             button.prop('disabled', false);
