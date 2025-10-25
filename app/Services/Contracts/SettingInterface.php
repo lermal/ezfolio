@@ -82,4 +82,12 @@ interface SettingInterface
      * @return array
      */
     public function storeMailSettings(array $data);
+
+    /**
+     * store turnstile settings
+     *
+     * @param array $data
+     * @return array
+     */
+    public function storeTurnstileSettings(array $data);
 }

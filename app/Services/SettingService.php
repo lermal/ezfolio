@@ -235,6 +235,10 @@ class SettingService implements SettingInterface
             $data['mailSettings']['MAIL_FROM_ADDRESS'] = env('MAIL_FROM_ADDRESS');
             $data['mailSettings']['MAIL_FROM_NAME'] = env('MAIL_FROM_NAME');
 
+            //get turnstile settings
+            $data['turnstileSettings']['TURNSTILE_SITE_KEY'] = env('TURNSTILE_SITE_KEY');
+            $data['turnstileSettings']['TURNSTILE_SECRET_KEY'] = env('TURNSTILE_SECRET_KEY');
+
             //get demo mode
             $data['demoMode'] = Config::get('custom.demo_mode');
             

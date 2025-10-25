@@ -37,7 +37,7 @@ const Turnstyle = () => {
             setLoading(true);
         }
 
-        HTTP.post(Routes.api.admin.mailSettings, {
+        HTTP.post(Routes.api.admin.turnstileSettings, {
             TURNSTILE_SITE_KEY: values.TURNSTILE_SITE_KEY,
             TURNSTILE_SECRET_KEY: values.TURNSTILE_SECRET_KEY,
         })
