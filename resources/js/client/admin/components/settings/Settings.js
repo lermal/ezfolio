@@ -8,6 +8,7 @@ import Themes from './Themes';
 import Mail from './Mail';
 import Turnstyle from './Turnstyle';
 import { RiMailSettingsLine } from 'react-icons/ri';
+import { RiShieldCheckLine } from 'react-icons/ri';
 import PageWrapper from '../layout/PageWrapper';
 
 const tabs = [
@@ -28,7 +29,7 @@ const tabs = [
     },
     {
         key: 'turnstyle',
-        title: <React.Fragment>Turnstyle Settings</React.Fragment>,
+        title: <React.Fragment><Icon component={RiShieldCheckLine}/> Turnstile Settings</React.Fragment>,
         content: <Turnstyle/>
     }
 ]
