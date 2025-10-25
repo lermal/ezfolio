@@ -65,12 +65,26 @@ class TurnstileService
                 $errorCodes = $data['error-codes'] ?? [];
                 $errorMessage = $this->getErrorMessage($errorCodes);
 
+                // Логируем ошибки Turnstile для отладки
+                Log::warning('Turnstile verification failed', [
+                    'error_codes' => $errorCodes,
+                    'error_message' => $errorMessage,
+                    'remote_ip' => $remoteIp,
+                    'token_length' => strlen($token)
+                ]);
+
                 return [
                     'success' => false,
                     'message' => $errorMessage,
                     'error_codes' => $errorCodes
                 ];
             }
+
+            // Логируем успешную проверку для мониторинга
+            Log::info('Turnstile verification successful', [
+                'remote_ip' => $remoteIp,
+                'token_length' => strlen($token)
+            ]);
 
             return [
                 'success' => true,
@@ -99,17 +113,17 @@ class TurnstileService
     private function getErrorMessage(array $errorCodes): string
     {
         $messages = [
-            'missing-input-secret' => 'Отсутствует секретный ключ',
-            'invalid-input-secret' => 'Неверный секретный ключ',
-            'missing-input-response' => 'Отсутствует ответ капчи',
-            'invalid-input-response' => 'Неверный ответ капчи',
-            'bad-request' => 'Неверный запрос',
-            'timeout-or-duplicate' => 'Время истекло или дублированный запрос',
-            'internal-error' => 'Внутренняя ошибка сервера'
+            'missing-input-secret' => 'Ошибка конфигурации капчи',
+            'invalid-input-secret' => 'Ошибка конфигурации капчи',
+            'missing-input-response' => 'Пожалуйста, пройдите проверку капчи',
+            'invalid-input-response' => 'Неверный ответ капчи. Попробуйте еще раз',
+            'bad-request' => 'Неверный запрос. Попробуйте еще раз',
+            'timeout-or-duplicate' => 'Капча устарела или запрос был отправлен повторно. Пожалуйста, обновите капчу и попробуйте снова',
+            'internal-error' => 'Временная ошибка сервера. Попробуйте еще раз через несколько секунд'
         ];
 
         if (empty($errorCodes)) {
-            return 'Неизвестная ошибка капчи';
+            return 'Ошибка проверки капчи. Попробуйте еще раз';
         }
 
         $errorMessages = [];
@@ -117,11 +131,11 @@ class TurnstileService
             if (isset($messages[$code])) {
                 $errorMessages[] = $messages[$code];
             } else {
-                $errorMessages[] = "Неизвестная ошибка: {$code}";
+                $errorMessages[] = "Ошибка капчи: {$code}";
             }
         }
 
-        return implode(', ', $errorMessages);
+        return implode('. ', $errorMessages);
     }
 
     /**
