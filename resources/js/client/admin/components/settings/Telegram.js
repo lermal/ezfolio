@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
-import CoreConstants from '../../../common/helpers/CoreConstants';
 
 const Telegram = () => {
     console.log('Telegram component is being rendered');
