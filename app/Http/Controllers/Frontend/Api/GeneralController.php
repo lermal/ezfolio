@@ -9,6 +9,7 @@ use CoreConstants;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Events\NewMessage;
 
 class GeneralController extends Controller
 {
@@ -52,7 +53,7 @@ class GeneralController extends Controller
         $data['ip_address'] = $request->ip();
         
         Log::debug('Event called', $data);
-        event(new NewMessage($data['payload']['body'], $data['payload']['name'], $data['payload']['email'], $data['payload']['subject'], $data['payload']['created_at']));
+        event(new NewMessage($data['body'], $data['name'], $data['email'], $data['subject'], $data['created_at']));
 
         $result = resolve(MessageInterface::class)->store($data);
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\InfoMessages;
+namespace App\Events;
 
 class NewMessage
 {
