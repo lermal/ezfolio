@@ -52,8 +52,8 @@ class GeneralController extends Controller
         $data = $request->all();
         $data['ip_address'] = $request->ip();
         
-        Log::debug('Event called', $data);
-        event(new NewMessage($data['body'], $data['name'], $data['email'], $data['subject'], $data['created_at']));
+        $createdAt = now();
+        event(new NewMessage($data['body'], $data['name'], $data['email'], $data['subject'], $createdAt));
 
         $result = resolve(MessageInterface::class)->store($data);
 
