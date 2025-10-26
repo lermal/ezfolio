@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Events\FrontendVisited;
+use App\Events\NewMessage;
+use App\Listeners\NewMessageListener;
 use App\Listeners\StoreVisitorData;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -22,6 +24,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         FrontendVisited::class => [
             StoreVisitorData::class
+        ],
+        NewMessage::class => [
+            NewMessageListener::class
         ]
     ];
 
