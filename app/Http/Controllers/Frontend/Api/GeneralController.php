@@ -53,10 +53,11 @@ class GeneralController extends Controller
         $data['ip_address'] = $request->ip();
         
         $createdAt = now();
-        event(new NewMessage($data['body'], $data['name'], $data['email'], $data['subject'], $createdAt));
 
         $result = resolve(MessageInterface::class)->store($data);
-
+        if ($result['status'] == CoreConstants::STATUS_CODE_SUCCESS) {
+            event(new NewMessage($data['body'], $data['name'], $data['email'], $data['subject'], $createdAt));
+        }
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
     }
 }

@@ -17,28 +17,16 @@ class NewMessageListener
 
     public function handle(NewMessage $event): void
     {
-        Log::info('NewMessageListener called', [
-            'name' => $event->name,
-            'email' => $event->email,
-            'subject' => $event->subject,
-            'body' => $event->body,
-            'created_at' => $event->createdAt
-        ]);
-        
         $message = "Новое сообщение от: " . $event->name . "\n" .
                    "Email: " . $event->email . "\n" .
                    "Тема: " . $event->subject . "\n" .
                    "Сообщение: " . $event->body;
-
-        Log::info('Telegram message prepared: ' . $message);
 
         try {
             $result = $this->telegramService->sendMessage(
                 env('TELEGRAM_CHAT_ID'),
                 $message
             );
-            
-            Log::info('Telegram message sent successfully', ['result' => $result]);
         } catch (\Exception $e) {
             Log::error('Failed to send telegram message', [
                 'error' => $e->getMessage(),
