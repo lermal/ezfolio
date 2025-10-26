@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Listeners\InfoMessages;
+namespace App\Listeners;
 
 use App\Events\NewMessage;
 use App\Models\Setting;
@@ -17,10 +17,13 @@ class NewMessageListener
 
     public function handle(NewMessage $event): void
     {
+        Log::debug('NewMessageListener called', $event);
         $message = "Новое сообщение от: " . $event->name . "\n" .
                    "Email: " . $event->email . "\n" .
                    "Тема: " . $event->subject . "\n" .
                    "Сообщение: " . $event->body;
+
+        Log::debug('Message: ' . $message);
 
         $this->telegramService->sendMessage(
             env('TELEGRAM_CHAT_ID'),
