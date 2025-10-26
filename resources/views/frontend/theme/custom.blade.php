@@ -32,23 +32,33 @@
     <title>{{$about->name}}</title>
     <link rel="shortcut icon" type="image/x-icon" href="{{ Utils::getFavicon() }}">
 
-    <!-- Bootstrap CSS -->
+    <!-- Critical CSS - Bootstrap CSS -->
     <link href="{{ asset('assets/common/lib/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Preload non-critical CSS -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
     
-    <!-- Icons -->
-    <link href="{{ asset('assets/common/lib/fontawesome/css/all.min.css') }}" rel="stylesheet" />
-    <link href="{{ asset('assets/common/lib/boxicons/css/boxicons.min.css') }}" rel="stylesheet"/>
+    <!-- Icons - Load asynchronously -->
+    <link rel="preload" href="{{ asset('assets/common/lib/fontawesome/css/all.min.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="{{ asset('assets/common/lib/fontawesome/css/all.min.css') }}" rel="stylesheet"></noscript>
     
-    <!-- Libraries -->
-    <link href="{{ asset('assets/common/lib/iziToast/css/iziToast.min.css') }}" rel="stylesheet" />
-    <link href="{{ asset('assets/common/lib/aos/aos.css') }}" rel="stylesheet">
+    <link rel="preload" href="{{ asset('assets/common/lib/boxicons/css/boxicons.min.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="{{ asset('assets/common/lib/boxicons/css/boxicons.min.css') }}" rel="stylesheet"></noscript>
     
-    <!-- Theme CSS -->
-    <link href="{{ asset('assets/themes/custom/css/styles.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/themes/custom/css/custom.css') }}" rel="stylesheet">
+    <!-- Libraries - Load asynchronously -->
+    <link rel="preload" href="{{ asset('assets/common/lib/iziToast/css/iziToast.min.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="{{ asset('assets/common/lib/iziToast/css/iziToast.min.css') }}" rel="stylesheet"></noscript>
+    
+    <link rel="preload" href="{{ asset('assets/common/lib/aos/aos.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="{{ asset('assets/common/lib/aos/aos.css') }}" rel="stylesheet"></noscript>
+    
+    <!-- Theme CSS - Load asynchronously -->
+    <link rel="preload" href="{{ asset('assets/themes/custom/css/styles.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="{{ asset('assets/themes/custom/css/styles.css') }}" rel="stylesheet"></noscript>
+    
+    <link rel="preload" href="{{ asset('assets/themes/custom/css/custom.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="{{ asset('assets/themes/custom/css/custom.css') }}" rel="stylesheet"></noscript>
     
     <style>
         :root {
@@ -177,7 +187,7 @@
             <div class="row align-items-center">
                 <div class="col-lg-6 mb-5 mb-lg-0">
                     <div class="about-image" data-aos="fade-right">
-                        <img src="{{asset($about->avatar)}}" alt="{{$about->name}}" class="img-fluid rounded-3 shadow">
+                        {!! \App\Helpers\ImageHelper::optimizedImage($about->avatar, $about->name, 'img-fluid rounded-3 shadow') !!}
                     </div>
                 </div>
                 <div class="col-lg-6">

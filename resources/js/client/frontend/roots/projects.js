@@ -149,6 +149,14 @@ function App() {
                                                             preview={false}
                                                             placeholder={true}
                                                             alt={item.title || 'Изображение проекта'}
+                                                            loading="lazy"
+                                                            onError={(e) => {
+                                                                // Fallback to WebP version if available
+                                                                const webpSrc = item.thumbnail.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+                                                                if (webpSrc !== item.thumbnail) {
+                                                                    e.target.src = Utils.backend + '/' + webpSrc;
+                                                                }
+                                                            }}
                                                         />
                                                     </div>
                                                 }

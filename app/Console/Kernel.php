@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\ResetApp;
+use App\Console\Commands\OptimizeImages;
 use Config;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -15,7 +16,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        ResetApp::class
+        ResetApp::class,
+        OptimizeImages::class
     ];
 
     /**

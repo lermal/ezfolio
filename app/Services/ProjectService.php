@@ -5,6 +5,7 @@ namespace App\Services;
 use CoreConstants;
 use App\Models\Project;
 use App\Services\Contracts\ProjectInterface;
+use App\Services\ImageOptimizationService;
 use Illuminate\Http\UploadedFile;
 use Log;
 use Str;
@@ -196,10 +197,24 @@ class ProjectService implements ProjectInterface
                 mkdir($pathName, 0777, true);
             }
             if ($file->move($pathName, $fileName)) {
+                $fullPath = $pathName.$fileName;
+                
+                // Optimize the thumbnail
+                $imageOptimizer = new ImageOptimizationService();
+                $optimizationResult = $imageOptimizer->optimizeProjectThumbnail($fullPath);
+                
+                if ($optimizationResult['status']) {
+                    Log::info('Project thumbnail optimized', [
+                        'original' => $fullPath,
+                        'webp' => $optimizationResult['webp_path'],
+                        'savings' => $optimizationResult['savings_percent'] . '%'
+                    ]);
+                }
+                
                 return [
                     'message' => __('services.file_saved_successfully'),
                     'payload' => [
-                        'file' => $pathName.$fileName
+                        'file' => $fullPath
                     ],
                     'status' => CoreConstants::STATUS_CODE_SUCCESS
                 ];
@@ -254,7 +269,21 @@ class ProjectService implements ProjectInterface
                         mkdir($pathName, 0777, true);
                     }
                     if ($file->move($pathName, $fileName)) {
-                        array_push($savedFileArray, $pathName.$fileName);
+                        $fullPath = $pathName.$fileName;
+                        
+                        // Optimize the image
+                        $imageOptimizer = new ImageOptimizationService();
+                        $optimizationResult = $imageOptimizer->optimizeProjectImage($fullPath);
+                        
+                        if ($optimizationResult['status']) {
+                            Log::info('Project image optimized', [
+                                'original' => $fullPath,
+                                'webp' => $optimizationResult['webp_path'],
+                                'savings' => $optimizationResult['savings_percent'] . '%'
+                            ]);
+                        }
+                        
+                        array_push($savedFileArray, $fullPath);
                     }
                 } catch (\Throwable $th) {
                     Log::error($th->getMessage());
