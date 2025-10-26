@@ -87,6 +87,7 @@ const ProjectPopup = (props) => {
                                                 transition: '0.3s ease',
                                                 objectFit: 'cover'
                                             }}
+                                            alt={props.project.title ? `${props.project.title} - изображение ${index + 1}` : `Изображение проекта ${index + 1}`}
                                         />
                                     </div>
                                 ))

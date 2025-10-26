@@ -148,6 +148,7 @@ function App() {
                                                             style={thumbnailStyle}
                                                             preview={false}
                                                             placeholder={true}
+                                                            alt={item.title || 'Изображение проекта'}
                                                         />
                                                     </div>
                                                 }
