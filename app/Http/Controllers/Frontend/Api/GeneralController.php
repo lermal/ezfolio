@@ -8,6 +8,7 @@ use App\Services\Contracts\MessageInterface;
 use CoreConstants;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class GeneralController extends Controller
 {
