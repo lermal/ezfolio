@@ -747,8 +747,8 @@ class ProjectService implements ProjectInterface
 
                 $html .= '
                 <div class="project">
-                    ' . $thumbnailHtml . '
                     <div class="project-title">' . htmlspecialchars($project->title) . '</div>
+                    ' . $thumbnailHtml . '
                     
                     ' . ($project->details ? '<div class="project-details"><strong>Описание:</strong><br>' . preg_replace('/\r\n|\r|\n/', '<br>', htmlspecialchars($project->details)) . '</div>' : '') . '
                     
