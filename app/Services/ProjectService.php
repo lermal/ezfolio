@@ -595,19 +595,34 @@ class ProjectService implements ProjectInterface
                     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
                     transition: transform 0.2s ease;
                 }
+                .project-header {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 15px;
+                }
+                .project-thumbnail {
+                    width: 60px;
+                    height: 60px;
+                    object-fit: cover;
+                    border-radius: 8px;
+                    border: 2px solid #e9ecef;
+                    margin-right: 15px;
+                    flex-shrink: 0;
+                }
                 .project-title {
                     font-size: 22px;
                     font-weight: 600;
                     color: #007bff;
-                    margin-bottom: 15px;
-                    border-left: 4px solid #007bff;
-                    padding-left: 15px;
+                    margin: 0;
+                    flex: 1;
                 }
                 .project-details {
                     margin: 15px 0;
                     line-height: 1.7;
                     color: #555;
                     font-size: 15px;
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
                 }
                 .project-link {
                     margin: 15px 0;
@@ -643,8 +658,8 @@ class ProjectService implements ProjectInterface
                 }
                 .category-tag {
                     display: inline-block;
-                    background: linear-gradient(135deg, #007bff, #0056b3);
-                    color: white;
+                    background-color: #007bff;
+                    color: white !important;
                     padding: 6px 12px;
                     border-radius: 20px;
                     margin-right: 8px;
@@ -706,11 +721,27 @@ class ProjectService implements ProjectInterface
                     $imagesHtml .= '</div>';
                 }
 
+                // Generate thumbnail HTML
+                $thumbnailHtml = '';
+                if ($project->thumbnail && file_exists($project->thumbnail) && is_readable($project->thumbnail)) {
+                    try {
+                        $thumbnailData = base64_encode(file_get_contents($project->thumbnail));
+                        $thumbnailExtension = strtolower(pathinfo($project->thumbnail, PATHINFO_EXTENSION));
+                        $thumbnailMimeType = 'image/' . ($thumbnailExtension === 'jpg' ? 'jpeg' : $thumbnailExtension);
+                        $thumbnailHtml = '<img src="data:' . $thumbnailMimeType . ';base64,' . $thumbnailData . '" class="project-thumbnail" alt="Project Thumbnail">';
+                    } catch (\Exception $e) {
+                        Log::error('Error processing thumbnail for PDF: ' . $e->getMessage());
+                    }
+                }
+
                 $html .= '
                 <div class="project">
-                    <div class="project-title">' . htmlspecialchars($project->title) . '</div>
+                    <div class="project-header">
+                        ' . $thumbnailHtml . '
+                        <div class="project-title">' . htmlspecialchars($project->title) . '</div>
+                    </div>
                     
-                    ' . ($project->details ? '<div class="project-details"><strong>Описание:</strong> ' . htmlspecialchars($project->details) . '</div>' : '') . '
+                    ' . ($project->details ? '<div class="project-details"><strong>Описание:</strong><br>' . nl2br(htmlspecialchars($project->details)) . '</div>' : '') . '
                     
                     ' . ($project->link ? '<div class="project-link"><strong>Ссылка:</strong> <a href="' . htmlspecialchars($project->link) . '">' . htmlspecialchars($project->link) . '</a></div>' : '') . '
                     
@@ -725,7 +756,7 @@ class ProjectService implements ProjectInterface
 
         $html .= '
                 <div class="footer">
-                    <p>Документ создан автоматически системой управления портфолио</p>
+                    <p>Документ создан автоматически моей системой управления портфолио. Посмотреть на мое веб-портфолио можно тут: <a href="https://webcodewizard.ru" target="_blank">https://webcodewizard.ru</a></p>
                 </div>
             </div>
         </body>
