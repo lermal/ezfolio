@@ -601,33 +601,27 @@ class ProjectService implements ProjectInterface
                     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
                     transition: transform 0.2s ease;
                 }
-                .project-header {
-                    display: flex;
-                    align-items: center;
-                    margin-bottom: 15px;
-                }
                 .project-thumbnail {
-                    width: 60px;
-                    height: 60px;
+                    width: 100%;
+                    height: 200px;
                     object-fit: cover;
                     border-radius: 8px;
                     border: 2px solid #e9ecef;
-                    margin-right: 15px;
-                    flex-shrink: 0;
+                    margin-bottom: 15px;
                 }
                 .project-title {
                     font-size: 22px;
                     font-weight: 600;
                     color: #007bff;
-                    margin: 0;
-                    flex: 1;
+                    margin-bottom: 15px;
+                    border-left: 4px solid #007bff;
+                    padding-left: 15px;
                 }
                 .project-details {
                     margin: 15px 0;
                     line-height: 1.7;
                     color: #555;
                     font-size: 15px;
-                    white-space: pre-wrap;
                     word-wrap: break-word;
                 }
                 .project-link {
@@ -753,12 +747,10 @@ class ProjectService implements ProjectInterface
 
                 $html .= '
                 <div class="project">
-                    <div class="project-header">
-                        ' . $thumbnailHtml . '
-                        <div class="project-title">' . htmlspecialchars($project->title) . '</div>
-                    </div>
+                    ' . $thumbnailHtml . '
+                    <div class="project-title">' . htmlspecialchars($project->title) . '</div>
                     
-                    ' . ($project->details ? '<div class="project-details"><strong>Описание:</strong><br>' . nl2br(htmlspecialchars($project->details)) . '</div>' : '') . '
+                    ' . ($project->details ? '<div class="project-details"><strong>Описание:</strong><br>' . preg_replace('/\r\n|\r|\n/', '<br>', htmlspecialchars($project->details)) . '</div>' : '') . '
                     
                     ' . ($project->link ? '<div class="project-link"><strong>Ссылка:</strong> <a href="' . htmlspecialchars($project->link) . '">' . htmlspecialchars($project->link) . '</a></div>' : '') . '
                     
