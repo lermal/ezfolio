@@ -78,6 +78,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/projects/{id}', ['App\Http\Controllers\Admin\Api\ProjectController', 'show']);
             Route::put('/projects/{id}', ['App\Http\Controllers\Admin\Api\ProjectController', 'update']);
             Route::delete('/projects', ['App\Http\Controllers\Admin\Api\ProjectController', 'destroy']);
+            Route::get('/projects/export-pdf', ['App\Http\Controllers\Admin\Api\ProjectController', 'exportToPDF']);
 
             Route::get('/services', ['App\Http\Controllers\Admin\Api\ServiceController', 'index']);
             Route::post('/services', ['App\Http\Controllers\Admin\Api\ServiceController', 'store']);

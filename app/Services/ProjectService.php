@@ -10,6 +10,7 @@ use Illuminate\Http\UploadedFile;
 use Log;
 use Str;
 use Validator;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ProjectService implements ProjectInterface
 {
@@ -475,5 +476,156 @@ class ProjectService implements ProjectInterface
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
         }
+    }
+
+    /**
+     * Export projects to PDF
+     *
+     * @return array
+     */
+    public function exportToPDF()
+    {
+        try {
+            $projects = $this->model->orderBy('created_at', 'desc')->get();
+            
+            if ($projects->isEmpty()) {
+                return [
+                    'message' => 'No projects found to export',
+                    'payload' => null,
+                    'status' => CoreConstants::STATUS_CODE_NOT_FOUND
+                ];
+            }
+
+            $html = $this->generateProjectsHTML($projects);
+            
+            $pdf = Pdf::loadHTML($html);
+            $pdf->setPaper('A4', 'portrait');
+            
+            return [
+                'message' => 'PDF generated successfully',
+                'payload' => $pdf->output(),
+                'status' => CoreConstants::STATUS_CODE_SUCCESS
+            ];
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return [
+                'message' => 'Something went wrong while generating PDF',
+                'payload' => $th->getMessage(),
+                'status' => CoreConstants::STATUS_CODE_ERROR
+            ];
+        }
+    }
+
+    /**
+     * Generate HTML content for projects PDF
+     *
+     * @param \Illuminate\Database\Eloquent\Collection $projects
+     * @return string
+     */
+    private function generateProjectsHTML($projects)
+    {
+        $html = '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <title>Portfolio Projects</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                    color: #333;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 30px;
+                    border-bottom: 2px solid #007bff;
+                    padding-bottom: 20px;
+                }
+                .header h1 {
+                    color: #007bff;
+                    margin: 0;
+                    font-size: 28px;
+                }
+                .project {
+                    margin-bottom: 30px;
+                    padding: 20px;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    background-color: #f9f9f9;
+                }
+                .project-title {
+                    font-size: 20px;
+                    font-weight: bold;
+                    color: #007bff;
+                    margin-bottom: 10px;
+                }
+                .project-details {
+                    margin: 10px 0;
+                    line-height: 1.6;
+                }
+                .project-link {
+                    margin: 10px 0;
+                }
+                .project-link a {
+                    color: #007bff;
+                    text-decoration: none;
+                }
+                .categories {
+                    margin: 10px 0;
+                }
+                .category-tag {
+                    display: inline-block;
+                    background-color: #007bff;
+                    color: white;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    margin-right: 5px;
+                    margin-bottom: 5px;
+                    font-size: 12px;
+                }
+                .no-projects {
+                    text-align: center;
+                    color: #666;
+                    font-style: italic;
+                    margin-top: 50px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Portfolio Projects</h1>
+                <p>Generated on ' . date('F j, Y') . '</p>
+            </div>';
+
+        if ($projects->count() > 0) {
+            foreach ($projects as $project) {
+                $categories = json_decode($project->categories, true) ?? [];
+                $categoryTags = '';
+                
+                foreach ($categories as $category) {
+                    $categoryTags .= '<span class="category-tag">' . htmlspecialchars($category) . '</span>';
+                }
+
+                $html .= '
+                <div class="project">
+                    <div class="project-title">' . htmlspecialchars($project->title) . '</div>
+                    
+                    ' . ($project->details ? '<div class="project-details"><strong>Details:</strong> ' . htmlspecialchars($project->details) . '</div>' : '') . '
+                    
+                    ' . ($project->link ? '<div class="project-link"><strong>Link:</strong> <a href="' . htmlspecialchars($project->link) . '">' . htmlspecialchars($project->link) . '</a></div>' : '') . '
+                    
+                    ' . (!empty($categories) ? '<div class="categories"><strong>Categories:</strong><br>' . $categoryTags . '</div>' : '') . '
+                </div>';
+            }
+        } else {
+            $html .= '<div class="no-projects">No projects found</div>';
+        }
+
+        $html .= '
+        </body>
+        </html>';
+
+        return $html;
     }
 }

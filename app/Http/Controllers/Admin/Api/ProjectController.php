@@ -91,4 +91,23 @@ class ProjectController extends Controller
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
     }
+
+    /**
+     * Export projects to PDF
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function exportToPDF()
+    {
+        $result = $this->project->exportToPDF();
+
+        if ($result['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
+            return response()->json($result, $result['status']);
+        }
+
+        return response($result['payload'], 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="portfolio-projects.pdf"'
+        ]);
+    }
 }

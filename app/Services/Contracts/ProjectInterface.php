@@ -45,4 +45,11 @@ interface ProjectInterface
      * @return array
      */
     public function deleteByIds(array $ids);
+
+    /**
+     * Export projects to PDF
+     *
+     * @return array
+     */
+    public function exportToPDF();
 }
