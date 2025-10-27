@@ -603,7 +603,7 @@ class ProjectService implements ProjectInterface
                 }
                 .project-thumbnail {
                     width: 100%;
-                    height: 200px;
+                    height: auto;
                     object-fit: cover;
                     border-radius: 8px;
                     border: 2px solid #e9ecef;
@@ -756,7 +756,7 @@ class ProjectService implements ProjectInterface
                     
                     ' . $imagesHtml . '
                     
-                    ' . (!empty($categories) ? '<div class="categories"><div class="categories-label">Категории:</div>' . $categoryTags . '</div>' : '') . '
+                    ' . (!empty($categories) ? '<div class="categories"><div class="categories-label">Категории:<br></div>' . $categoryTags . '</div>' : '') . '
                 </div>';
                 
                 unset($imagesHtml, $thumbnailHtml, $categoryTags);
