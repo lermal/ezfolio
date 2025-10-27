@@ -505,7 +505,17 @@ class ProjectService implements ProjectInterface
             
             $pdf = Pdf::loadHTML($html);
             $pdf->setPaper('A4', 'portrait');
-            $pdf->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
+            $pdf->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'defaultFont' => 'DejaVu Sans',
+                'isUnicode' => true,
+                'isPhpEnabled' => true,
+                'isJavascriptEnabled' => false,
+                'fontHeightRatio' => 1.1,
+                'isFontSubsettingEnabled' => true,
+                'defaultMediaType' => 'print'
+            ]);
             
             return [
                 'message' => 'PDF generated successfully',
@@ -538,9 +548,8 @@ class ProjectService implements ProjectInterface
             <meta charset="UTF-8">
             <title>Portfolio Projects</title>
             <style>
-                @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
                 body {
-                    font-family: "Inter", Arial, sans-serif;
+                    font-family: "DejaVu Sans", Arial, sans-serif;
                     margin: 0;
                     padding: 20px;
                     color: #333;
@@ -683,8 +692,15 @@ class ProjectService implements ProjectInterface
                 if (!empty($images)) {
                     $imagesHtml = '<div class="project-images">';
                     foreach (array_slice($images, 0, 6) as $image) { // Показываем максимум 6 изображений
-                        if (file_exists($image)) {
-                            $imagesHtml .= '<img src="' . $image . '" class="project-image" alt="Project Image">';
+                        if (file_exists($image) && is_readable($image)) {
+                            try {
+                                $imageData = base64_encode(file_get_contents($image));
+                                $imageExtension = strtolower(pathinfo($image, PATHINFO_EXTENSION));
+                                $mimeType = 'image/' . ($imageExtension === 'jpg' ? 'jpeg' : $imageExtension);
+                                $imagesHtml .= '<img src="data:' . $mimeType . ';base64,' . $imageData . '" class="project-image" alt="Project Image">';
+                            } catch (\Exception $e) {
+                                Log::error('Error processing image for PDF: ' . $e->getMessage());
+                            }
                         }
                     }
                     $imagesHtml .= '</div>';
