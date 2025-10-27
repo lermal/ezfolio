@@ -653,7 +653,7 @@ class ProjectService implements ProjectInterface
                 .categories-label {
                     font-weight: 600;
                     color: #495057;
-                    margin-bottom: 10px;
+                    padding-bottom: 20px;
                     font-size: 14px;
                 }
                 .category-tag {
