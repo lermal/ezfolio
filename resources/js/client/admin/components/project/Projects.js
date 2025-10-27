@@ -2,7 +2,7 @@ import { Button, Menu, PageHeader, Space, Dropdown, Modal, Avatar, Tag, Typograp
 import React, { useRef, useState } from 'react';
 import PageWrapper from '../layout/PageWrapper';
 import ProTable from '@ant-design/pro-table';
-import { DownOutlined, ExclamationCircleOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { DownOutlined, ExclamationCircleOutlined, EditOutlined, DeleteOutlined, FilePdfOutlined } from '@ant-design/icons';
 import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
@@ -142,6 +142,30 @@ const Projects = () => {
         });
     }
 
+    const exportToPDF = () => {
+        setLoading(true);
+        HTTP.get(Routes.api.admin.projects + '/export-pdf', {
+            responseType: 'blob'
+        })
+        .then(response => {
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'portfolio-projects.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            Utils.showTinyNotification('Projects successfully exported to PDF', 'success');
+        })
+        .catch((error) => {
+            Utils.handleException(error);
+        }).finally(() => {
+            setLoading(false);
+        });
+    }
+
     const menu = (row) => (
         <Menu>
             <Menu.Item 
@@ -179,6 +203,15 @@ const Projects = () => {
                         </Typography.Text>
                     }
                     extra={[
+                        <Button 
+                            key="export-pdf" 
+                            icon={<FilePdfOutlined />} 
+                            onClick={exportToPDF}
+                            loading={loading}
+                            style={{ marginRight: 8 }}
+                        >
+                            Export to PDF
+                        </Button>,
                         <Button key="add" type="primary" onClick={() => setModalVisible(true)}>
                             Add New
                         </Button>,
