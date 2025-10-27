@@ -487,6 +487,9 @@ class ProjectService implements ProjectInterface
     public function exportToPDF()
     {
         try {
+            // Increase memory limit for PDF generation
+            ini_set('memory_limit', '512M');
+            
             $projects = $this->model->orderBy('created_at', 'desc')->get();
             
             if ($projects->isEmpty()) {
@@ -507,14 +510,17 @@ class ProjectService implements ProjectInterface
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOptions([
                 'isHtml5ParserEnabled' => true,
-                'isRemoteEnabled' => true,
+                'isRemoteEnabled' => false, // Отключаем загрузку внешних ресурсов
                 'defaultFont' => 'DejaVu Sans',
                 'isUnicode' => true,
                 'isPhpEnabled' => true,
                 'isJavascriptEnabled' => false,
                 'fontHeightRatio' => 1.1,
                 'isFontSubsettingEnabled' => true,
-                'defaultMediaType' => 'print'
+                'defaultMediaType' => 'print',
+                'debugKeepTemp' => false,
+                'debugCss' => false,
+                'debugLayout' => false
             ]);
             
             return [
@@ -706,9 +712,15 @@ class ProjectService implements ProjectInterface
                 $imagesHtml = '';
                 if (!empty($images)) {
                     $imagesHtml = '<div class="project-images">';
-                    foreach (array_slice($images, 0, 6) as $image) { // Показываем максимум 6 изображений
+                    foreach (array_slice($images, 0, 4) as $image) {
                         if (file_exists($image) && is_readable($image)) {
                             try {
+                                $fileSize = filesize($image);
+                                if ($fileSize > 2 * 1024 * 1024) {
+                                    Log::warning('Image too large for PDF: ' . $image . ' (' . $fileSize . ' bytes)');
+                                    continue;
+                                }
+                                
                                 $imageData = base64_encode(file_get_contents($image));
                                 $imageExtension = strtolower(pathinfo($image, PATHINFO_EXTENSION));
                                 $mimeType = 'image/' . ($imageExtension === 'jpg' ? 'jpeg' : $imageExtension);
@@ -725,10 +737,15 @@ class ProjectService implements ProjectInterface
                 $thumbnailHtml = '';
                 if ($project->thumbnail && file_exists($project->thumbnail) && is_readable($project->thumbnail)) {
                     try {
-                        $thumbnailData = base64_encode(file_get_contents($project->thumbnail));
-                        $thumbnailExtension = strtolower(pathinfo($project->thumbnail, PATHINFO_EXTENSION));
-                        $thumbnailMimeType = 'image/' . ($thumbnailExtension === 'jpg' ? 'jpeg' : $thumbnailExtension);
-                        $thumbnailHtml = '<img src="data:' . $thumbnailMimeType . ';base64,' . $thumbnailData . '" class="project-thumbnail" alt="Project Thumbnail">';
+                        $thumbnailSize = filesize($project->thumbnail);
+                        if ($thumbnailSize > 1 * 1024 * 1024) {
+                            Log::warning('Thumbnail too large for PDF: ' . $project->thumbnail . ' (' . $thumbnailSize . ' bytes)');
+                        } else {
+                            $thumbnailData = base64_encode(file_get_contents($project->thumbnail));
+                            $thumbnailExtension = strtolower(pathinfo($project->thumbnail, PATHINFO_EXTENSION));
+                            $thumbnailMimeType = 'image/' . ($thumbnailExtension === 'jpg' ? 'jpeg' : $thumbnailExtension);
+                            $thumbnailHtml = '<img src="data:' . $thumbnailMimeType . ';base64,' . $thumbnailData . '" class="project-thumbnail" alt="Project Thumbnail">';
+                        }
                     } catch (\Exception $e) {
                         Log::error('Error processing thumbnail for PDF: ' . $e->getMessage());
                     }
@@ -749,6 +766,11 @@ class ProjectService implements ProjectInterface
                     
                     ' . (!empty($categories) ? '<div class="categories"><div class="categories-label">Категории:</div>' . $categoryTags . '</div>' : '') . '
                 </div>';
+                
+                unset($imagesHtml, $thumbnailHtml, $categoryTags);
+                if (function_exists('gc_collect_cycles')) {
+                    gc_collect_cycles();
+                }
             }
         } else {
             $html .= '<div class="no-projects">Проекты не найдены</div>';
