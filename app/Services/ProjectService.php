@@ -4,6 +4,7 @@ namespace App\Services;
 
 use CoreConstants;
 use App\Models\Project;
+use App\Models\About;
 use App\Services\Contracts\ProjectInterface;
 use App\Services\ImageOptimizationService;
 use Illuminate\Http\UploadedFile;
@@ -496,10 +497,15 @@ class ProjectService implements ProjectInterface
                 ];
             }
 
-            $html = $this->generateProjectsHTML($projects);
+            // Get author information
+            $about = About::first();
+            $authorName = $about ? $about->name : 'Portfolio Owner';
+
+            $html = $this->generateProjectsHTML($projects, $authorName);
             
             $pdf = Pdf::loadHTML($html);
             $pdf->setPaper('A4', 'portrait');
+            $pdf->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
             
             return [
                 'message' => 'PDF generated successfully',
@@ -520,109 +526,192 @@ class ProjectService implements ProjectInterface
      * Generate HTML content for projects PDF
      *
      * @param \Illuminate\Database\Eloquent\Collection $projects
+     * @param string $authorName
      * @return string
      */
-    private function generateProjectsHTML($projects)
+    private function generateProjectsHTML($projects, $authorName)
     {
         $html = '
         <!DOCTYPE html>
         <html>
         <head>
-            <meta charset="utf-8">
+            <meta charset="UTF-8">
             <title>Portfolio Projects</title>
             <style>
+                @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
                 body {
-                    font-family: Arial, sans-serif;
-                    margin: 20px;
+                    font-family: "Inter", Arial, sans-serif;
+                    margin: 0;
+                    padding: 20px;
                     color: #333;
+                    background-color: #f8f9fa;
+                }
+                .container {
+                    max-width: 800px;
+                    margin: 0 auto;
+                    background-color: white;
+                    padding: 30px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                 }
                 .header {
                     text-align: center;
-                    margin-bottom: 30px;
-                    border-bottom: 2px solid #007bff;
-                    padding-bottom: 20px;
+                    margin-bottom: 40px;
+                    border-bottom: 3px solid #007bff;
+                    padding-bottom: 25px;
                 }
                 .header h1 {
                     color: #007bff;
                     margin: 0;
-                    font-size: 28px;
+                    font-size: 32px;
+                    font-weight: 700;
+                }
+                .header .author {
+                    color: #666;
+                    font-size: 16px;
+                    margin-top: 10px;
+                    font-weight: 500;
+                }
+                .header .date {
+                    color: #888;
+                    font-size: 14px;
+                    margin-top: 5px;
                 }
                 .project {
-                    margin-bottom: 30px;
-                    padding: 20px;
-                    border: 1px solid #ddd;
-                    border-radius: 8px;
-                    background-color: #f9f9f9;
+                    margin-bottom: 35px;
+                    padding: 25px;
+                    border: 1px solid #e9ecef;
+                    border-radius: 12px;
+                    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                    transition: transform 0.2s ease;
                 }
                 .project-title {
-                    font-size: 20px;
-                    font-weight: bold;
+                    font-size: 22px;
+                    font-weight: 600;
                     color: #007bff;
-                    margin-bottom: 10px;
+                    margin-bottom: 15px;
+                    border-left: 4px solid #007bff;
+                    padding-left: 15px;
                 }
                 .project-details {
-                    margin: 10px 0;
-                    line-height: 1.6;
+                    margin: 15px 0;
+                    line-height: 1.7;
+                    color: #555;
+                    font-size: 15px;
                 }
                 .project-link {
-                    margin: 10px 0;
+                    margin: 15px 0;
                 }
                 .project-link a {
                     color: #007bff;
                     text-decoration: none;
+                    font-weight: 500;
+                    border-bottom: 1px dotted #007bff;
+                }
+                .project-images {
+                    margin: 20px 0;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                }
+                .project-image {
+                    width: 120px;
+                    height: 80px;
+                    object-fit: cover;
+                    border-radius: 8px;
+                    border: 2px solid #e9ecef;
                 }
                 .categories {
-                    margin: 10px 0;
+                    margin: 20px 0 0 0;
+                    clear: both;
+                }
+                .categories-label {
+                    font-weight: 600;
+                    color: #495057;
+                    margin-bottom: 10px;
+                    font-size: 14px;
                 }
                 .category-tag {
                     display: inline-block;
-                    background-color: #007bff;
+                    background: linear-gradient(135deg, #007bff, #0056b3);
                     color: white;
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                    margin-right: 5px;
-                    margin-bottom: 5px;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    margin-right: 8px;
+                    margin-bottom: 8px;
                     font-size: 12px;
+                    font-weight: 500;
+                    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
                 }
                 .no-projects {
                     text-align: center;
                     color: #666;
                     font-style: italic;
                     margin-top: 50px;
+                    font-size: 18px;
+                }
+                .footer {
+                    margin-top: 40px;
+                    text-align: center;
+                    color: #888;
+                    font-size: 12px;
+                    border-top: 1px solid #e9ecef;
+                    padding-top: 20px;
                 }
             </style>
         </head>
         <body>
-            <div class="header">
-                <h1>Portfolio Projects</h1>
-                <p>Generated on ' . date('F j, Y') . '</p>
-            </div>';
+            <div class="container">
+                <div class="header">
+                    <h1>Портфолио проектов</h1>
+                    <div class="author">Автор: ' . htmlspecialchars($authorName) . '</div>
+                    <div class="date">Создано: ' . date('d.m.Y') . '</div>
+                </div>';
 
         if ($projects->count() > 0) {
             foreach ($projects as $project) {
                 $categories = json_decode($project->categories, true) ?? [];
-                $categoryTags = '';
+                $images = json_decode($project->images, true) ?? [];
                 
+                $categoryTags = '';
                 foreach ($categories as $category) {
                     $categoryTags .= '<span class="category-tag">' . htmlspecialchars($category) . '</span>';
+                }
+
+                $imagesHtml = '';
+                if (!empty($images)) {
+                    $imagesHtml = '<div class="project-images">';
+                    foreach (array_slice($images, 0, 6) as $image) { // Показываем максимум 6 изображений
+                        if (file_exists($image)) {
+                            $imagesHtml .= '<img src="' . $image . '" class="project-image" alt="Project Image">';
+                        }
+                    }
+                    $imagesHtml .= '</div>';
                 }
 
                 $html .= '
                 <div class="project">
                     <div class="project-title">' . htmlspecialchars($project->title) . '</div>
                     
-                    ' . ($project->details ? '<div class="project-details"><strong>Details:</strong> ' . htmlspecialchars($project->details) . '</div>' : '') . '
+                    ' . ($project->details ? '<div class="project-details"><strong>Описание:</strong> ' . htmlspecialchars($project->details) . '</div>' : '') . '
                     
-                    ' . ($project->link ? '<div class="project-link"><strong>Link:</strong> <a href="' . htmlspecialchars($project->link) . '">' . htmlspecialchars($project->link) . '</a></div>' : '') . '
+                    ' . ($project->link ? '<div class="project-link"><strong>Ссылка:</strong> <a href="' . htmlspecialchars($project->link) . '">' . htmlspecialchars($project->link) . '</a></div>' : '') . '
                     
-                    ' . (!empty($categories) ? '<div class="categories"><strong>Categories:</strong><br>' . $categoryTags . '</div>' : '') . '
+                    ' . $imagesHtml . '
+                    
+                    ' . (!empty($categories) ? '<div class="categories"><div class="categories-label">Категории:</div>' . $categoryTags . '</div>' : '') . '
                 </div>';
             }
         } else {
-            $html .= '<div class="no-projects">No projects found</div>';
+            $html .= '<div class="no-projects">Проекты не найдены</div>';
         }
 
         $html .= '
+                <div class="footer">
+                    <p>Документ создан автоматически системой управления портфолио</p>
+                </div>
+            </div>
         </body>
         </html>';
 
