@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Drawer, Button, Spin, Divider, Carousel, Row, Col, Image, Tag } from 'antd';
+import { Drawer, Button, Spin, Divider, Carousel, Row, Col, Image, Tag, Space } from 'antd';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Utils from '../../common/helpers/Utils';
