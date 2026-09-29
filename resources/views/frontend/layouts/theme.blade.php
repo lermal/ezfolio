@@ -70,8 +70,8 @@
     @if (config('services.turnstile.site_key'))
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     @endif
-    <script>
-        window.ezfolioContactForm = @json([
+    @php
+        $contactFormConfig = [
             'url' => route('contact-me'),
             'messages' => [
                 'sending' => __('frontend.contact.sending'),
@@ -79,7 +79,10 @@
                 'failed' => __('frontend.contact.message_failed'),
                 'networkError' => __('frontend.contact.network_error'),
             ],
-        ]);
+        ];
+    @endphp
+    <script>
+        window.ezfolioContactForm = @json($contactFormConfig);
     </script>
     <script src="{{ asset('assets/common/js/contact-form.js') }}"></script>
 
