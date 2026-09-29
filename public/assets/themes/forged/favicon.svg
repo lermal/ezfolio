@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Forged">
+    <rect width="32" height="32" rx="7" fill="#101215"/>
+    <path fill="#f6f1ea" d="M8 6h6v20H8zM8 6h16v5H8z"/>
+    <path fill="#e85d04" d="M8 14h11v5H8z"/>
+</svg>

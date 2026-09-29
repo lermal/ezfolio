@@ -3,6 +3,12 @@
 
 @section('preloader', '')
 
+@section('favicon')
+    <link rel="icon" href="{{ asset('assets/themes/forged/favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ asset('assets/themes/forged/favicon-32.png') }}" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="{{ asset('assets/themes/forged/apple-touch-icon.png') }}">
+@endsection
+
 @section('styles')
     <link href="{{ asset('assets/common/lib/fontawesome/css/all.min.css') }}" rel="stylesheet">
     <link href="{{ $forged['assets']['css'] }}" rel="stylesheet">

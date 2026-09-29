@@ -37,7 +37,11 @@
     <meta property="og:image" content="{{ asset($portfolioConfig['seo']['image']) }}"/>
     <meta property="og:image:secure_url" content="{{ asset($portfolioConfig['seo']['image']) }}"/>
     <title>{{ $about->name }}</title>
-    <link rel="shortcut icon" type="image/x-icon" href="{{ Utils::getFavicon() }}">
+    @hasSection('favicon')
+        @yield('favicon')
+    @else
+        <link rel="shortcut icon" type="image/x-icon" href="{{ Utils::getFavicon() }}">
+    @endif
 
     <link href="{{ asset('assets/common/lib/iziToast/css/iziToast.min.css') }}" rel="stylesheet">
     @yield('styles')
