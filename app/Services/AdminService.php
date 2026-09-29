@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App;
 use CoreConstants;
+use App\Helpers\ThemeRegistry;
 use App\Models\Admin;
 use App\Models\AdminPasswordResets;
 use App\Models\Education;
@@ -781,9 +782,9 @@ class AdminService implements AdminInterface
             if ($currentTemplate) {
                 $templateResponse = resolve(PortfolioConfigInterface::class)->getConfigByKey(CoreConstants::PORTFOLIO_CONFIG__TEMPLATE, ['setting_value']);
 
-                if ($templateResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                    $data['currentTemplate'] = $templateResponse['payload']->setting_value;
-                }
+                $data['currentTemplate'] = ThemeRegistry::resolve(
+                    $templateResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS ? $templateResponse['payload']->setting_value : null
+                );
             }
 
             return [

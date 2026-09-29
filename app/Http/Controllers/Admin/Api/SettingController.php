@@ -42,7 +42,7 @@ class SettingController extends Controller
     public function index(Request $request)
     {
         if ($request->isMethod('get')) {
-            $result = $this->setting->getSettingsData();
+            $result = $this->setting->getSettingsData(true);
         } elseif ($request->isMethod('post')) {
             $result = $this->setting->setSettingData($request->all());
         }

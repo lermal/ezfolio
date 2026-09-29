@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use CoreConstants;
+use App\Helpers\ThemeRegistry;
 use App\Services\Contracts\AboutInterface;
 use App\Services\Contracts\EducationInterface;
 use App\Services\Contracts\ExperienceInterface;
@@ -45,8 +46,8 @@ class PortfolioSeeder extends Seeder
             //template
             $data = [
                 'setting_key' => CoreConstants::PORTFOLIO_CONFIG__TEMPLATE,
-                'setting_value' => 'procyon',
-                'default_value' => 'procyon',
+                'setting_value' => ThemeRegistry::defaultId(),
+                'default_value' => ThemeRegistry::defaultId(),
             ];
             $portfolioConfig->insertOrUpdate($data);
 

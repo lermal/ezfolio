@@ -17,7 +17,7 @@ import {
 import { message } from 'antd';
 import NavContent from './NavContent';
 import { useIsMobile } from '../../../common/hooks/IsMobile';
-import axios from 'axios';
+import HTTP from '../../../common/helpers/HTTP';
 
 const ZLayout = ({ children }) => {
     const isMobile = useIsMobile();
@@ -42,11 +42,7 @@ const ZLayout = ({ children }) => {
             key: 'optimize'
         });
 
-        axios.get(Routes.web.frontend.optimize, {
-            headers: { 
-                Accept: 'application/json'
-            }
-        })
+        HTTP.post(Routes.api.admin.optimize)
         .then(response => {
             Utils.handleSuccessResponse(response, () => {
                 message.success({ 
@@ -56,6 +52,25 @@ const ZLayout = ({ children }) => {
             })
         })
         .catch((error) => {
+            message.destroy('optimize');
+            Utils.handleException(error);
+        });
+    }
+
+    const systemLogsOnClick = () => {
+        // Opened synchronously so the popup blocker allows it; the url is set once the api responds.
+        const logsWindow = window.open('', '_blank');
+
+        HTTP.get(Routes.api.admin.systemLogsUrl)
+        .then(response => {
+            Utils.handleSuccessResponse(response, () => {
+                logsWindow.location.href = response.data.payload.url;
+            }, () => {
+                logsWindow.close();
+            })
+        })
+        .catch((error) => {
+            logsWindow.close();
             Utils.handleException(error);
         });
     }
@@ -134,8 +149,8 @@ const ZLayout = ({ children }) => {
                     icon: <MailOutlined/>,
                 },
                 {
-                    path: Routes.web.frontend.optimize,
-                    key: Routes.web.frontend.optimize,
+                    path: 'optimize',
+                    key: 'optimize',
                     name: 'Optimize',
                     onclickHandle: optimizeOnClick,
                     icon: <ThunderboltOutlined/>,
@@ -144,7 +159,7 @@ const ZLayout = ({ children }) => {
                     path: Routes.web.admin.systemLogs,
                     key: Routes.web.admin.systemLogs,
                     name: 'System Logs',
-                    onclickHandle: () => { window.open(Routes.web.admin.systemLogs) },
+                    onclickHandle: systemLogsOnClick,
                     icon: <FileTextOutlined/>,
                 },
                 {

@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Services\Contracts\AdminInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\URL;
 
 class AdminController extends Controller
 {
@@ -127,5 +129,40 @@ class AdminController extends Controller
         );
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
+    }
+
+    /**
+     * Clear config, cache and compiled views
+     *
+     * @return JsonResponse
+     */
+    public function optimize()
+    {
+        Artisan::call('config:clear');
+        Artisan::call('cache:clear');
+        Artisan::call('view:clear');
+        Artisan::call('queue:restart');
+
+        return response()->json([
+            'message' => __('controllers.app_optimized_successfully'),
+            'payload' => null,
+            'status'  => CoreConstants::STATUS_CODE_SUCCESS
+        ]);
+    }
+
+    /**
+     * Get a short-lived signed url that opens the log viewer
+     *
+     * @return JsonResponse
+     */
+    public function systemLogsUrl()
+    {
+        return response()->json([
+            'message' => 'Data is fetched successfully',
+            'payload' => [
+                'url' => URL::temporarySignedRoute('system-logs', now()->addMinute()),
+            ],
+            'status'  => CoreConstants::STATUS_CODE_SUCCESS
+        ]);
     }
 }

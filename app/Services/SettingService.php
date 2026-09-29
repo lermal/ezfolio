@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use Artisan;
 use CoreConstants;
+use App\Helpers\ThemeRegistry;
 use App\Models\Setting;
 use App\Services\Contracts\AboutInterface;
 use App\Services\Contracts\SettingInterface;
@@ -134,9 +136,11 @@ class SettingService implements SettingInterface
     /**
      * Get all related settings
      *
+     * @param bool $withCredentials include mail, Turnstile and Telegram settings;
+     *                              must stay false for anything rendered into a public page
      * @return array
      */
-    public function getSettingsData()
+    public function getSettingsData(bool $withCredentials = false)
     {
         try {
             //get accent color
@@ -225,26 +229,31 @@ class SettingService implements SettingInterface
                 $data['avatar'] = 'assets/common/img/avatar/default.png';
             }
 
-            //get mail setting
-            $data['mailSettings']['MAIL_MAILER'] = env('MAIL_MAILER');
-            $data['mailSettings']['MAIL_HOST'] = env('MAIL_HOST');
-            $data['mailSettings']['MAIL_PORT'] = env('MAIL_PORT');
-            $data['mailSettings']['MAIL_USERNAME'] = env('MAIL_USERNAME');
-            $data['mailSettings']['MAIL_PASSWORD'] = env('MAIL_PASSWORD');
-            $data['mailSettings']['MAIL_ENCRYPTION'] = env('MAIL_ENCRYPTION');
-            $data['mailSettings']['MAIL_FROM_ADDRESS'] = env('MAIL_FROM_ADDRESS');
-            $data['mailSettings']['MAIL_FROM_NAME'] = env('MAIL_FROM_NAME');
+            if ($withCredentials) {
+                //get mail setting
+                $data['mailSettings']['MAIL_MAILER'] = Config::get('mail.default');
+                $data['mailSettings']['MAIL_HOST'] = Config::get('mail.mailers.smtp.host');
+                $data['mailSettings']['MAIL_PORT'] = Config::get('mail.mailers.smtp.port');
+                $data['mailSettings']['MAIL_USERNAME'] = Config::get('mail.mailers.smtp.username');
+                $data['mailSettings']['MAIL_PASSWORD'] = Config::get('mail.mailers.smtp.password');
+                $data['mailSettings']['MAIL_ENCRYPTION'] = Config::get('mail.mailers.smtp.encryption');
+                $data['mailSettings']['MAIL_FROM_ADDRESS'] = Config::get('mail.from.address');
+                $data['mailSettings']['MAIL_FROM_NAME'] = Config::get('mail.from.name');
 
-            //get turnstile settings
-            $data['turnstileSettings']['TURNSTILE_SITE_KEY'] = env('TURNSTILE_SITE_KEY');
-            $data['turnstileSettings']['TURNSTILE_SECRET_KEY'] = env('TURNSTILE_SECRET_KEY');
+                //get turnstile settings
+                $data['turnstileSettings']['TURNSTILE_SITE_KEY'] = Config::get('services.turnstile.site_key');
+                $data['turnstileSettings']['TURNSTILE_SECRET_KEY'] = Config::get('services.turnstile.secret_key');
 
-            //get telegram settings
-            $data['telegramSettings']['TELEGRAM_BOT_TOKEN'] = env('TELEGRAM_BOT_TOKEN') ?? '';
-            $data['telegramSettings']['TELEGRAM_CHAT_ID'] = env('TELEGRAM_CHAT_ID') ?? '';
+                //get telegram settings
+                $data['telegramSettings']['TELEGRAM_BOT_TOKEN'] = Config::get('services.telegram.bot_token') ?? '';
+                $data['telegramSettings']['TELEGRAM_CHAT_ID'] = Config::get('services.telegram.chat_id') ?? '';
+            }
 
             //get demo mode
             $data['demoMode'] = Config::get('custom.demo_mode');
+
+            //get portfolio themes
+            $data['templates'] = ThemeRegistry::forAdmin();
             
             return [
                 'message' => __('services.settings_fetched_successfully'),
@@ -624,6 +633,8 @@ class SettingService implements SettingInterface
             $file = DotenvEditor::save();
 
             if ($file) {
+                $this->reloadEnvDependentConfig();
+
                 return [
                     'message' => 'Mail setting is successfully updated',
                     'payload' => null,
@@ -673,6 +684,8 @@ class SettingService implements SettingInterface
             $file = DotenvEditor::save();
 
             if ($file) {
+                $this->reloadEnvDependentConfig();
+
                 return [
                     'message' => 'Turnstile settings are successfully updated',
                     'payload' => null,
@@ -722,6 +735,8 @@ class SettingService implements SettingInterface
             $file = DotenvEditor::save();
 
             if ($file) {
+                $this->reloadEnvDependentConfig();
+
                 return [
                     'message' => 'Telegram settings are successfully updated',
                     'payload' => null,
@@ -742,5 +757,16 @@ class SettingService implements SettingInterface
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
         }
+    }
+
+    /**
+     * Drop cached config and restart queue workers so values written to .env take effect
+     *
+     * @return void
+     */
+    private function reloadEnvDependentConfig()
+    {
+        Artisan::call('config:clear');
+        Artisan::call('queue:restart');
     }
 }

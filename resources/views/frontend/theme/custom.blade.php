@@ -1,37 +1,12 @@
-<!--
+{{--
 * My theme for Portfolio
 * Author: Lermal
 * Version: 1.0
 * Description: Собственная тема для портфолио
--->
+--}}
+@extends('frontend.layouts.theme')
 
-@php
-    $accentColor = $portfolioConfig['accentColor'];
-    $accentColorRGB = Utils::getRgbValue($accentColor);
-@endphp
-
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    @include('common.googleAnalytics')
-    @if (!empty($portfolioConfig['script']['header']) && $portfolioConfig['script']['header'] != '')
-        <script>
-            {!!$portfolioConfig['script']['header']!!}
-        </script>
-    @endif
-    
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta property="og:title" content="{{$portfolioConfig['seo']['title']}}"/>
-    <meta property="title" content="{{$portfolioConfig['seo']['title']}}"/>
-    <meta name="description" content="{{$portfolioConfig['seo']['description']}}" />
-    <meta property="og:description" content="{{$portfolioConfig['seo']['description']}}"/>
-    <meta name="author" content="{{$portfolioConfig['seo']['author']}}" />
-    <meta property="og:image" content="{{asset($portfolioConfig['seo']['image'])}}" />
-    <meta property="og:image:secure_url" content="{{asset($portfolioConfig['seo']['image'])}}" />
-    <title>{{$about->name}}</title>
-    <link rel="shortcut icon" type="image/x-icon" href="{{ Utils::getFavicon() }}">
-
+@section('styles')
     <!-- Critical CSS - Bootstrap CSS -->
     <link href="{{ asset('assets/common/lib/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     
@@ -47,9 +22,6 @@
     <noscript><link href="{{ asset('assets/common/lib/boxicons/css/boxicons.min.css') }}" rel="stylesheet"></noscript>
     
     <!-- Libraries - Load asynchronously -->
-    <link rel="preload" href="{{ asset('assets/common/lib/iziToast/css/iziToast.min.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="{{ asset('assets/common/lib/iziToast/css/iziToast.min.css') }}" rel="stylesheet"></noscript>
-    
     <link rel="preload" href="{{ asset('assets/common/lib/aos/aos.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="{{ asset('assets/common/lib/aos/aos.css') }}" rel="stylesheet"></noscript>
     
@@ -61,50 +33,44 @@
     <noscript><link href="{{ asset('assets/themes/custom/css/custom.css') }}" rel="stylesheet"></noscript>
     
     <style>
-        :root {
-            --accent-color: {{$accentColor}};
-            --accent-color-rgb: {{$accentColorRGB}};
-        }
-        
         .bg-primary {
-            background-color: {{$accentColor.' !important'}};
+            background-color: var(--accent-color) !important;
         }
         
         .text-primary {
-            color: {{$accentColor.' !important'}};
+            color: var(--accent-color) !important;
         }
         
         .border-primary {
-            border-color: {{$accentColor.' !important'}};
+            border-color: var(--accent-color) !important;
         }
         
         a {
-            color: {{$accentColor}};
+            color: var(--accent-color);
         }
         
         a:hover {
-            color: rgba({{$accentColorRGB}}, .8);
+            color: rgba(var(--accent-color-rgb), .8);
         }
         
         .btn-primary {
-            background-color: {{$accentColor}};
-            border-color: {{$accentColor}};
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
         }
         
         .btn-primary:hover {
-            background-color: rgba({{$accentColorRGB}}, .8);
-            border-color: rgba({{$accentColorRGB}}, .8);
+            background-color: rgba(var(--accent-color-rgb), .8);
+            border-color: rgba(var(--accent-color-rgb), .8);
         }
         
         .form-control:focus {
-            border-color: {{$accentColor}};
-            box-shadow: 0 0 0 0.2rem rgba({{$accentColorRGB}}, .25);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(var(--accent-color-rgb), .25);
         }
     </style>
-</head>
+@endsection
 
-<body>
-    @include('common.preloader2')
+@section('content')
     
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
@@ -397,21 +363,16 @@
                     <h2 class="section-title">{{__('custom.sections.projects')}}</h2>
                 </div>
             </div>
-            <div 
-                id="react-project-root" 
-                data-accentcolor="{{$accentColor}}" 
-                data-demomode="{{$demoMode}}"
-                data-translations="{{ json_encode([
-                    'all' => __('custom.projects.all'),
-                    'see_details' => __('custom.projects.see_details'),
-                    'images' => __('custom.projects.images'),
-                    'category' => __('custom.projects.category'),
-                    'link' => __('custom.projects.link'),
-                    'close' => __('custom.projects.close'),
-                    'preview' => __('custom.projects.preview'),
-                    'description' => __('custom.projects.description'),
-                ]) }}"
-            />
+            @include('frontend.partials.projects', ['translations' => [
+                'all' => __('custom.projects.all'),
+                'see_details' => __('custom.projects.see_details'),
+                'images' => __('custom.projects.images'),
+                'category' => __('custom.projects.category'),
+                'link' => __('custom.projects.link'),
+                'close' => __('custom.projects.close'),
+                'preview' => __('custom.projects.preview'),
+                'description' => __('custom.projects.description'),
+            ]])
         </div>
     </section>
     @endif
@@ -443,11 +404,7 @@
                         <div class="mb-3">
                             <textarea class="form-control" id="body" name="body" rows="5" placeholder="{{__('custom.contact.body')}}" required></textarea>
                         </div>
-                        @if(env('TURNSTILE_SITE_KEY'))
-                        <div class="mb-3 text-center">
-                            <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}" data-theme="light"></div>
-                        </div>
-                        @endif
+                        @include('frontend.partials.turnstile', ['class' => 'mb-3 text-center'])
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-paper-plane me-2"></i> {{__('custom.contact.send_message')}}
@@ -474,32 +431,20 @@
     </footer>
     @endif
 
-    <!-- Scripts -->
-    <script src="{{ asset('assets/common/lib/jquery/jquery.min.js') }}"></script>
+@endsection
+
+@section('scripts')
     <script src="{{ asset('assets/common/lib/jquery-migrate/jquery-migrate.min.js') }}"></script>
     <script src="{{ asset('assets/common/lib/bootstrap/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('assets/common/lib/jquery.easing/jquery.easing.min.js') }}"></script>
     <script src="{{ asset('assets/common/lib/typed/typed.js') }}"></script>
-    <script src="{{ asset('assets/common/lib/iziToast/js/iziToast.min.js') }}"></script>
-    <script src="{{ asset('assets/common/lib/jquery-validation/jquery.validate.min.js') }}"></script>
     <script src="{{ asset('assets/common/lib/aos/aos.js') }}"></script>
     <script src="{{ asset('assets/common/lib/jquery.lazy/jquery.lazy.min.js') }}"></script>
     <script src="{{ asset('assets/themes/custom/js/main.js') }}"></script>
-    <script src="{{ asset('js/client/frontend/roots/projects.js') }}"></script>
-    @if(env('TURNSTILE_SITE_KEY'))
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    @endif
-    
+
     <script>
         $(document).ready(function() {
-            // Hide preloader
-            setTimeout(function() {
-                if ($('#szn-preloader').length) {
-                    $('#szn-preloader').fadeOut('slow', function() {
-                        $(this).remove();
-                    });
-                }
-            }, 500);
+            // Preloader and smooth scrolling are handled by main.js, the contact form by the layout
 
             // Initialize lazy loading
             if (typeof $.fn.lazy !== 'undefined') {
@@ -544,39 +489,6 @@
                     });
                 @endif
             }
-
-            // Smooth scrolling is handled by main.js
-
-            // Обработка отправки формы без validate
-            $('#contact-me-form').on('submit', function(e) {
-                e.preventDefault();
-
-                const button = $('#contact-me-form button[type="submit"]');
-                const originalText = button.html();
-                
-                button.prop('disabled', true);
-                button.html('<i class="fas fa-spinner fa-spin me-2"></i> {{__('custom.contact.sending')}}');
-
-                $.ajax({
-                    url: '{!! route('contact-me') !!}',
-                    dataType: 'json',
-                    data: $('#contact-me-form').serialize(),
-                    type: 'post',
-                    success: function(response) {
-                        if (response.status === 200) {
-                            $('#contact-me-form').trigger('reset');
-                        }
-                    },
-                    error: function(jqXHR, exception) {
-                        button.prop('disabled', false);
-                        button.html(originalText);
-                    },
-                    complete: function() {
-                        button.prop('disabled', false);
-                        button.html(originalText);
-                    }
-                });
-            });
         });
 
         // Fallback to hide preloader if jQuery fails
@@ -589,12 +501,4 @@
             }, 1000);
         });
     </script>
-    
-    @if (!empty($portfolioConfig['script']['footer']) && $portfolioConfig['script']['footer'] != '')
-        <script>
-            {!!$portfolioConfig['script']['footer']!!}
-        </script>
-    @endif
-    @include('common.pixelTracking')
-</body>
-</html>
+@endsection

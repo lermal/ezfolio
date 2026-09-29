@@ -13,8 +13,8 @@ class TurnstileService
 
     public function __construct()
     {
-        $this->secretKey = env('TURNSTILE_SECRET_KEY', '');
-        $this->siteKey = env('TURNSTILE_SITE_KEY', '');
+        $this->secretKey = (string) config('services.turnstile.secret_key');
+        $this->siteKey = (string) config('services.turnstile.site_key');
     }
 
     /**

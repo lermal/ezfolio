@@ -1,6 +1,4 @@
 Disallow: /admin/
-Disallow: /command/
-Disallow: /optimize/
 Disallow: /pixel-tracker
 
 Sitemap: https://webcodewizard.ru/sitemap.xml

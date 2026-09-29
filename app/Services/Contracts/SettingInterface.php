@@ -23,9 +23,10 @@ interface SettingInterface
     /**
      * Get all related settings
      *
+     * @param bool $withCredentials include mail, Turnstile and Telegram settings
      * @return array
      */
-    public function getSettingsData();
+    public function getSettingsData(bool $withCredentials = false);
 
     /**
      * Set single setting

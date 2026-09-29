@@ -91,6 +91,7 @@ const App = () => {
         avatar: mySettings.avatar,
         demoMode: mySettings.demoMode,
         cover: mySettings.cover,
+        templates: mySettings.templates,
     }));
 
     useEffect(()=> {

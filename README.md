@@ -1,132 +1,124 @@
-<p align="center">
-  <a href="http://arifszn.github.io/ezfolio" target="_blank">
-    <img src="https://arifszn.github.io/ezfolio/img/short-logo.png" alt="Ezfolio" title="Ezfolio" width="80">
-  </a>
-</p>
+# Портфолио — webcodewizard.ru
 
-<h1 align="center">Ezfolio</h1>
-<p align="center">Open Source Portfolio CMS</p>
+Личный сайт-портфолио с админ-панелью. Публичная часть: главная страница с разделами «Обо мне», «Резюме», «Услуги», «Проекты» и формой обратной связи. В админке редактируется всё содержимое, настраиваются SEO, цвета и почта, есть статистика посетителей.
 
-<p align="center">
-    <a href="https://laravel.com/"><img src="https://img.shields.io/badge/laravel-8-blue" alt="laravel 8"></a>
-    <a href="https://reactjs.org/"><img src="https://img.shields.io/badge/react-17-blue" alt="react 17"></a>
-    <a href="https://ant.design/"><img src="https://img.shields.io/badge/antd-4-blue" alt="antd 4"></a>
-    <a href="https://github.com/arifszn/ezfolio/blob/main/LICENSE"><img src="https://img.shields.io/github/license/arifszn/ezfolio"/></a>
-</p>
+Проект — форк [EzFolio](https://github.com/arifszn/ezfolio) (MIT). От оригинала он отличается переработанной темой, исправлениями безопасности и упрощённой системой тем. Подробности ниже.
 
-<br/>
+## Стек
 
-<p align="center">
-    <a href="https://arifszn.github.io/ezfolio">
-        <img src="https://arifszn.github.io/ezfolio/img/assets/preview.gif" alt="Cover"/>
-    </a>
-    <br/>
-</p>
+- **Backend:** Laravel 8 (PHP 7.3+ / 8.x), JWT-авторизация (`tymon/jwt-auth`), очереди на драйвере `database`.
+- **Админка:** SPA на React 17, Redux, Ant Design 4, собирается через Laravel Mix.
+- **Сайт:** Blade, Bootstrap, jQuery, AOS, Typed.js. Список проектов — отдельный React-виджет.
+- **Интеграции:** Cloudflare Turnstile (капча формы), Telegram-бот (уведомления о новых сообщениях), Google Analytics.
 
-<span className="keyword">Ezfolio</span> is a professional open source portfolio CMS built using <b>Laravel</b>, <b>React</b> and <b>Ant Design</b>. Choose from awesome templates and control what you like to show your audience. It offers a minimalist admin interface with lots of option for customizations. Get all the features of a portfolio site including visitor tracking, google analytics, maintenance mode, contact form, SEO and many more. 
-
-This project can be used as a guide for learning Laravel with React and making a SPA.
-
-- Made with Laravel, React and Ant Design
-- JWT Authentication
-- Single Page Application
-- Modern and Responsive Design
-- Multiple Templates
-- Theme Color Customization
-- Custom Scripting
-- Visitor Tracking
-- Location Tracking
-- Google Analytics
-- Maintenance Mode
-- Contact Form
-- Search Engine Optimization
-- Section Visibility
-- And Much More…
-
-> Client: https://github.com/arifszn/ezfolio/tree/main/resources/js/client
-
-
-## Docs
-
-Checkout the <a href="http://arifszn.github.io/ezfolio">docs</a>. 
-
-
-## Installation
-
-### With Docker
-- Run ```cp .env.example .env```.
-- Run the below command to install Composer dependencies:
-    ```sh
-    docker run --rm \
-        -u "$(id -u):$(id -g)" \
-        -v $(pwd):/var/www/html \
-        -w /var/www/html \
-        laravelsail/php81-composer:latest \
-        composer install --ignore-platform-reqs
-    ```
-- Run ```./vendor/bin/sail up -d```.
-- Run ```./vendor/bin/sail artisan migrate --seed```. If you face error `Connection refused`, set `DB_HOST=mysql` in .env file.
-- Run ```./vendor/bin/sail npm install```.
-- Run ```./vendor/bin/sail npm run prod``` or ```./vendor/bin/sail npm run watch```.
-
-`sail` is equivalent of `docker-compose`, read [`laravel/sail`](https://laravel.com/docs/8.x/sail) doc.
-
-
-### Without Docker
-
-- Run ```cp .env.example .env```
-- Run ```composer install```
-- Provide db name, username and password in .env
-- Run ```php artisan migrate --seed```
-- Run ```npm install```
-- Run ```npm run prod``` or ```npm run watch```
-- Run ```php aritsan serve```
-
-Admin credentials:
+## Архитектура
 
 ```
-Email: admin@admin.com
-Password: 12345
+app/
+  Http/Controllers/
+    Admin/            SPA-оболочка админки и её API (Admin/Api/*)
+    Frontend/         публичная страница и приём формы обратной связи
+  Services/           бизнес-логика; интерфейсы в Services/Contracts,
+                      привязка в AppServiceProvider
+  Helpers/ThemeRegistry.php   единая точка доступа к темам
+  Events/NewMessage + Listeners/NewMessageListener   уведомление в Telegram
+config/
+  themes.php          реестр тем
+  services.php        ключи Turnstile и Telegram
+resources/
+  views/frontend/layouts/theme.blade.php   общий layout всех тем
+  views/frontend/theme/custom.blade.php    текущая тема
+  views/frontend/partials/                 виджет проектов, Turnstile
+  js/client/admin/                         исходники админки
+public/assets/common/js/contact-form.js    отправка формы (общая для тем)
 ```
 
-For more info, visit the <a href="http://arifszn.github.io/ezfolio">docs</a>.
+Контроллеры тонкие: вся работа идёт в сервисах. Сервис возвращает массив `message`, `payload`, `status`.
 
+### Темы
 
-## Screenshots
+Сейчас есть одна тема — `custom`. Остальные темы из апстрима удалены.
 
-### Admin Panel
-<kbd><img src="https://arifszn.github.io/ezfolio/img/assets/screenshots/login.png" alt="Login"/></kbd>
+Все темы перечислены в `config/themes.php`. Этот список используют валидация при сохранении, админка (она получает список с сервера, пересобирать JS не нужно), выбор шаблона на сайте и сидер. Если в базе сохранена неизвестная тема, сайт откатывается на тему `default`.
 
-<kbd><img src="https://arifszn.github.io/ezfolio/img/assets/screenshots/dashboard.png" alt="Dashboard"/></kbd>
+Общие части вынесены в `frontend.layouts.theme`: `<head>`, SEO-мета, Google Analytics, пользовательские скрипты из админки, CSS-переменные акцентного цвета (`--accent-color`, `--accent-color-rgb`), прелоадер, jQuery, валидация и AJAX-отправка формы, Turnstile.
 
-<kbd><img src="https://arifszn.github.io/ezfolio/img/assets/screenshots/basic-config.png" alt="Config"/></kbd>
+Как добавить тему:
 
-<kbd><img src="https://arifszn.github.io/ezfolio/img/assets/screenshots/theme.png" alt="Theme"/></kbd>
+1. Добавить запись в `config/themes.php`:
+   ```php
+   'mytheme' => ['title' => 'My Theme', 'preview' => 'assets/common/img/templates/mytheme.png'],
+   ```
+2. Создать `resources/views/frontend/theme/mytheme.blade.php`:
+   ```blade
+   @extends('frontend.layouts.theme')
 
-<kbd><img src="https://arifszn.github.io/ezfolio/img/assets/screenshots/visitors.png" alt="Visitors"/></kbd>
+   @section('styles') ... @endsection
+   @section('content')
+       ...
+       @include('frontend.partials.projects')
+       <form id="contactForm"> ... @include('frontend.partials.turnstile') ... </form>
+   @endsection
+   @section('scripts') ... @endsection
+   ```
+3. Положить ассеты в `public/assets/themes/mytheme/` и картинку превью по указанному пути.
 
-<kbd><img src="https://arifszn.github.io/ezfolio/img/assets/screenshots/project.png" alt="Project"/></kbd>
+### Форма обратной связи
 
-### Front
-<kbd><img src="https://arifszn.github.io/ezfolio/img/assets/screenshots/procyon.png" alt="Procyon"/></kbd>
+Отправка идёт через AJAX на `route('contact-me')`. Капча Turnstile проверяется на сервере и сбрасывается после каждой отправки. Ошибки валидации показываются пользователю.
 
-<kbd><img src="https://arifszn.github.io/ezfolio/img/assets/screenshots/rigel.png" alt="Rigel"/></kbd>
+Сообщение сохраняется в базу. Уведомление в Telegram отправляет слушатель `NewMessageListener` в очереди: 3 попытки с задержкой, неудачи пишутся в лог. Поэтому запрос формы не ждёт ответа Telegram и не падает, если тот недоступен.
 
-<kbd><img src="https://arifszn.github.io/ezfolio/img/assets/screenshots/vega.png" alt="Vega"/></kbd>
+### Безопасность
 
+- Все ключи и токены читаются через `config()`, а не `env()`, поэтому работают после `php artisan config:cache`.
+- Секреты (почта, Turnstile, Telegram) не встраиваются в HTML админки. Их отдаёт только API настроек, закрытое JWT.
+- Очистка кешей (`POST /api/optimize`) доступна только авторизованному админу.
+- Просмотр логов (`/admin/system-logs`) открывается по временной подписанной ссылке, которую выдаёт API. После перехода доступ держится в сессии 30 минут.
+- Маршрут для произвольного запуска artisan-команд из апстрима удалён.
 
-## Contributing
+## Установка
 
-Any contributors who want to make this project better can make contributions, which will be greatly appreciated. Check out our <a href="https://github.com/arifszn/ezfolio/blob/main/CONTRIBUTING.md">contribution guide</a> for more info.
+Требования: PHP 7.3+ (проверялось на 8.x), Composer, Node.js, MySQL/MariaDB.
 
+```sh
+cp .env.example .env
+composer install
+php artisan key:generate
+php artisan jwt:secret
+```
 
-## Support
+Заполнить в `.env`:
 
-<a href="https://www.buymeacoffee.com/arifszn" target="_blank">
-  <img src="https://raw.githubusercontent.com/arifszn/arifszn/main/assets/bmc-button.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >
-</a>
+- `APP_URL`, `DB_*` — адрес сайта и подключение к БД;
+- `MAIL_*` — почта (можно поменять позже в админке);
+- `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` — если пусто, капча не выводится;
+- `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` — если пусто, уведомления не отправляются;
+- `QUEUE_CONNECTION=database`.
 
+```sh
+php artisan migrate --seed
+php artisan storage:link
+npm install
+npm run prod        # или npm run watch при разработке
+```
 
-## License
+Сидер создаёт администратора `admin@webcodewizard.ru` со случайным паролем. Пароль выводится в консоль один раз.
 
-**Ezfolio** is licensed under the [MIT License](https://github.com/arifszn/ezfolio/blob/main/LICENSE).
+### Очередь
+
+Без воркера уведомления в Telegram копятся в таблице `jobs` и не уходят:
+
+```sh
+php artisan queue:work --tries=3
+```
+
+На сервере воркер лучше держать под supervisor или systemd. После сохранения настроек почты, Turnstile или Telegram в админке приложение само выполняет `config:clear` и `queue:restart`, чтобы воркер подхватил новые значения.
+
+### Docker
+
+В репозитории есть `docker-compose.yml` для Laravel Sail. Команды те же, только через `./vendor/bin/sail` (`sail artisan migrate --seed`, `sail npm run prod`). Если при миграции возникает ошибка `Connection refused`, выставить `DB_HOST=mysql`.
+
+## Лицензия
+
+MIT. Оригинальный проект EzFolio © 2022 Ariful Alam, текст лицензии в [LICENSE](LICENSE).

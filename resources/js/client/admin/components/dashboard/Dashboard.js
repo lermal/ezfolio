@@ -41,7 +41,7 @@ const Dashboard = () => {
     let history = useHistory();
 
     const [wallpaper, setWallpaper] = useState(null);
-    const { demoMode } = useSelector(state => state.globalState);
+    const { demoMode, templates } = useSelector(state => state.globalState);
 
     const todayStartDateUtc = moment.utc(moment().startOf('day')).format('YYYY-MM-DD HH:mm:ss');
     const todayEndDateUtc = moment.utc(moment().endOf('day')).format('YYYY-MM-DD HH:mm:ss');
@@ -217,7 +217,7 @@ const Dashboard = () => {
                     });
 
                     //template
-                    const filteredArray = Utils.templates.filter(template => template.id === result.currentTemplate);
+                    const filteredArray = templates.filter(template => template.id === result.currentTemplate);
                     if (filteredArray.length) {
                         setCurrentTemplate(filteredArray[0]);
                     }

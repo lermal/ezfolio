@@ -45,7 +45,7 @@ const Basic = (props) => {
     const [colorPickerVisible, setColorPickerVisible] = useState(false);
     const [seoPopupVisible, setSeoPopupVisible] = useState(false);
     const [seo, setSeo] = useState(null);
-    const { demoMode } = useSelector(state => state.globalState);
+    const { demoMode, templates } = useSelector(state => state.globalState);
 
     useEffect(() => {
         props.mountedCallBack();
@@ -165,7 +165,7 @@ const Basic = (props) => {
         <Radio.Group onChange={(e) => templateOnClickHandler(e.target.value)} value={template}>
             <Row gutter={24}>
                 {
-                    Utils.templates.map((element, index) => {
+                    templates.map((element, index) => {
                         return (
                             <Col key={index} xs={{ span: 24 }} lg={{ span: 8 }} style={{
                                 marginBottom: 24,

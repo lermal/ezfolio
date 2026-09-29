@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Events\FrontendVisited;
+use App\Helpers\ThemeRegistry;
 use App\Http\Controllers\Controller;
 use App\Services\Contracts\FrontendInterface;
 use Config;
@@ -56,9 +57,7 @@ class FrontendController extends Controller
             return view('frontend.maintenance', $data);
         }
 
-        $template = $data['portfolioConfig']['template'];
-
-        return view('frontend.theme.'.$template, $data);
+        return view(ThemeRegistry::view($data['portfolioConfig']['template']), $data);
     }
 
     /**

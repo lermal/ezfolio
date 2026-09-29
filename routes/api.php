@@ -26,6 +26,10 @@ Route::group(['prefix' => 'v1'], function () {
 
             Route::get('/stats', ['App\Http\Controllers\Admin\Api\AdminController', 'stats']);
 
+            Route::post('/optimize', ['App\Http\Controllers\Admin\Api\AdminController', 'optimize']);
+
+            Route::get('/system-logs-url', ['App\Http\Controllers\Admin\Api\AdminController', 'systemLogsUrl']);
+
             Route::match(['get', 'post'], '/login-credentials', ['App\Http\Controllers\Admin\Api\AdminController', 'loginCredentials']);
 
             Route::match(['get', 'post'], '/settings', ['App\Http\Controllers\Admin\Api\SettingController', 'index']);

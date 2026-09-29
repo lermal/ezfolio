@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use CoreConstants;
+use App\Helpers\ThemeRegistry;
 use App\Models\PortfolioConfig;
 use App\Services\Contracts\PortfolioConfigInterface;
+use Illuminate\Validation\Rule;
 use Log;
 use Str;
 use Validator;
@@ -150,11 +152,9 @@ class PortfolioConfigService implements PortfolioConfigInterface
 
             if ($template) {
                 $result = $this->getConfigByKey(CoreConstants::PORTFOLIO_CONFIG__TEMPLATE, ['setting_value']);
-                if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                    $data['template'] = $result['payload']->setting_value;
-                } else {
-                    $data['template'] = 'procyon';
-                }
+                $data['template'] = ThemeRegistry::resolve(
+                    $result['status'] === CoreConstants::STATUS_CODE_SUCCESS ? $result['payload']->setting_value : null
+                );
             }
 
             if ($accentColor) {
@@ -326,9 +326,15 @@ class PortfolioConfigService implements PortfolioConfigInterface
     public function setConfigData(array $data)
     {
         try {
-            $validate = Validator::make($data, [
+            $rules = [
                 'setting_key' => 'required',
-            ]);
+            ];
+
+            if (isset($data['setting_key']) && (int) $data['setting_key'] === CoreConstants::PORTFOLIO_CONFIG__TEMPLATE) {
+                $rules['setting_value'] = ['required', Rule::in(ThemeRegistry::ids())];
+            }
+
+            $validate = Validator::make($data, $rules);
 
             if ($validate->fails()) {
                 return [

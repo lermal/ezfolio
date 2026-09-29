@@ -56,7 +56,11 @@ class GeneralController extends Controller
 
         $result = resolve(MessageInterface::class)->store($data);
         if ($result['status'] == CoreConstants::STATUS_CODE_SUCCESS) {
-            event(new NewMessage($data['body'], $data['name'], $data['email'], $data['subject'], $createdAt));
+            try {
+                event(new NewMessage($data['body'], $data['name'], $data['email'], $data['subject'], $createdAt));
+            } catch (\Throwable $th) {
+                Log::error('Failed to dispatch new message notification', ['error' => $th->getMessage()]);
+            }
         }
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
     }
