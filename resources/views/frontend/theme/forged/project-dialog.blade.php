@@ -29,6 +29,7 @@
 
             <div class="project-dialog__actions">
                 <a class="btn-forge" data-slot="link" target="_blank" rel="noopener noreferrer">{{ __('forged.projects.visit') }}</a>
+                <div class="project-dialog__buttons" data-slot="buttons"></div>
                 <button type="button" class="btn-forge btn-forge--ghost" data-close>{{ __('forged.projects.close') }}</button>
             </div>
         </div>

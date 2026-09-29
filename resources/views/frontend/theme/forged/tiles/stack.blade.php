@@ -6,12 +6,19 @@
         'text' => __('forged.tiles.stack'),
     ])
 
-    <ul class="chips" role="list">
+    <ul class="chips" role="list" @if ($forged['stack']['hidden']->isNotEmpty()) data-stack @endif>
         @foreach ($forged['stack']['shown'] as $skill)
             <li class="chip">{{ $skill->name }}</li>
         @endforeach
-        @if ($forged['stack']['rest'])
-            <li class="chip chip--muted">{{ __('forged.stack.more', ['count' => $forged['stack']['rest']]) }}</li>
+        @foreach ($forged['stack']['hidden'] as $skill)
+            <li class="chip" data-stack-extra hidden>{{ $skill->name }}</li>
+        @endforeach
+        @if ($forged['stack']['hidden']->isNotEmpty())
+            <li class="chip-more">
+                <button type="button" class="chip chip--muted chip--more" data-stack-more aria-expanded="false">
+                    {{ __('forged.stack.more', ['count' => $forged['stack']['hidden']->count()]) }}
+                </button>
+            </li>
         @endif
     </ul>
 </section>

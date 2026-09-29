@@ -20,6 +20,8 @@ class Project extends Model
         'thumbnail',
         'images',
         'details',
-        'link'
+        'link',
+        'is_featured',
+        'buttons',
     ];
 }

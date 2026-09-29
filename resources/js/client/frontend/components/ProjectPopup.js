@@ -22,6 +22,50 @@ const StyledTitle = styled.p`
     margin-bottom: 16px;
 `;
 
+const inkFor = (hex) => {
+    const channels = hex.replace('#', '').match(/.{2}/g).map((pair) => {
+        const value = parseInt(pair, 16) / 255;
+
+        return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+    });
+    const luminance = 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+
+    return (luminance + 0.05) / 0.05 >= 1.05 / (luminance + 0.05) ? '#0b0c0e' : '#ffffff';
+};
+
+const buttonsOf = (project) => {
+    if (!project || !project.buttons) {
+        return [];
+    }
+
+    let buttons = project.buttons;
+    if (typeof buttons === 'string') {
+        try {
+            buttons = JSON.parse(buttons);
+        } catch (error) {
+            return [];
+        }
+    }
+
+    if (!Array.isArray(buttons)) {
+        return [];
+    }
+
+    return buttons.filter((button) => (
+        button
+        && typeof button.label === 'string'
+        && button.label.trim() !== ''
+        && typeof button.url === 'string'
+        && /^https?:\/\//i.test(button.url)
+        && /^#[0-9a-f]{6}$/i.test(button.color || '')
+    )).map((button) => ({
+        label: button.label,
+        url: button.url,
+        color: button.color,
+        ink: inkFor(button.color),
+    }));
+};
+
 const ProjectPopup = (props) => {
     const [visible, setVisible] = useState(false);
     const [componentLoading, setComponentLoading] = useState((typeof props.componentLoading !== 'undefined') ? props.componentLoading : false);
@@ -117,6 +161,33 @@ const ProjectPopup = (props) => {
                                     {props.project.details}
                                 </Col>
                             </Row>
+                        </React.Fragment>
+                    )
+                }
+                {
+                    buttonsOf(props.project).length > 0 && (
+                        <React.Fragment>
+                            <Divider/>
+                            <StyledTitle>{props.translations?.link || 'Link'}</StyledTitle>
+                            <Space wrap>
+                                {buttonsOf(props.project).map((button, index) => (
+                                    <a
+                                        key={index}
+                                        href={button.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        style={{
+                                            display: 'inline-block',
+                                            padding: '6px 14px',
+                                            borderRadius: 6,
+                                            background: button.color,
+                                            color: button.ink,
+                                        }}
+                                    >
+                                        {button.label}
+                                    </a>
+                                ))}
+                            </Space>
                         </React.Fragment>
                     )
                 }

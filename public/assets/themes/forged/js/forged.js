@@ -4,6 +4,7 @@ import initPointerGlow from './pointer-glow.js';
 import initReveal from './reveal.js';
 import initFilter from './filter.js';
 import initProjectDialog from './project-dialog.js';
+import initStack from './stack.js';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -13,3 +14,4 @@ initStickyCta();
 initPointerGlow({ reduceMotion });
 initFilter({ reduceMotion });
 initProjectDialog({ reduceMotion });
+initStack();

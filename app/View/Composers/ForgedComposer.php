@@ -12,7 +12,7 @@ use Illuminate\View\View;
 class ForgedComposer
 {
     /**
-     * Skills shown in the stack tile, the rest collapses into "+N"
+     * Skills shown in the stack tile before the "more" chip
      */
     const STACK_LIMIT = 8;
 
@@ -48,7 +48,7 @@ class ForgedComposer
         $education = $this->visibleList($data, $visibility, 'education');
         $services = $this->visibleList($data, $visibility, 'services');
         $works = $this->works($this->visibleList($data, $visibility, 'projects'));
-        $featured = $works->first();
+        $featured = $works->firstWhere('featured', true) ?? $works->first();
         $socials = $this->decodeList($about->social_links);
         $cta = $this->cta($about, $visibility);
 
@@ -70,7 +70,7 @@ class ForgedComposer
             'stats' => $this->stats($data, $visibility),
             'stack' => [
                 'shown' => $skills->take(self::STACK_LIMIT),
-                'rest' => max(0, $skills->count() - self::STACK_LIMIT),
+                'hidden' => $skills->slice(self::STACK_LIMIT)->values(),
             ],
             'socials' => $socials,
             'tiles' => $tiles,
@@ -162,6 +162,8 @@ class ForgedComposer
                 'images' => array_values(array_filter($this->decodeList($project->images), 'is_string')),
                 'details' => $project->details,
                 'link' => $project->link,
+                'buttons' => $project->buttons,
+                'featured' => (bool) $project->is_featured,
                 'style' => ($wide ? '--span-lg: 8; --span-md: 6;' : '--span-lg: 4; --span-md: 3;') . ' --i: ' . ($index % 3) . ';',
             ];
         });
@@ -184,6 +186,7 @@ class ForgedComposer
                 'images' => array_map('asset', $work['images']),
                 'details' => $work['details'],
                 'link' => $work['link'] && preg_match('#^https?://#i', $work['link']) ? $work['link'] : null,
+                'buttons' => $this->projectButtons($work['buttons']),
             ];
         })->values()->all();
     }
@@ -330,6 +333,40 @@ class ForgedComposer
         $contrastWithLight = 1.05 / ($luminance + 0.05);
 
         return $contrastWithDark >= $contrastWithLight ? '#0b0c0e' : '#ffffff';
+    }
+
+    /**
+     * Custom project buttons stored as JSON. Only http(s) links are returned.
+     *
+     * @param mixed $value
+     * @return array
+     */
+    private function projectButtons($value)
+    {
+        $buttons = [];
+
+        foreach ($this->decodeList($value) as $button) {
+            if (!is_array($button)) {
+                continue;
+            }
+
+            $label = trim((string) ($button['label'] ?? ''));
+            $url = trim((string) ($button['url'] ?? ''));
+            $color = strtolower(trim((string) ($button['color'] ?? '')));
+
+            if ($label === '' || !preg_match('#^https?://#i', $url) || !preg_match('/^#[0-9a-f]{6}$/', $color)) {
+                continue;
+            }
+
+            $buttons[] = [
+                'label' => $label,
+                'url' => $url,
+                'color' => $color,
+                'ink' => $this->inkFor($color),
+            ];
+        }
+
+        return $buttons;
     }
 
     /**

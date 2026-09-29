@@ -39,6 +39,7 @@ export default function initProjectDialog({ reduceMotion }) {
         categories: slot('categories'),
         details: slot('details'),
         link: slot('link'),
+        buttons: slot('buttons'),
     };
 
     const viewer = createViewer({ dialog, root: ui.media, thumbs: slot('thumbs'), reduceMotion });
@@ -108,7 +109,21 @@ export default function initProjectDialog({ reduceMotion }) {
         }
         ui.link.hidden = !project.link;
 
+        ui.buttons.replaceChildren(...(project.buttons || []).map((button) => {
+            const link = document.createElement('a');
+            link.className = 'btn-forge btn-forge--custom';
+            link.href = button.url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = button.label;
+            link.style.setProperty('--btn-color', button.color);
+            link.style.setProperty('--btn-ink', button.ink);
+
+            return link;
+        }));
+
         ui.sheet.scrollTop = 0;
+        dialog.querySelector('.project-dialog__body').scrollTop = 0;
     }
 
     function open(id, card, { push }) {

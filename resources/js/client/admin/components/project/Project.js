@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Drawer, Button, Spin, Input, Form, Select, Modal, Upload } from 'antd';
+import { Drawer, Button, Spin, Input, Form, Select, Modal, Upload, Switch } from 'antd';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import HTTP from '../../../common/helpers/HTTP';
 import Utils from '../../../common/helpers/Utils';
 import Routes from '../../../common/helpers/Routes';
 import FileUploaderFormInput from '../uploader/FileUploaderFormInput';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 
@@ -50,13 +50,25 @@ const Project = (props) => {
             });
         }
 
+        let buttons = [];
+        if (props.itemToEdit && props.itemToEdit.buttons) {
+            try {
+                const parsed = JSON.parse(props.itemToEdit.buttons);
+                buttons = Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                buttons = [];
+            }
+        }
+
         form.setFieldsValue({
             id: props.itemToEdit ? props.itemToEdit.id : '', 
             title: props.itemToEdit ? props.itemToEdit.title : '', 
             thumbnail: props.itemToEdit ? props.itemToEdit.thumbnail : '',
             details: props.itemToEdit ? props.itemToEdit.details : '',
             link: props.itemToEdit ? props.itemToEdit.link : '',
-            categories: props.itemToEdit ? JSON.parse(props.itemToEdit.categories) : []
+            categories: props.itemToEdit ? JSON.parse(props.itemToEdit.categories) : [],
+            is_featured: !!(props.itemToEdit && Number(props.itemToEdit.is_featured)),
+            buttons,
         });
     }, [props.itemToEdit])
 
@@ -122,6 +134,8 @@ const Project = (props) => {
             values.details && formData.append('details', values.details);
 
             values.link && formData.append('link', values.link);
+            formData.append('is_featured', values.is_featured ? '1' : '0');
+            formData.append('buttons', JSON.stringify(values.buttons || []));
 
             HTTP.post(Routes.api.admin.projects+(values.id ? `/${values.id}` : '' ), formData)
             .then(response => {
@@ -245,6 +259,14 @@ const Project = (props) => {
                         <Input placeholder="Enter Title"/>
                     </Form.Item>
                     <Form.Item
+                        name="is_featured"
+                        label="Featured project"
+                        valuePropName="checked"
+                        extra="Shown in the featured tile. Only one project stays featured."
+                    >
+                        <Switch/>
+                    </Form.Item>
+                    <Form.Item
                         name="categories"
                         label="Category"
                         rules={[
@@ -317,6 +339,56 @@ const Project = (props) => {
                     >
                         <Input placeholder="Enter Link"/>
                     </Form.Item>
+                    <Form.List name="buttons">
+                        {(fields, { add, remove }) => (
+                            <div>
+                                <div style={{ marginBottom: 8 }}>Buttons</div>
+                                {fields.map(({ key, name, fieldKey, ...restField }) => (
+                                    <div key={key} style={{ display: 'grid', gap: 8, marginBottom: 12, padding: 12, border: '1px solid #f0f0f0', borderRadius: 8 }}>
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, 'label']}
+                                            fieldKey={[fieldKey, 'label']}
+                                            label="Text"
+                                            rules={[{ required: true, message: 'Enter the button text' }]}
+                                            style={{ marginBottom: 0 }}
+                                        >
+                                            <Input placeholder="Button text" maxLength={120}/>
+                                        </Form.Item>
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, 'url']}
+                                            fieldKey={[fieldKey, 'url']}
+                                            label="Link"
+                                            rules={[
+                                                { required: true, message: 'Enter a link' },
+                                                { type: 'url', message: 'Please enter a valid link' },
+                                            ]}
+                                            style={{ marginBottom: 0 }}
+                                        >
+                                            <Input placeholder="https://"/>
+                                        </Form.Item>
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, 'color']}
+                                            fieldKey={[fieldKey, 'color']}
+                                            label="Color"
+                                            rules={[{ required: true, message: 'Pick a color' }]}
+                                            style={{ marginBottom: 0 }}
+                                        >
+                                            <input type="color" aria-label="Button color" style={{ width: 48, height: 32, padding: 0, border: 'none', background: 'transparent' }}/>
+                                        </Form.Item>
+                                        <Button type="link" danger icon={<MinusCircleOutlined/>} onClick={() => remove(name)} style={{ paddingLeft: 0 }}>
+                                            Remove
+                                        </Button>
+                                    </div>
+                                ))}
+                                <Button type="dashed" onClick={() => add({ color: '#e85d04' })} block icon={<PlusOutlined/>}>
+                                    Add button
+                                </Button>
+                            </div>
+                        )}
+                    </Form.List>
                     <Form.Item 
                         name="details" 
                         label="Details"

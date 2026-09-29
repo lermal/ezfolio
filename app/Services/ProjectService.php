@@ -97,10 +97,27 @@ class ProjectService implements ProjectInterface
                 ];
             }
 
+            if (array_key_exists('buttons', $data)) {
+                $buttons = $this->buttons($data['buttons']);
+                if (isset($buttons['error'])) {
+                    return [
+                        'message' => $buttons['error'],
+                        'payload' => null,
+                        'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
+                    ];
+                }
+
+                $newData['buttons'] = $buttons['buttons'] ? json_encode($buttons['buttons']) : null;
+            }
+
             $newData['title'] = $data['title'];
             $newData['categories'] = json_encode($data['categories']);
             $newData['link'] = isset($data['link']) ? $data['link'] : null;
             $newData['details'] = isset($data['details']) ? $data['details'] : null;
+
+            if (array_key_exists('is_featured', $data)) {
+                $newData['is_featured'] = filter_var($data['is_featured'], FILTER_VALIDATE_BOOLEAN);
+            }
 
             if (isset($data['seeder_thumbnail']) && isset($data['seeder_images'])) {
                 $newData['thumbnail'] = $data['seeder_thumbnail'];
@@ -149,6 +166,11 @@ class ProjectService implements ProjectInterface
             }
 
             if ($result) {
+                if (!empty($newData['is_featured'])) {
+                    $featuredId = !empty($data['id']) ? $data['id'] : $result->id;
+                    $this->model->newQuery()->where('id', '!=', $featuredId)->update(['is_featured' => false]);
+                }
+
                 return [
                     'message' => isset($data['id']) ? 'Data is successfully updated' : 'Data is successfully saved',
                     'payload' => $result,
@@ -169,6 +191,92 @@ class ProjectService implements ProjectInterface
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
         }
+    }
+
+    /**
+     * Custom buttons: label, http(s) url and a #rrggbb color
+     *
+     * @param mixed $value
+     * @return array
+     */
+    private function buttons($value)
+    {
+        if ($value === null || $value === '') {
+            return ['buttons' => []];
+        }
+
+        if (is_string($value)) {
+            $value = json_decode($value, true);
+        }
+
+        if (!is_array($value)) {
+            return ['error' => 'Buttons are invalid'];
+        }
+
+        $buttons = [];
+
+        foreach ($value as $button) {
+            if (!is_array($button)) {
+                return ['error' => 'Buttons are invalid'];
+            }
+
+            $label = trim((string) ($button['label'] ?? ''));
+            $url = trim((string) ($button['url'] ?? ''));
+            $color = strtolower(trim((string) ($button['color'] ?? '')));
+
+            if ($label === '' || mb_strlen($label) > 120) {
+                return ['error' => 'Each button needs a text up to 120 characters'];
+            }
+
+            if (!preg_match('#^https?://#i', $url)) {
+                return ['error' => 'Each button needs an http or https link'];
+            }
+
+            if (!preg_match('/^#[0-9a-f]{6}$/', $color)) {
+                return ['error' => 'Each button needs a color'];
+            }
+
+            $buttons[] = [
+                'label' => $label,
+                'url' => $url,
+                'color' => $color,
+            ];
+        }
+
+        return ['buttons' => $buttons];
+    }
+
+    /**
+     * Button links for the PDF export
+     *
+     * @param mixed $value
+     * @return string
+     */
+    private function buttonsHtml($value)
+    {
+        $buttons = json_decode($value ?? '[]', true);
+        if (!is_array($buttons)) {
+            return '';
+        }
+
+        $html = '';
+
+        foreach ($buttons as $button) {
+            if (!is_array($button)) {
+                continue;
+            }
+
+            $label = trim((string) ($button['label'] ?? ''));
+            $url = trim((string) ($button['url'] ?? ''));
+
+            if ($label === '' || !preg_match('#^https?://#i', $url)) {
+                continue;
+            }
+
+            $html .= '<div class="project-link"><a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($label) . '</a></div>';
+        }
+
+        return $html;
     }
 
     /**
@@ -753,6 +861,7 @@ class ProjectService implements ProjectInterface
                     ' . ($project->details ? '<div class="project-details"><strong>Описание:</strong><br>' . preg_replace('/\r\n|\r|\n/', '<br>', htmlspecialchars($project->details)) . '</div>' : '') . '
                     
                     ' . ($project->link ? '<div class="project-link"><strong>Ссылка:</strong> <a href="' . htmlspecialchars($project->link) . '">' . htmlspecialchars($project->link) . '</a></div>' : '') . '
+                    ' . $this->buttonsHtml($project->buttons) . '
                     
                     ' . $imagesHtml . '
                     

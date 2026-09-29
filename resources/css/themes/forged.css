@@ -319,6 +319,15 @@
         background: color-mix(in oklab, var(--accent-color) 86%, #fff);
     }
 
+    .btn-forge--custom {
+        background: var(--btn-color);
+        color: var(--btn-ink, #0b0c0e);
+    }
+
+    .btn-forge--custom:hover {
+        background: color-mix(in oklab, var(--btn-color) 86%, #fff);
+    }
+
     .btn-forge--ghost {
         color: theme('colors.forge.text');
         background: rgba(255, 255, 255, 0.02);
@@ -345,6 +354,25 @@
     .chip--muted {
         @apply text-forge-muted;
         border-style: dashed;
+    }
+
+    /* .chip sets display later than the [hidden] reset, so it would stay visible */
+    .chip[hidden] {
+        display: none;
+    }
+
+    .chip-more {
+        display: flex;
+    }
+
+    .chip--more {
+        cursor: pointer;
+        transition: border-color var(--cool-in) ease-out, color var(--cool-in) ease-out;
+    }
+
+    .chip--more:hover {
+        color: theme('colors.forge.text');
+        border-color: rgba(var(--accent-color-rgb), 0.5);
     }
 
     .icon-btn {
@@ -1166,6 +1194,7 @@
         position: relative;
         display: grid;
         max-height: min(86svh, 760px);
+        overflow-x: hidden;
         overflow-y: auto;
         overscroll-behavior: contain;
         border: 1px solid transparent;
@@ -1179,6 +1208,8 @@
 
     .project-dialog__media {
         aspect-ratio: 16 / 10;
+        min-width: 0;
+        min-height: 0;
     }
 
     .project-dialog__body {
@@ -1186,7 +1217,9 @@
         flex-direction: column;
         gap: 16px;
         min-width: 0;
+        min-height: 0;
         padding: 24px;
+        overflow-wrap: anywhere;
     }
 
     .project-dialog__title {
@@ -1212,6 +1245,10 @@
         padding-top: 8px;
     }
 
+    .project-dialog__buttons {
+        display: contents;
+    }
+
     .project-dialog__x {
         position: absolute;
         top: 12px;
@@ -1233,6 +1270,7 @@
     .viewer__track {
         display: flex;
         height: 100%;
+        min-height: 0;
         overflow-x: auto;
         overflow-y: hidden;
         overscroll-behavior-x: contain;
@@ -1252,7 +1290,10 @@
     .viewer__slide {
         flex: 0 0 100%;
         height: 100%;
+        min-width: 0;
+        min-height: 0;
         margin: 0;
+        overflow: hidden;
         scroll-snap-align: center;
         scroll-snap-stop: always;
     }
@@ -1261,6 +1302,8 @@
         display: block;
         width: 100%;
         height: 100%;
+        min-height: 0;
+        max-height: 100%;
         object-fit: contain;
         cursor: zoom-in;
         user-select: none;
@@ -1334,9 +1377,10 @@
     .viewer-thumbs {
         display: flex;
         gap: 8px;
-        margin: 0 -2px;
-        padding: 2px 2px 6px;
+        margin: 0;
+        padding: 3px 0 8px;
         overflow-x: auto;
+        overflow-y: hidden;
         overscroll-behavior-x: contain;
         scrollbar-width: thin;
     }
@@ -1396,6 +1440,7 @@
     @media (min-width: 900px) {
         .project-dialog__sheet {
             grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+            grid-template-rows: minmax(0, 1fr);
             height: min(80svh, 640px);
             overflow: hidden;
         }
@@ -1406,6 +1451,7 @@
         }
 
         .project-dialog__body {
+            overflow-x: hidden;
             overflow-y: auto;
             overscroll-behavior: contain;
             padding: 32px;

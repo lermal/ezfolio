@@ -27,6 +27,17 @@ const Projects = () => {
             ellipsis:true
         },
         {
+            title: 'Featured',
+            dataIndex: 'is_featured',
+            search: false,
+            sorter: false,
+            width: 110,
+            align: 'center',
+            render: (_, row) => (
+                Number(row.is_featured) ? <Tag color="gold">Featured</Tag> : '-'
+            ),
+        },
+        {
             title: 'Thumbnail',
             dataIndex: 'thumbnail',
             sorter: false,
