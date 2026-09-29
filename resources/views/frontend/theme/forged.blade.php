@@ -5,7 +5,7 @@
 
 @section('styles')
     <link href="{{ asset('assets/common/lib/fontawesome/css/all.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/themes/forged/css/forged.css') }}" rel="stylesheet">
+    <link href="{{ $forged['assets']['css'] }}" rel="stylesheet">
     <style>
         :root {
             --heat-ink: {{ $forged['heatInk'] }};
@@ -34,5 +34,6 @@
 @endsection
 
 @section('scripts')
-    <script type="module" src="{{ asset('assets/themes/forged/js/forged.js') }}"></script>
+    <script type="importmap">{!! json_encode($forged['assets']['importMap'], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
+    <script type="module" src="{{ $forged['assets']['entry'] }}"></script>
 @endsection

@@ -91,7 +91,36 @@ class ForgedComposer
                 'contact' => $this->isVisible($visibility, 'contact'),
             ], count($tiles)),
             'footer' => $this->isVisible($visibility, 'footer'),
+            'assets' => $this->assets(),
         ]);
+    }
+
+    /**
+     * Theme asset URLs versioned by file modification time.
+     * Nested ES module imports can't carry a query string, so every module
+     * gets a versioned URL through an import map.
+     *
+     * @return array
+     */
+    private function assets()
+    {
+        $versioned = function ($path) {
+            $file = public_path($path);
+
+            return asset($path) . (is_file($file) ? '?v=' . filemtime($file) : '');
+        };
+
+        $modules = [];
+        foreach (glob(public_path('assets/themes/forged/js/*.js')) ?: [] as $file) {
+            $path = 'assets/themes/forged/js/' . basename($file);
+            $modules[asset($path)] = $versioned($path);
+        }
+
+        return [
+            'css' => $versioned('assets/themes/forged/css/forged.css'),
+            'entry' => $versioned('assets/themes/forged/js/forged.js'),
+            'importMap' => ['imports' => (object) $modules],
+        ];
     }
 
     /**
