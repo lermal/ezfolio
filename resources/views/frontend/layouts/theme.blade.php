@@ -4,13 +4,14 @@
     Sections a theme can fill:
         styles           - theme stylesheets and accent color rules
         body-attributes  - attributes of the <body> tag
+        preloader        - defaults to common.preloader2, an empty section disables it
         content          - page markup
         scripts          - theme scripts; jQuery is already loaded before them
 
     The layout provides: SEO meta, favicon, analytics, custom header/footer scripts,
     accent color CSS variables (--accent-color, --accent-color-rgb, --z-accent-color),
-    preloader, projects widget bundle, Turnstile and the contact form handler
-    for a form with id "contact-me-form".
+    preloader, projects widget bundle (when "projects_widget" is on in config/themes.php),
+    Turnstile and the contact form handler for a form with id "contact-me-form".
 --}}
 @php
     $accentColor = $portfolioConfig['accentColor'];
@@ -49,7 +50,9 @@
     </style>
 </head>
 <body @yield('body-attributes')>
-    @include('common.preloader2')
+    @section('preloader')
+        @include('common.preloader2')
+    @show
 
     @yield('content')
 
@@ -61,7 +64,9 @@
     @if (app()->getLocale() !== 'en' && file_exists(public_path($validationLocalePath)))
         <script src="{{ asset($validationLocalePath) }}"></script>
     @endif
-    <script src="{{ asset('js/client/frontend/roots/projects.js') }}"></script>
+    @if (\App\Helpers\ThemeRegistry::usesProjectsWidget($portfolioConfig['template']))
+        <script src="{{ asset('js/client/frontend/roots/projects.js') }}"></script>
+    @endif
     @if (config('services.turnstile.site_key'))
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     @endif

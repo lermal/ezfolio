@@ -14,6 +14,9 @@
 | The admin panel reads this list at runtime, no frontend rebuild is needed.
 | A stored id that is missing here falls back to "default".
 |
+| "projects_widget" loads the React projects widget (antd) on the page.
+| Themes that render projects themselves set it to false.
+|
 */
 
 return [
@@ -23,6 +26,12 @@ return [
         'custom' => [
             'title' => 'Custom',
             'preview' => 'assets/common/img/templates/custom.png',
+            'projects_widget' => true,
+        ],
+        'forged' => [
+            'title' => 'Forged',
+            'preview' => 'assets/common/img/templates/forged.svg',
+            'projects_widget' => false,
         ],
     ],
 ];

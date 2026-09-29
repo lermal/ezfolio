@@ -43,6 +43,10 @@ mix.js('resources/js/client/admin/roots/app.js', 'public/js/client/admin/roots')
     .js('resources/js/client/frontend/roots/error.js', 'public/js/client/frontend/roots/error.js')
     .react();
 
+mix.postCss('resources/css/themes/forged.css', 'public/assets/themes/forged/css', [
+    require('tailwindcss')('./tailwind.forged.config.js'),
+]);
+
 if (mix.inProduction()) {
     mix.version();
 }

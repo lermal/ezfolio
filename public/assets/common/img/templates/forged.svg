@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400">
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#17191c"/>
+      <stop offset="1" stop-color="#101215"/>
+    </linearGradient>
+    <linearGradient id="bevel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".18"/>
+      <stop offset=".4" stop-color="#ffffff" stop-opacity=".03"/>
+      <stop offset="1" stop-color="#000000" stop-opacity=".5"/>
+    </linearGradient>
+    <radialGradient id="heat" cx="0" cy="1" r="1">
+      <stop offset="0" stop-color="#ff6a1a" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#ff6a1a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset=".3" stop-color="#f6f1ea"/>
+      <stop offset="1" stop-color="#ff6a1a"/>
+    </linearGradient>
+    <linearGradient id="shot" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2a2320"/>
+      <stop offset="1" stop-color="#4a2a18"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="640" height="400" fill="#0b0c0e"/>
+  <g stroke="#ffffff" stroke-opacity=".035">
+    <path d="M0 48H640M0 96H640M0 144H640M0 192H640M0 240H640M0 288H640M0 336H640M0 384H640"/>
+    <path d="M48 0V400M96 0V400M144 0V400M192 0V400M240 0V400M288 0V400M336 0V400M384 0V400M432 0V400M480 0V400M528 0V400M576 0V400M624 0V400"/>
+  </g>
+
+  <rect x="0" y="0" width="640" height="36" fill="#0b0c0e" fill-opacity=".9"/>
+  <text x="20" y="23" font-family="Arial, sans-serif" font-weight="700" font-size="13" fill="#f4f1ec">forged<tspan fill="#ff6a1a">.by</tspan></text>
+  <rect x="548" y="10" width="72" height="17" rx="5" fill="none" stroke="#ffffff" stroke-opacity=".15"/>
+
+  <g stroke="url(#bevel)">
+    <rect x="20.5" y="48.5" width="346" height="218" rx="10" fill="url(#metal)"/>
+    <rect x="20.5" y="48.5" width="346" height="218" rx="10" fill="url(#heat)" stroke="none"/>
+    <rect x="378.5" y="48.5" width="241" height="218" rx="10" fill="url(#metal)" stroke="#ff6a1a" stroke-opacity=".7"/>
+    <rect x="20.5" y="278.5" width="192" height="104" rx="10" fill="url(#metal)"/>
+    <rect x="224.5" y="278.5" width="192" height="104" rx="10" fill="url(#metal)"/>
+    <rect x="428.5" y="278.5" width="191" height="104" rx="10" fill="url(#metal)"/>
+  </g>
+
+  <text x="38" y="72" font-family="monospace" font-size="8" fill="#9a9ea6"><tspan fill="#ff6a1a">01 /</tspan> FORGED.BY</text>
+  <text x="38" y="190" font-family="Arial, sans-serif" font-weight="800" font-size="34" fill="url(#title)">Your Name</text>
+  <rect x="38" y="204" width="170" height="7" rx="3" fill="#e8e6e3" fill-opacity=".5"/>
+  <rect x="38" y="226" width="92" height="24" rx="6" fill="#ff6a1a"/>
+  <rect x="138" y="226" width="80" height="24" rx="6" fill="none" stroke="#ffffff" stroke-opacity=".15"/>
+  <rect x="21" y="264" width="345" height="2" fill="#ff6a1a" fill-opacity=".8"/>
+
+  <path d="M389 49h231v140H379V59a10 10 0 0 1 10-10z" fill="url(#shot)"/>
+  <text x="394" y="210" font-family="monospace" font-size="8" fill="#9a9ea6"><tspan fill="#ff6a1a">02 /</tspan> FEATURED</text>
+  <rect x="394" y="220" width="130" height="10" rx="3" fill="#f4f1ec" fill-opacity=".85"/>
+  <rect x="394" y="240" width="46" height="14" rx="7" fill="none" stroke="#ffffff" stroke-opacity=".15"/>
+
+  <text x="36" y="300" font-family="monospace" font-size="8" fill="#9a9ea6"><tspan fill="#ff6a1a">03 /</tspan> ABOUT</text>
+  <circle cx="50" cy="326" r="13" fill="#2a2d31" stroke="#ff6a1a" stroke-opacity=".4"/>
+  <rect x="70" y="320" width="80" height="6" rx="3" fill="#e8e6e3" fill-opacity=".6"/>
+  <rect x="36" y="350" width="150" height="5" rx="2" fill="#9a9ea6" fill-opacity=".45"/>
+  <rect x="36" y="362" width="120" height="5" rx="2" fill="#9a9ea6" fill-opacity=".45"/>
+
+  <text x="240" y="300" font-family="monospace" font-size="8" fill="#9a9ea6"><tspan fill="#ff6a1a">04 /</tspan> STACK</text>
+  <g fill="none" stroke="#ffffff" stroke-opacity=".18">
+    <rect x="240" y="314" width="44" height="16" rx="8"/><rect x="290" y="314" width="56" height="16" rx="8"/><rect x="352" y="314" width="40" height="16" rx="8"/>
+    <rect x="240" y="336" width="60" height="16" rx="8"/><rect x="306" y="336" width="38" height="16" rx="8"/>
+  </g>
+
+  <text x="444" y="300" font-family="monospace" font-size="8" fill="#9a9ea6"><tspan fill="#ff6a1a">05 /</tspan> CONTACT</text>
+  <circle cx="448" cy="322" r="3.5" fill="#ff6a1a"/>
+  <rect x="458" y="318" width="100" height="7" rx="3" fill="#e8e6e3" fill-opacity=".7"/>
+  <rect x="444" y="336" width="120" height="5" rx="2" fill="#9a9ea6" fill-opacity=".5"/>
+  <g fill="none" stroke="#ffffff" stroke-opacity=".18">
+    <rect x="444" y="354" width="18" height="18" rx="5"/><rect x="468" y="354" width="18" height="18" rx="5"/><rect x="492" y="354" width="18" height="18" rx="5"/>
+  </g>
+</svg>

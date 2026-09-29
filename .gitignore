@@ -14,6 +14,7 @@ _ide_helper.php
 .phpstorm.meta.php
 storage/installed
 public/js/client
+public/assets/themes/forged/css
 public/assets/common/img/logo/*
 !public/assets/common/img/logo/.gitkeep
 !public/assets/common/img/logo/default.png

@@ -28,12 +28,13 @@ class ImageHelper
         }
         
         // Build attributes string
+        $attributes += ['loading' => 'lazy'];
         $attrString = '';
         foreach ($attributes as $key => $value) {
             $attrString .= ' ' . $key . '="' . htmlspecialchars($value) . '"';
         }
         
-        $html .= '<img src="' . asset($originalPath) . '" alt="' . htmlspecialchars($alt) . '" class="' . $class . '" loading="lazy"' . $attrString . '>';
+        $html .= '<img src="' . asset($originalPath) . '" alt="' . htmlspecialchars($alt) . '" class="' . $class . '"' . $attrString . '>';
         $html .= '</picture>';
         
         return $html;

@@ -27,7 +27,9 @@ use App\Services\ServiceService;
 use App\Services\SettingService;
 use App\Services\SkillService;
 use App\Services\VisitorService;
+use App\View\Composers\ForgedComposer;
 use Config;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Schema;
 use Str;
@@ -72,5 +74,7 @@ class AppServiceProvider extends ServiceProvider
         }
         
         Schema::defaultStringLength(191);
+
+        View::composer('frontend.theme.forged', ForgedComposer::class);
     }
 }

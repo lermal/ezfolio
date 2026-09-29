@@ -60,6 +60,17 @@ class ThemeRegistry
     }
 
     /**
+     * Whether the theme needs the React projects widget bundle
+     *
+     * @param string $id
+     * @return bool
+     */
+    public static function usesProjectsWidget(string $id)
+    {
+        return (bool) Config::get('themes.themes.' . self::resolve($id) . '.projects_widget', true);
+    }
+
+    /**
      * Theme list for the admin panel
      *
      * @return array
