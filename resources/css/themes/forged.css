@@ -366,9 +366,8 @@
     /* ---------------------------------------------------------------- hero */
 
     .tile--hero {
-        justify-content: flex-end;
+        justify-content: flex-start;
         gap: 20px;
-        min-height: min(70svh, 560px);
         background:
             var(--metal-noise) padding-box,
             radial-gradient(120% 90% at 0% 100%, var(--heat-soft), transparent 60%) padding-box,
@@ -376,16 +375,14 @@
             var(--metal-bevel) border-box;
     }
 
-    @media (min-width: 768px) {
-        .tile--hero {
-            min-height: min(50svh, 460px);
-        }
-    }
-
-    /* On desktop the grid rows define the height */
+    /* Desktop rows set the height: caption stays up, the name sits on the bottom */
     @media (min-width: 1200px) {
         .tile--hero {
             min-height: 0;
+        }
+
+        .tile--hero .hero-title {
+            margin-top: auto;
         }
     }
 
