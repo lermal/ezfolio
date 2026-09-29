@@ -1182,14 +1182,6 @@
 
     .project-dialog__media {
         aspect-ratio: 16 / 10;
-        background: theme('colors.forge.raised');
-    }
-
-    .project-dialog__media img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
     }
 
     .project-dialog__body {
@@ -1231,24 +1223,176 @@
         background: rgba(11, 12, 14, 0.78);
     }
 
-    .gallery {
-        display: grid;
-        grid-auto-flow: column;
-        grid-auto-columns: minmax(200px, 72%);
-        gap: 10px;
-        overflow-x: auto;
-        overscroll-behavior-x: contain;
-        scroll-snap-type: x mandatory;
-        padding-bottom: 6px;
+    /* Image viewer: whole images, one slide per swipe */
+    .viewer {
+        position: relative;
+        min-width: 0;
+        overflow: hidden;
+        background:
+            radial-gradient(90% 70% at 50% 50%, rgba(255, 255, 255, 0.035), transparent 70%),
+            #08090b;
     }
 
-    .gallery img {
+    .viewer__track {
+        display: flex;
+        height: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+    }
+
+    .viewer__track::-webkit-scrollbar {
+        display: none;
+    }
+
+    .viewer__track:focus-visible {
+        outline: 2px solid var(--accent-color);
+        outline-offset: -2px;
+    }
+
+    .viewer__slide {
+        flex: 0 0 100%;
+        height: 100%;
+        margin: 0;
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
+    }
+
+    .viewer__slide img {
+        display: block;
         width: 100%;
-        aspect-ratio: 16 / 10;
-        object-fit: cover;
-        border-radius: 10px;
-        scroll-snap-align: start;
+        height: 100%;
+        object-fit: contain;
+        cursor: zoom-in;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    .viewer__btn,
+    .viewer__count {
+        position: absolute;
+        z-index: 2;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        background: rgba(11, 12, 14, 0.74);
+        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(6px);
+    }
+
+    .viewer__btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        color: #f4f1ec;
+        transition: opacity var(--cool-in) ease-out, color var(--cool-in) ease-out, border-color var(--cool-in) ease-out;
+    }
+
+    .viewer__btn:hover {
+        color: var(--accent-color);
+        border-color: rgba(var(--accent-color-rgb), 0.55);
+    }
+
+    .viewer__btn:disabled {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .viewer__btn--prev,
+    .viewer__btn--next {
+        top: 50%;
+        translate: 0 -50%;
+    }
+
+    .viewer__btn--prev {
+        left: 12px;
+    }
+
+    .viewer__btn--next {
+        right: 12px;
+    }
+
+    .viewer__btn--zoom {
+        right: 12px;
+        bottom: 12px;
+    }
+
+    .viewer__count {
+        left: 12px;
+        bottom: 12px;
+        margin: 0;
+        padding: 6px 12px;
+        color: #f4f1ec;
+    }
+
+    .viewer.is-single .viewer__btn--prev,
+    .viewer.is-single .viewer__btn--next,
+    .viewer.is-single .viewer__count {
+        display: none;
+    }
+
+    .viewer-thumbs {
+        display: flex;
+        gap: 8px;
+        margin: 0 -2px;
+        padding: 2px 2px 6px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-width: thin;
+    }
+
+    .viewer-thumbs__item {
+        flex: 0 0 76px;
+        aspect-ratio: 4 / 3;
+        padding: 0;
+        overflow: hidden;
+        border: 1px solid theme('colors.forge.line');
+        border-radius: 8px;
         background: theme('colors.forge.raised');
+        opacity: 0.5;
+        transition: opacity var(--cool-in) ease-out, border-color var(--cool-in) ease-out;
+    }
+
+    .viewer-thumbs__item img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .viewer-thumbs__item:hover {
+        opacity: 0.85;
+    }
+
+    .viewer-thumbs__item[aria-current='true'] {
+        opacity: 1;
+        border-color: var(--accent-color);
+    }
+
+    /* Full-screen mode: the viewer covers the viewport above the dialog sheet */
+    .project-dialog.is-zoomed .viewer {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        height: auto;
+        aspect-ratio: auto;
+        background: rgba(5, 6, 7, 0.97);
+    }
+
+    .project-dialog.is-zoomed .viewer__slide img {
+        cursor: zoom-out;
+    }
+
+    .project-dialog.is-zoomed .viewer__btn--zoom {
+        top: calc(12px + env(safe-area-inset-top));
+        bottom: auto;
+    }
+
+    .project-dialog.is-zoomed .viewer__count {
+        bottom: calc(12px + env(safe-area-inset-bottom));
     }
 
     /* Desktop and tablet: cover on the left, scrollable text on the right */
@@ -1286,6 +1430,10 @@
             align-content: start;
         }
 
+        .project-dialog__media {
+            aspect-ratio: 4 / 3;
+        }
+
         .project-dialog__actions {
             position: sticky;
             bottom: 0;
@@ -1302,7 +1450,7 @@
 
     /* Fallback entrance when View Transitions are not used */
     .project-dialog.is-plain[open] {
-        animation: forge-dialog-in 0.22s theme('transitionTimingFunction.heat') both;
+        animation: forge-dialog-in 0.22s theme('transitionTimingFunction.heat') backwards;
     }
 
     .project-dialog.is-plain[open]::backdrop {

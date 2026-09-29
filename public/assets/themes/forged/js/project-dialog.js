@@ -10,6 +10,8 @@
  * with it opens the dialog, and the browser "back" button closes it.
  * Without View Transitions support or with reduced motion the dialog opens with a plain fade.
  */
+import createViewer from './viewer.js';
+
 const MEDIA = 'forged-media';
 const TITLE = 'forged-title';
 
@@ -33,14 +35,13 @@ export default function initProjectDialog({ reduceMotion }) {
     const ui = {
         sheet: dialog.querySelector('.project-dialog__sheet'),
         media: slot('media'),
-        cover: slot('cover'),
         title: slot('title'),
         categories: slot('categories'),
         details: slot('details'),
-        galleryWrap: slot('gallery-wrap'),
-        gallery: slot('gallery'),
         link: slot('link'),
     };
+
+    const viewer = createViewer({ dialog, root: ui.media, thumbs: slot('thumbs'), reduceMotion });
 
     const canMorph = typeof document.startViewTransition === 'function' && !reduceMotion;
     dialog.classList.toggle('is-plain', !canMorph);
@@ -89,30 +90,16 @@ export default function initProjectDialog({ reduceMotion }) {
     };
 
     function fill(project) {
-        if (project.cover) {
-            ui.cover.src = project.cover;
-        } else {
-            ui.cover.removeAttribute('src');
-        }
-        ui.cover.alt = project.title;
-        ui.media.hidden = !project.cover;
+        const sources = [...new Set([project.cover, ...project.images].filter(Boolean))];
+
+        viewer.reset();
+        viewer.load(sources, project.title);
 
         ui.title.textContent = project.title;
         ui.categories.textContent = project.categories.join(' · ');
         ui.categories.hidden = project.categories.length === 0;
         ui.details.textContent = project.details || '';
         ui.details.hidden = !project.details;
-
-        ui.gallery.replaceChildren(...project.images.map((src, index) => {
-            const image = new Image();
-            image.src = src;
-            image.alt = `${project.title} — ${index + 1}`;
-            image.loading = 'lazy';
-            image.decoding = 'async';
-
-            return image;
-        }));
-        ui.galleryWrap.hidden = project.images.length === 0;
 
         if (project.link) {
             ui.link.href = project.link;
@@ -161,6 +148,8 @@ export default function initProjectDialog({ reduceMotion }) {
 
         const card = trigger;
 
+        viewer.reset();
+
         if (canMorph && card && isOnScreen(card)) {
             tagDialog(true);
             morph(() => {
@@ -205,7 +194,9 @@ export default function initProjectDialog({ reduceMotion }) {
 
     dialog.addEventListener('cancel', (event) => {
         event.preventDefault();
-        close();
+        if (!viewer.handleCancel()) {
+            close();
+        }
     });
 
     dialog.addEventListener('close', () => {
