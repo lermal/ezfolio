@@ -14,6 +14,10 @@
 @endsection
 
 @section('head')
+    @if ($forged['lcpImage'])
+        <link rel="preload" as="image" type="image/webp" fetchpriority="high"
+            imagesrcset="{{ $forged['lcpImage']['srcset'] }}" imagesizes="{{ $forged['lcpImage']['sizes'] }}">
+    @endif
     @if (app()->getLocale() === 'ru')
         <link rel="preload" href="{{ asset('assets/themes/forged/fonts/unbounded-cyrillic.woff2') }}" as="font" type="font/woff2" crossorigin>
         <link rel="preload" href="{{ asset('assets/themes/forged/fonts/onest-cyrillic.woff2') }}" as="font" type="font/woff2" crossorigin>
@@ -22,8 +26,10 @@
 @endsection
 
 @section('styles')
-    <link href="{{ asset('assets/common/lib/fontawesome/css/all.min.css') }}" rel="stylesheet">
     <link href="{{ $forged['assets']['css'] }}" rel="stylesheet">
+    {{-- Icons are not needed for the first paint --}}
+    <link href="{{ asset('assets/common/lib/fontawesome/css/all.min.css') }}" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="{{ asset('assets/common/lib/fontawesome/css/all.min.css') }}" rel="stylesheet"></noscript>
     <style>
         :root {
             --heat-ink: {{ $forged['heatInk'] }};

@@ -78,7 +78,52 @@
         }
     }
 
+    // Turnstile weighs ~100 KB and keeps the main thread busy, so it waits until its widget is near the screen
+    function loadCaptchaWhenNeeded() {
+        var widgets = document.querySelectorAll('.cf-turnstile');
+        var loaded = false;
+
+        if (!config.turnstileScript || !widgets.length) {
+            return;
+        }
+
+        function load() {
+            if (loaded) {
+                return;
+            }
+
+            loaded = true;
+            var script = document.createElement('script');
+            script.src = config.turnstileScript;
+            script.async = true;
+            document.head.appendChild(script);
+        }
+
+        if (!('IntersectionObserver' in window)) {
+            load();
+            return;
+        }
+
+        var observer = new IntersectionObserver(function (entries) {
+            if (entries.some(function (entry) { return entry.isIntersecting; })) {
+                observer.disconnect();
+                load();
+            }
+        }, { rootMargin: '800px 0px' });
+
+        Array.prototype.forEach.call(widgets, function (widget) {
+            observer.observe(widget);
+
+            var form = widget.closest('form');
+            if (form) {
+                form.addEventListener('focusin', load, { once: true });
+            }
+        });
+    }
+
     $(function () {
+        loadCaptchaWhenNeeded();
+
         var form = $('#contact-me-form');
 
         if (!form.length) {

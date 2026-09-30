@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Services\ImageOptimizationService;
-use App\Models\Project;
 use App\Models\About;
-use Illuminate\Support\Facades\File;
+use App\Models\Project;
+use App\Services\ImageOptimizationService;
+use Illuminate\Console\Command;
 
 class OptimizeImages extends Command
 {
@@ -15,14 +14,14 @@ class OptimizeImages extends Command
      *
      * @var string
      */
-    protected $signature = 'images:optimize {--force : Force optimization even if WebP already exists}';
+    protected $signature = 'images:optimize {--force : Recreate WebP copies that already exist}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Optimize all existing images and create WebP versions';
+    protected $description = 'Create responsive WebP copies of project images and the avatar';
 
     /**
      * Execute the console command.
@@ -31,84 +30,55 @@ class OptimizeImages extends Command
      */
     public function handle()
     {
-        $this->info('Starting image optimization...');
-        
-        $imageOptimizer = new ImageOptimizationService();
-        $force = $this->option('force');
-        
-        $totalSavings = 0;
-        $processedCount = 0;
-        
-        // Optimize project images
-        $this->info('Optimizing project images...');
-        $projects = Project::all();
-        
-        foreach ($projects as $project) {
-            // Optimize thumbnail
-            if ($project->thumbnail && file_exists(public_path($project->thumbnail))) {
-                $webpPath = str_replace(['.jpg', '.jpeg', '.png'], '.webp', $project->thumbnail);
-                
-                if ($force || !file_exists(public_path($webpPath))) {
-                    $result = $imageOptimizer->optimizeProjectThumbnail($project->thumbnail);
-                    if ($result['status']) {
-                        $totalSavings += $result['savings'];
-                        $processedCount++;
-                        $this->line("✓ Thumbnail optimized: {$project->title} (saved {$result['savings_percent']}%)");
-                    }
-                }
-            }
-            
-            // Optimize project images
-            if ($project->images) {
-                $images = json_decode($project->images, true);
-                if (is_array($images)) {
-                    foreach ($images as $image) {
-                        if (file_exists(public_path($image))) {
-                            $webpPath = str_replace(['.jpg', '.jpeg', '.png'], '.webp', $image);
-                            
-                            if ($force || !file_exists(public_path($webpPath))) {
-                                $result = $imageOptimizer->optimizeProjectImage($image);
-                                if ($result['status']) {
-                                    $totalSavings += $result['savings'];
-                                    $processedCount++;
-                                    $this->line("✓ Project image optimized: {$project->title} (saved {$result['savings_percent']}%)");
-                                }
-                            }
-                        }
-                    }
-                }
+        if (!function_exists('imagewebp')) {
+            $this->error('PHP GD is built without WebP support, install or enable it first.');
+
+            return 1;
+        }
+
+        $optimizer = new ImageOptimizationService();
+        $force = (bool) $this->option('force');
+        $original = 0;
+        $optimized = 0;
+        $failed = 0;
+
+        $jobs = [];
+
+        foreach (Project::all() as $project) {
+            $images = json_decode((string) $project->images, true);
+            $paths = array_filter(array_merge([$project->thumbnail], is_array($images) ? $images : []));
+
+            foreach (array_unique($paths) as $path) {
+                $jobs[] = [$project->title, $path, ImageOptimizationService::WIDTHS];
             }
         }
-        
-        // Optimize avatar images
-        $this->info('Optimizing avatar images...');
-        $abouts = About::all();
-        
-        foreach ($abouts as $about) {
-            if ($about->avatar && file_exists(public_path($about->avatar))) {
-                $webpPath = str_replace(['.jpg', '.jpeg', '.png'], '.webp', $about->avatar);
-                
-                if ($force || !file_exists(public_path($webpPath))) {
-                    $result = $imageOptimizer->optimizeAvatar($about->avatar);
-                    if ($result['status']) {
-                        $totalSavings += $result['savings'];
-                        $processedCount++;
-                        $this->line("✓ Avatar optimized: {$about->name} (saved {$result['savings_percent']}%)");
-                    }
-                }
+
+        foreach (About::all() as $about) {
+            if ($about->hasCustomAvatar()) {
+                $jobs[] = [$about->name, $about->avatar, [240]];
             }
         }
-        
-        // Convert bytes to human readable format
-        $totalSavingsFormatted = $this->formatBytes($totalSavings);
-        
-        $this->info("Image optimization completed!");
-        $this->info("Processed: {$processedCount} images");
-        $this->info("Total savings: {$totalSavingsFormatted}");
-        
-        return 0;
+
+        foreach ($jobs as [$owner, $path, $widths]) {
+            $result = $optimizer->createVariants($path, $widths, $force);
+
+            if (!$result['status']) {
+                $failed++;
+                $this->warn("✗ {$owner}: {$path} — {$result['message']}");
+                continue;
+            }
+
+            $original += $result['original_size'];
+            $optimized += $result['webp_size'];
+            $this->line("✓ {$owner}: {$path} → " . implode(', ', array_keys($result['variants'])) . "w ({$this->formatBytes($result['original_size'])} → {$this->formatBytes($result['webp_size'])})");
+        }
+
+        $this->info('Done: ' . (count($jobs) - $failed) . ' images, ' . $failed . ' failed.');
+        $this->info('Largest copies weigh ' . $this->formatBytes($optimized) . ' instead of ' . $this->formatBytes($original) . '.');
+
+        return $failed ? 1 : 0;
     }
-    
+
     /**
      * Format bytes to human readable format
      *
@@ -121,9 +91,9 @@ class OptimizeImages extends Command
         $bytes = max($bytes, 0);
         $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
         $pow = min($pow, count($units) - 1);
-        
+
         $bytes /= pow(1024, $pow);
-        
+
         return round($bytes, 2) . ' ' . $units[$pow];
     }
 }

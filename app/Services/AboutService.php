@@ -185,10 +185,13 @@ class AboutService implements AboutInterface
                 try {
                     if ($oldAvatarResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS && $oldAvatarResponse['payload']->hasCustomAvatar() && is_file($oldAvatarResponse['payload']->avatar)) {
                         unlink($oldAvatarResponse['payload']->avatar);
+                        ImageOptimizationService::deleteVariants($oldAvatarResponse['payload']->avatar);
                     }
                 } catch (\Throwable $th) {
                     Log::error($th->getMessage());
                 }
+
+                (new ImageOptimizationService())->optimizeAvatar($pathName.$fileName);
 
                 $result = $oldAvatarResponse['payload'];
 
@@ -251,6 +254,7 @@ class AboutService implements AboutInterface
 
             if ($matchesCurrent && $about->hasCustomAvatar() && $inAvatarDir && is_file($current)) {
                 unlink($current);
+                ImageOptimizationService::deleteVariants($current);
             }
 
             if (!$about->update(['avatar' => ''])) {

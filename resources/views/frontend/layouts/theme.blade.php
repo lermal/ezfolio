@@ -16,7 +16,8 @@
     The layout provides: SEO meta, favicon, analytics, custom header/footer scripts,
     accent color CSS variables (--accent-color, --accent-color-rgb, --z-accent-color),
     preloader, projects widget bundle (when "projects_widget" is on in config/themes.php),
-    Turnstile and the contact form handler for a form with id "contact-me-form".
+    Turnstile (loaded when its widget comes close to the viewport) and the contact form
+    handler for a form with id "contact-me-form".
 --}}
 @php
     $accentColor = $portfolioConfig['accentColor'];
@@ -90,7 +91,8 @@
         <link rel="shortcut icon" type="image/x-icon" href="{{ Utils::getFavicon() }}">
     @endif
 
-    <link href="{{ asset('assets/common/lib/iziToast/css/iziToast.min.css') }}" rel="stylesheet">
+    {{-- Only the contact form notifications use it --}}
+    <link href="{{ asset('assets/common/lib/iziToast/css/iziToast.min.css') }}" rel="stylesheet" media="print" onload="this.media='all'">
     @yield('styles')
     <style>
         :root {
@@ -118,12 +120,10 @@
     @if (\App\Helpers\ThemeRegistry::usesProjectsWidget($portfolioConfig['template']))
         <script src="{{ asset('js/client/frontend/roots/projects.js') }}"></script>
     @endif
-    @if (config('services.turnstile.site_key'))
-        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    @endif
     @php
         $contactFormConfig = [
             'url' => route('contact-me'),
+            'turnstileScript' => config('services.turnstile.site_key') ? 'https://challenges.cloudflare.com/turnstile/v0/api.js' : null,
             'messages' => [
                 'sending' => __('frontend.contact.sending'),
                 'sent' => __('frontend.contact.message_sent'),
@@ -135,7 +135,7 @@
     <script>
         window.ezfolioContactForm = @json($contactFormConfig);
     </script>
-    <script src="{{ asset('assets/common/js/contact-form.js') }}"></script>
+    <script src="{{ asset('assets/common/js/contact-form.js') }}?v={{ filemtime(public_path('assets/common/js/contact-form.js')) }}"></script>
 
     @if (!empty($portfolioConfig['script']['footer']))
         <script>

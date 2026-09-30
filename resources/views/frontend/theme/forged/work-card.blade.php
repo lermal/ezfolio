@@ -2,7 +2,7 @@
     <a href="{{ $work['url'] }}" class="work-link" data-project-open="{{ $work['id'] }}">
         <div class="work-media" data-vt-media>
             @if ($work['thumbnail'])
-                {!! \App\Helpers\ImageHelper::optimizedImage($work['thumbnail'], $work['title'], '', ['decoding' => 'async']) !!}
+                {!! \App\Helpers\ImageHelper::optimizedImage($work['thumbnail'], $work['title'], '', ['decoding' => 'async', 'sizes' => $work['sizes']]) !!}
             @endif
         </div>
         <div class="work-body">

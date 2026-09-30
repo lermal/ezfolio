@@ -4,7 +4,7 @@
     <div class="hero-id">
         @if ($about->hasCustomAvatar())
             <div class="hero-avatar">
-                {!! \App\Helpers\ImageHelper::optimizedImage($about->avatar, $about->name) !!}
+                {!! \App\Helpers\ImageHelper::optimizedImage($about->avatar, $about->name, '', ['loading' => 'eager', 'sizes' => '92px']) !!}
             </div>
         @endif
         <h1 id="forged-hero-title" class="hero-title">{{ $about->name }}</h1>

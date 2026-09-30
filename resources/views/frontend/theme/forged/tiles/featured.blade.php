@@ -7,6 +7,7 @@
                     'loading' => 'eager',
                     'fetchpriority' => 'high',
                     'decoding' => 'async',
+                    'sizes' => \App\View\Composers\ForgedComposer::SIZES_FEATURED,
                 ]) !!}
             @endif
         </div>

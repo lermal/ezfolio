@@ -2,6 +2,7 @@
 
 namespace App\View\Composers;
 
+use App\Helpers\ImageHelper;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
@@ -25,6 +26,13 @@ class ForgedComposer
      * Project cards under a project page
      */
     const OTHER_WORKS = 3;
+
+    /**
+     * Rendered widths of the images for the "sizes" attribute, matching the grid in forged.css
+     */
+    const SIZES_CARD = '(min-width: 1200px) 440px, (min-width: 768px) 50vw, 100vw';
+    const SIZES_WIDE = '(min-width: 1200px) 900px, 100vw';
+    const SIZES_FEATURED = '(min-width: 1200px) 560px, 100vw';
 
     /**
      * Span of the small tiles in the 6-column tablet grid, by their count
@@ -104,9 +112,12 @@ class ForgedComposer
             'footer' => $this->isVisible($visibility, 'footer'),
             'assets' => $this->assets(),
             'home' => $home,
+            'lcpImage' => !$current && $featured && $featured['thumbnail']
+                ? ImageHelper::preloadAttributes($featured['thumbnail'], self::SIZES_FEATURED)
+                : null,
             'page' => $current ? [
                 'project' => $current,
-                'images' => array_values(array_unique(array_map('asset', array_filter(array_merge([$current['thumbnail']], $current['images']))))),
+                'images' => array_values(array_unique(array_map([ImageHelper::class, 'webpUrl'], array_filter(array_merge([$current['thumbnail']], $current['images']))))),
                 'link' => $current['link'] && preg_match('#^https?://#i', $current['link']) ? $current['link'] : null,
                 'buttons' => $this->projectButtons($current['buttons']),
                 'others' => $this->otherWorks($works, $current),
@@ -136,6 +147,7 @@ class ForgedComposer
             ->values()
             ->map(function ($work, $position) {
                 $work['style'] = '--span-lg: 4; --span-md: 3; --i: ' . $position . ';';
+                $work['sizes'] = self::SIZES_CARD;
 
                 return $work;
             });
@@ -375,6 +387,7 @@ class ForgedComposer
                 'buttons' => $project->buttons,
                 'featured' => (bool) $project->is_featured,
                 'style' => ($wide ? '--span-lg: 8; --span-md: 6;' : '--span-lg: 4; --span-md: 3;') . ' --i: ' . ($index % 3) . ';',
+                'sizes' => $wide ? self::SIZES_WIDE : self::SIZES_CARD,
             ];
         });
     }
@@ -393,8 +406,8 @@ class ForgedComposer
                 'title' => $work['title'],
                 'url' => $work['url'],
                 'categories' => $work['categories'],
-                'cover' => $work['thumbnail'] ? asset($work['thumbnail']) : null,
-                'images' => array_map('asset', $work['images']),
+                'cover' => $work['thumbnail'] ? ImageHelper::webpUrl($work['thumbnail']) : null,
+                'images' => array_map([ImageHelper::class, 'webpUrl'], $work['images']),
                 'details' => $work['details'],
                 'link' => $work['link'] && preg_match('#^https?://#i', $work['link']) ? $work['link'] : null,
                 'buttons' => $this->projectButtons($work['buttons']),

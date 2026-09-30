@@ -3,166 +3,248 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
 
+/**
+ * Responsive WebP copies of uploaded images, made with GD.
+ * A copy lives next to the original as "{name}-{width}w.webp"; paths are relative to public/.
+ */
 class ImageOptimizationService
 {
     /**
-     * Optimize image and create WebP version
+     * Widths of the WebP copies. An image narrower than a width gets one copy of its own width instead.
+     */
+    const WIDTHS = [480, 960, 1600];
+
+    const QUALITY = 80;
+
+    /**
+     * Decoding a full-page screenshot takes width * height * 4 bytes
+     */
+    const MEMORY_LIMIT = '512M';
+
+    /**
+     * @var array path => [width => path]
+     */
+    private static $found = [];
+
+    /**
+     * Create the WebP copies of an image
      *
-     * @param string $imagePath
-     * @param int $maxWidth
-     * @param int $maxHeight
-     * @param int $quality
+     * @param string $path
+     * @param array $widths
+     * @param bool $force recreate existing copies
      * @return array
      */
-    public function optimizeImage($imagePath, $maxWidth = 800, $maxHeight = 600, $quality = 85)
+    public function createVariants($path, array $widths = self::WIDTHS, bool $force = false)
     {
+        $full = public_path($path);
+
         try {
-            if (!file_exists($imagePath)) {
-                return [
-                    'status' => false,
-                    'message' => 'Image file not found'
-                ];
+            if (!function_exists('imagewebp')) {
+                return ['status' => false, 'message' => 'GD is built without WebP support'];
             }
 
-            $originalSize = filesize($imagePath);
-            $pathInfo = pathinfo($imagePath);
-            $webpPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '.webp';
-
-            // Create optimized WebP version
-            $image = Image::make($imagePath);
-            
-            // Resize if needed
-            if ($image->width() > $maxWidth || $image->height() > $maxHeight) {
-                $image->resize($maxWidth, $maxHeight, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
+            if (!is_file($full)) {
+                return ['status' => false, 'message' => 'Image file not found'];
             }
 
-            // Save WebP version
-            $image->encode('webp', $quality)->save($webpPath);
-            
-            $webpSize = filesize($webpPath);
-            $savings = $originalSize - $webpSize;
-            $savingsPercent = round(($savings / $originalSize) * 100, 2);
+            $this->raiseMemoryLimit();
 
-            Log::info('Image optimized successfully', [
-                'original_path' => $imagePath,
-                'webp_path' => $webpPath,
-                'original_size' => $originalSize,
-                'webp_size' => $webpSize,
-                'savings' => $savings,
-                'savings_percent' => $savingsPercent
-            ]);
+            $source = @imagecreatefromstring(file_get_contents($full));
+            if (!$source) {
+                return ['status' => false, 'message' => 'Unsupported image format'];
+            }
+
+            imagepalettetotruecolor($source);
+            $sourceWidth = imagesx($source);
+            $sourceHeight = imagesy($source);
+
+            $created = [];
+            sort($widths);
+
+            foreach ($widths as $width) {
+                $width = min($width, $sourceWidth);
+                $target = self::variantPath($path, $width);
+
+                if (isset($created[$width])) {
+                    continue;
+                }
+
+                if ($force || !is_file(public_path($target))) {
+                    $this->saveResized($source, $sourceWidth, $sourceHeight, $width, public_path($target));
+                }
+
+                $created[$width] = $target;
+            }
+
+            imagedestroy($source);
+            unset(self::$found[$path]);
+
+            $originalSize = filesize($full);
+            $largest = end($created);
+            $webpSize = filesize(public_path($largest));
 
             return [
                 'status' => true,
-                'original_path' => $imagePath,
-                'webp_path' => $webpPath,
+                'variants' => $created,
+                'webp_path' => $largest,
                 'original_size' => $originalSize,
                 'webp_size' => $webpSize,
-                'savings' => $savings,
-                'savings_percent' => $savingsPercent
+                'savings' => $originalSize - $webpSize,
+                'savings_percent' => $originalSize ? round(($originalSize - $webpSize) / $originalSize * 100, 2) : 0,
             ];
-
         } catch (\Throwable $th) {
-            Log::error('Image optimization failed', [
-                'image_path' => $imagePath,
-                'error' => $th->getMessage()
-            ]);
+            Log::error('Image optimization failed', ['image_path' => $path, 'error' => $th->getMessage()]);
 
-            return [
-                'status' => false,
-                'message' => $th->getMessage()
-            ];
+            return ['status' => false, 'message' => $th->getMessage()];
         }
     }
 
     /**
-     * Optimize project thumbnail
-     *
-     * @param string $imagePath
+     * @param string $path
      * @return array
      */
-    public function optimizeProjectThumbnail($imagePath)
+    public function optimizeProjectThumbnail($path)
     {
-        return $this->optimizeImage($imagePath, 400, 300, 80);
+        return $this->createVariants($path);
     }
 
     /**
-     * Optimize project images
-     *
-     * @param string $imagePath
+     * @param string $path
      * @return array
      */
-    public function optimizeProjectImage($imagePath)
+    public function optimizeProjectImage($path)
     {
-        return $this->optimizeImage($imagePath, 1200, 800, 85);
+        return $this->createVariants($path);
     }
 
     /**
-     * Optimize avatar image
-     *
-     * @param string $imagePath
+     * @param string $path
      * @return array
      */
-    public function optimizeAvatar($imagePath)
+    public function optimizeAvatar($path)
     {
-        return $this->optimizeImage($imagePath, 400, 400, 85);
+        return $this->createVariants($path, [240]);
     }
 
     /**
-     * Get optimized image URL with WebP fallback
+     * Existing WebP copies of an image, narrowest first
      *
-     * @param string $originalPath
-     * @param string $webpPath
+     * @param string|null $path
+     * @return array width => path
+     */
+    public static function variants($path)
+    {
+        if (!is_string($path) || $path === '') {
+            return [];
+        }
+
+        if (!isset(self::$found[$path])) {
+            $variants = [];
+            $prefix = self::variantPrefix($path);
+
+            foreach (glob(public_path($prefix) . '*w.webp') ?: [] as $file) {
+                if (preg_match('/-(\d+)w\.webp$/', $file, $match)) {
+                    $variants[(int) $match[1]] = $prefix . $match[1] . 'w.webp';
+                }
+            }
+
+            ksort($variants);
+            self::$found[$path] = $variants;
+        }
+
+        return self::$found[$path];
+    }
+
+    /**
+     * Remove the WebP copies of an image
+     *
+     * @param string|null $path
+     * @return void
+     */
+    public static function deleteVariants($path)
+    {
+        foreach (self::variants($path) as $variant) {
+            @unlink(public_path($variant));
+        }
+
+        unset(self::$found[$path]);
+    }
+
+    /**
+     * @param string $path
+     * @param int $width
      * @return string
      */
-    public function getOptimizedImageUrl($originalPath, $webpPath = null)
+    private static function variantPath($path, int $width)
     {
-        if ($webpPath && file_exists($webpPath)) {
-            return asset($webpPath);
-        }
-        
-        return asset($originalPath);
+        return self::variantPrefix($path) . $width . 'w.webp';
     }
 
     /**
-     * Check if WebP is supported by browser
-     *
-     * @return bool
-     */
-    public function isWebPSupported()
-    {
-        $acceptHeader = request()->header('Accept', '');
-        return strpos($acceptHeader, 'image/webp') !== false;
-    }
-
-    /**
-     * Generate responsive image HTML with WebP support
-     *
-     * @param string $originalPath
-     * @param string $alt
-     * @param string $class
-     * @param string $webpPath
+     * @param string $path
      * @return string
      */
-    public function generateResponsiveImage($originalPath, $alt = '', $class = '', $webpPath = null)
+    private static function variantPrefix($path)
     {
-        $webpPath = $webpPath ?: str_replace(['.jpg', '.jpeg', '.png'], '.webp', $originalPath);
-        
-        $html = '<picture>';
-        
-        if (file_exists(public_path($webpPath))) {
-            $html .= '<source srcset="' . asset($webpPath) . '" type="image/webp">';
+        $info = pathinfo($path);
+        $dir = isset($info['dirname']) && $info['dirname'] !== '.' ? $info['dirname'] . '/' : '';
+
+        return $dir . $info['filename'] . '-';
+    }
+
+    /**
+     * @param resource|\GdImage $source
+     * @param int $sourceWidth
+     * @param int $sourceHeight
+     * @param int $width
+     * @param string $target
+     * @return void
+     */
+    private function saveResized($source, int $sourceWidth, int $sourceHeight, int $width, string $target)
+    {
+        $height = max(1, (int) round($sourceHeight * $width / $sourceWidth));
+
+        $image = imagecreatetruecolor($width, $height);
+        imagealphablending($image, false);
+        imagesavealpha($image, true);
+        imagefilledrectangle($image, 0, 0, $width, $height, imagecolorallocatealpha($image, 0, 0, 0, 127));
+        imagecopyresampled($image, $source, 0, 0, 0, 0, $width, $height, $sourceWidth, $sourceHeight);
+
+        imagewebp($image, $target, self::QUALITY);
+        imagedestroy($image);
+    }
+
+    /**
+     * @return void
+     */
+    private function raiseMemoryLimit()
+    {
+        $current = ini_get('memory_limit');
+
+        if ($current !== '-1' && $this->bytes($current) < $this->bytes(self::MEMORY_LIMIT)) {
+            @ini_set('memory_limit', self::MEMORY_LIMIT);
         }
-        
-        $html .= '<img src="' . asset($originalPath) . '" alt="' . htmlspecialchars($alt) . '" class="' . $class . '" loading="lazy">';
-        $html .= '</picture>';
-        
-        return $html;
+    }
+
+    /**
+     * @param string $value
+     * @return int
+     */
+    private function bytes($value)
+    {
+        $value = trim((string) $value);
+        $number = (int) $value;
+
+        switch (strtolower(substr($value, -1))) {
+            case 'g':
+                return $number * 1024 ** 3;
+            case 'm':
+                return $number * 1024 ** 2;
+            case 'k':
+                return $number * 1024;
+        }
+
+        return $number;
     }
 }

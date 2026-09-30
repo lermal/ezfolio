@@ -7,7 +7,8 @@ use App\Services\ImageOptimizationService;
 class ImageHelper
 {
     /**
-     * Generate optimized image HTML with WebP support
+     * <picture> with the responsive WebP copies and the original as the fallback.
+     * The "sizes" attribute tells the browser how wide the image is shown.
      *
      * @param string $originalPath
      * @param string $alt
@@ -17,94 +18,69 @@ class ImageHelper
      */
     public static function optimizedImage($originalPath, $alt = '', $class = '', $attributes = [])
     {
-        $imageOptimizer = new ImageOptimizationService();
-        $webpPath = str_replace(['.jpg', '.jpeg', '.png'], '.webp', $originalPath);
-        
+        $sizes = $attributes['sizes'] ?? '100vw';
+        unset($attributes['sizes']);
+
         $html = '<picture>';
-        
-        // Add WebP source if available
-        if (file_exists(public_path($webpPath))) {
-            $html .= '<source srcset="' . asset($webpPath) . '" type="image/webp">';
+
+        $variants = ImageOptimizationService::variants($originalPath);
+        if ($variants) {
+            $srcset = [];
+            foreach ($variants as $width => $path) {
+                $srcset[] = asset($path) . ' ' . $width . 'w';
+            }
+
+            $html .= '<source type="image/webp" srcset="' . e(implode(', ', $srcset)) . '" sizes="' . e($sizes) . '">';
         }
-        
-        // Build attributes string
+
         $attributes += ['loading' => 'lazy'];
         $attrString = '';
         foreach ($attributes as $key => $value) {
             $attrString .= ' ' . $key . '="' . htmlspecialchars($value) . '"';
         }
-        
+
         $html .= '<img src="' . asset($originalPath) . '" alt="' . htmlspecialchars($alt) . '" class="' . $class . '"' . $attrString . '>';
         $html .= '</picture>';
-        
+
         return $html;
     }
 
     /**
-     * Generate responsive image with multiple sizes
+     * URL of the widest WebP copy up to $maxWidth, the original when there are no copies
      *
      * @param string $originalPath
-     * @param string $alt
-     * @param string $class
-     * @param array $sizes
+     * @param int $maxWidth
      * @return string
      */
-    public static function responsiveImage($originalPath, $alt = '', $class = '', $sizes = [])
+    public static function webpUrl($originalPath, int $maxWidth = 1600)
     {
-        $imageOptimizer = new ImageOptimizationService();
-        $webpPath = str_replace(['.jpg', '.jpeg', '.png'], '.webp', $originalPath);
-        
-        $html = '<picture>';
-        
-        // Add WebP sources for different sizes
-        if (file_exists(public_path($webpPath))) {
-            foreach ($sizes as $size) {
-                $webpSizePath = str_replace(['.jpg', '.jpeg', '.png'], '_' . $size . '.webp', $originalPath);
-                if (file_exists(public_path($webpSizePath))) {
-                    $html .= '<source media="(max-width: ' . $size . 'px)" srcset="' . asset($webpSizePath) . '" type="image/webp">';
-                }
-            }
-        }
-        
-        // Add original WebP source
-        if (file_exists(public_path($webpPath))) {
-            $html .= '<source srcset="' . asset($webpPath) . '" type="image/webp">';
-        }
-        
-        // Add fallback image
-        $html .= '<img src="' . asset($originalPath) . '" alt="' . htmlspecialchars($alt) . '" class="' . $class . '" loading="lazy">';
-        $html .= '</picture>';
-        
-        return $html;
+        $fitting = array_filter(ImageOptimizationService::variants($originalPath), function ($width) use ($maxWidth) {
+            return $width <= $maxWidth;
+        }, ARRAY_FILTER_USE_KEY);
+
+        return $fitting ? asset(end($fitting)) : asset($originalPath);
     }
 
     /**
-     * Get optimized image URL
+     * srcset and sizes for a <link rel="preload" as="image">, null without WebP copies
      *
      * @param string $originalPath
-     * @return string
+     * @param string $sizes
+     * @return array|null
      */
-    public static function getOptimizedUrl($originalPath)
+    public static function preloadAttributes($originalPath, string $sizes)
     {
-        $imageOptimizer = new ImageOptimizationService();
-        $webpPath = str_replace(['.jpg', '.jpeg', '.png'], '.webp', $originalPath);
-        
-        if ($imageOptimizer->isWebPSupported() && file_exists(public_path($webpPath))) {
-            return asset($webpPath);
-        }
-        
-        return asset($originalPath);
-    }
+        $variants = ImageOptimizationService::variants($originalPath);
 
-    /**
-     * Check if WebP version exists
-     *
-     * @param string $originalPath
-     * @return bool
-     */
-    public static function hasWebPVersion($originalPath)
-    {
-        $webpPath = str_replace(['.jpg', '.jpeg', '.png'], '.webp', $originalPath);
-        return file_exists(public_path($webpPath));
+        if (!$variants) {
+            return null;
+        }
+
+        $srcset = [];
+        foreach ($variants as $width => $path) {
+            $srcset[] = asset($path) . ' ' . $width . 'w';
+        }
+
+        return ['srcset' => implode(', ', $srcset), 'sizes' => $sizes];
     }
 }

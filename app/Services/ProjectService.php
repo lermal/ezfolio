@@ -305,6 +305,7 @@ class ProjectService implements ProjectInterface
             try {
                 if (file_exists($project->thumbnail)) {
                     unlink($project->thumbnail);
+                    ImageOptimizationService::deleteVariants($project->thumbnail);
                 }
             } catch (\Throwable $th) {
                 Log::error($th->getMessage());
@@ -373,6 +374,7 @@ class ProjectService implements ProjectInterface
                 foreach ($existingImages as $key => $existingImage) {
                     if (file_exists($existingImage)) {
                         unlink($existingImage);
+                        ImageOptimizationService::deleteVariants($existingImage);
                     }
                 }
             } catch (\Throwable $th) {
@@ -555,6 +557,7 @@ class ProjectService implements ProjectInterface
                 try {
                     if (file_exists($entry->thumbnail)) {
                         unlink($entry->thumbnail);
+                        ImageOptimizationService::deleteVariants($entry->thumbnail);
                     }
                 } catch (\Throwable $th) {
                     Log::error($th->getMessage());
@@ -565,6 +568,7 @@ class ProjectService implements ProjectInterface
                     foreach ($existingImages as $key => $existingImage) {
                         if (file_exists($existingImage)) {
                             unlink($existingImage);
+                            ImageOptimizationService::deleteVariants($existingImage);
                         }
                     }
                 } catch (\Throwable $th) {
