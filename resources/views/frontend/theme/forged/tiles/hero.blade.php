@@ -1,7 +1,14 @@
 <section class="tile tile--hero" style="{{ $tile['style'] }}" aria-labelledby="forged-hero-title" data-hero>
     @include('frontend.theme.forged.label', ['number' => $tile['number'], 'text' => $about->address ?: 'forged.by'])
 
-    <h1 id="forged-hero-title" class="hero-title">{{ $about->name }}</h1>
+    <div class="hero-id">
+        @if ($about->avatar)
+            <div class="hero-avatar">
+                {!! \App\Helpers\ImageHelper::optimizedImage($about->avatar, $about->name) !!}
+            </div>
+        @endif
+        <h1 id="forged-hero-title" class="hero-title">{{ $about->name }}</h1>
+    </div>
 
     @if (!empty($forged['taglines']))
         <p class="hero-role">

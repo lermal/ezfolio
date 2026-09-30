@@ -6,20 +6,6 @@
         'text' => __('forged.tiles.about'),
     ])
 
-    <div class="about-head">
-        @if ($about->avatar)
-            <div class="about-avatar">
-                {!! \App\Helpers\ImageHelper::optimizedImage($about->avatar, $about->name) !!}
-            </div>
-        @endif
-        <div class="min-w-0">
-            <p class="font-display text-[15px] font-semibold leading-tight">{{ $about->name }}</p>
-            @if ($about->address)
-                <p class="mt-1 font-mono text-xs text-forge-muted">{{ $about->address }}</p>
-            @endif
-        </div>
-    </div>
-
     @if ($about->description)
         <p class="about-text">{{ $about->description }}</p>
     @endif

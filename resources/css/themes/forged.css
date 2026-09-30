@@ -409,8 +409,31 @@
             var(--metal-bevel) border-box;
     }
 
+    .hero-id {
+        display: flex;
+        align-items: center;
+        gap: clamp(14px, 2cqi, 22px);
+        min-width: 0;
+    }
+
+    .hero-avatar {
+        flex: none;
+        width: clamp(64px, 14cqi, 92px);
+        height: clamp(64px, 14cqi, 92px);
+        overflow: hidden;
+        border-radius: 50%;
+        box-shadow: 0 0 0 1px theme('colors.forge.line'), 0 0 0 3px rgba(var(--accent-color-rgb), 0.25);
+    }
+
+    .hero-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
     .hero-title {
         @apply font-display font-bold;
+        min-width: 0;
         font-size: clamp(2.2rem, 9cqi, 5.25rem);
         line-height: 1.02;
         letter-spacing: -0.035em;
@@ -581,30 +604,9 @@
 
     /* --------------------------------------------------------------- about */
 
-    .about-head {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-block: 12px 10px;
-    }
-
-    .about-avatar {
-        flex: none;
-        width: 44px;
-        height: 44px;
-        overflow: hidden;
-        border-radius: 50%;
-        box-shadow: 0 0 0 1px theme('colors.forge.line'), 0 0 0 3px rgba(var(--accent-color-rgb), 0.25);
-    }
-
-    .about-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
     .about-text {
         @apply text-forge-muted;
+        margin-top: 14px;
         font-size: 14.5px;
         line-height: 1.55;
         display: -webkit-box;
