@@ -110,6 +110,18 @@ class ProjectService implements ProjectInterface
                 $newData['buttons'] = $buttons['buttons'] ? json_encode($buttons['buttons']) : null;
             }
 
+            if (array_key_exists('slug', $data)) {
+                $newData['slug'] = Project::normalizeSlug($data['slug']);
+
+                if ($newData['slug'] !== '' && Project::slugTaken($newData['slug'], $data['id'] ?? null)) {
+                    return [
+                        'message' => 'This URL is already used by another project',
+                        'payload' => null,
+                        'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
+                    ];
+                }
+            }
+
             $newData['title'] = $data['title'];
             $newData['categories'] = json_encode($data['categories']);
             $newData['link'] = isset($data['link']) ? $data['link'] : null;

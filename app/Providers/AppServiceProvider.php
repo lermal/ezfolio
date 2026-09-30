@@ -75,6 +75,6 @@ class AppServiceProvider extends ServiceProvider
         
         Schema::defaultStringLength(191);
 
-        View::composer('frontend.theme.forged', ForgedComposer::class);
+        View::composer(['frontend.theme.forged', 'frontend.theme.forged.project'], ForgedComposer::class);
     }
 }

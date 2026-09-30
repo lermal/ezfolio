@@ -6,8 +6,8 @@
  * the dialog cover and title get the same names in the new state. Names are set
  * on one element at a time because they must be unique on the page.
  *
- * Every open project has its own URL (?project=ID): it can be shared, a page loaded
- * with it opens the dialog, and the browser "back" button closes it.
+ * An open project shows the URL of its own page (/projects/{slug}): it can be shared,
+ * reloading it loads the project page, and the browser "back" button closes the dialog.
  * Without View Transitions support or with reduced motion the dialog opens with a plain fade.
  */
 import createViewer from './viewer.js';
@@ -31,6 +31,9 @@ export default function initProjectDialog({ reduceMotion }) {
     }
 
     const byId = new Map(projects.map((project) => [String(project.id), project]));
+    const pathOf = (url) => new URL(url, window.location.href).pathname;
+    const idByPath = new Map(projects.map((project) => [pathOf(project.url), String(project.id)]));
+    const homeUrl = window.location.href;
     const slot = (name) => dialog.querySelector(`[data-slot="${name}"]`);
     const ui = {
         sheet: dialog.querySelector('.project-dialog__sheet'),
@@ -78,17 +81,7 @@ export default function initProjectDialog({ reduceMotion }) {
     const findCard = (id) => Array.from(document.querySelectorAll(`[data-project-open="${CSS.escape(String(id))}"]`))
         .find((element) => element.offsetParent !== null) || null;
 
-    const urlFor = (id) => {
-        const url = new URL(window.location.href);
-
-        if (id === null) {
-            url.searchParams.delete('project');
-        } else {
-            url.searchParams.set('project', id);
-        }
-
-        return url;
-    };
+    const currentId = () => idByPath.get(window.location.pathname) || null;
 
     function fill(project) {
         const sources = [...new Set([project.cover, ...project.images].filter(Boolean))];
@@ -149,7 +142,7 @@ export default function initProjectDialog({ reduceMotion }) {
         }
 
         if (push) {
-            window.history.pushState({ forgedProject: String(id) }, '', urlFor(String(id)));
+            window.history.pushState({ forgedProject: String(id) }, '', project.url);
         }
         pushed = push;
 
@@ -184,7 +177,7 @@ export default function initProjectDialog({ reduceMotion }) {
         if (pushed) {
             window.history.back();
         } else {
-            window.history.replaceState(window.history.state, '', urlFor(null));
+            window.history.replaceState(null, '', homeUrl);
             hide();
         }
     }
@@ -221,7 +214,7 @@ export default function initProjectDialog({ reduceMotion }) {
     });
 
     window.addEventListener('popstate', () => {
-        const id = new URL(window.location.href).searchParams.get('project');
+        const id = currentId();
 
         if (id && !dialog.open) {
             open(id, findCard(id), { push: false });
@@ -230,9 +223,4 @@ export default function initProjectDialog({ reduceMotion }) {
             hide();
         }
     });
-
-    const initial = new URL(window.location.href).searchParams.get('project');
-    if (initial) {
-        open(initial, null, { push: false });
-    }
 }

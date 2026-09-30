@@ -63,6 +63,7 @@ const Project = (props) => {
         form.setFieldsValue({
             id: props.itemToEdit ? props.itemToEdit.id : '', 
             title: props.itemToEdit ? props.itemToEdit.title : '', 
+            slug: props.itemToEdit ? props.itemToEdit.slug : '',
             thumbnail: props.itemToEdit ? props.itemToEdit.thumbnail : '',
             details: props.itemToEdit ? props.itemToEdit.details : '',
             link: props.itemToEdit ? props.itemToEdit.link : '',
@@ -116,6 +117,7 @@ const Project = (props) => {
 
             values.id && formData.append('id', values.id);
             formData.append('title', values.title);
+            formData.append('slug', values.slug || '');
             values.categories.forEach(category => {
                 formData.append('categories[]', category);
             });
@@ -257,6 +259,22 @@ const Project = (props) => {
                         ]}
                     >
                         <Input placeholder="Enter Title"/>
+                    </Form.Item>
+                    <Form.Item
+                        name="slug"
+                        label="URL"
+                        extra="Project page address: /projects/your-url. Latin letters, digits and dashes. Leave empty to build it from the title."
+                        rules={[
+                            {
+                                pattern: /^[a-z0-9-]*$/,
+                                message: 'Use lowercase latin letters, digits and dashes',
+                            },
+                            {
+                                max: 120,
+                            },
+                        ]}
+                    >
+                        <Input addonBefore="/projects/" placeholder="shipyard-mapviewer"/>
                     </Form.Item>
                     <Form.Item
                         name="is_featured"

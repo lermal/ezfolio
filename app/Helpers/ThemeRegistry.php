@@ -60,6 +60,28 @@ class ThemeRegistry
     }
 
     /**
+     * Blade view of a project page of a theme
+     *
+     * @param string $id
+     * @return string
+     */
+    public static function projectView(string $id)
+    {
+        return self::view($id) . '.project';
+    }
+
+    /**
+     * Whether the theme renders a page for every project
+     *
+     * @param string $id
+     * @return bool
+     */
+    public static function hasProjectPages(string $id)
+    {
+        return (bool) Config::get('themes.themes.' . self::resolve($id) . '.project_pages', false);
+    }
+
+    /**
      * Whether the theme needs the React projects widget bundle
      *
      * @param string $id

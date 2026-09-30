@@ -1,6 +1,6 @@
 @php($project = $forged['featured'])
 <article class="tile tile--featured tile--interactive" style="{{ $tile['style'] }}">
-    <a href="?project={{ $project['id'] }}" class="featured-link" data-project-open="{{ $project['id'] }}">
+    <a href="{{ $project['url'] }}" class="featured-link" data-project-open="{{ $project['id'] }}">
         <div class="featured-media" data-vt-media>
             @if ($project['thumbnail'])
                 {!! \App\Helpers\ImageHelper::optimizedImage($project['thumbnail'], $project['title'], '', [

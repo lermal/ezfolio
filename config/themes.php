@@ -17,6 +17,10 @@
 | "projects_widget" loads the React projects widget (antd) on the page.
 | Themes that render projects themselves set it to false.
 |
+| "project_pages" gives every project its own page at /projects/{slug},
+| rendered by resources/views/frontend/theme/{id}/project.blade.php.
+| Without it these URLs redirect to the home page.
+|
 */
 
 return [
@@ -32,6 +36,7 @@ return [
             'title' => 'Forged',
             'preview' => 'assets/common/img/templates/forged.svg',
             'projects_widget' => false,
+            'project_pages' => true,
         ],
     ],
 ];

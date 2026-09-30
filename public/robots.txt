@@ -1,4 +1,0 @@
-Disallow: /admin/
-Disallow: /pixel-tracker
-
-Sitemap: https://webcodewizard.ru/sitemap.xml

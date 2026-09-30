@@ -2,72 +2,68 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Helpers\ThemeRegistry;
 use App\Http\Controllers\Controller;
+use App\Models\About;
 use App\Models\Project;
 use App\Models\Service;
-use App\Models\About;
-use Illuminate\Http\Response;
+use App\Services\Contracts\PortfolioConfigInterface;
+use CoreConstants;
 
 class SitemapController extends Controller
 {
-    public function index()
+    /**
+     * The home page dated by the latest content change, and the project pages
+     * when the active theme has them
+     *
+     * @param PortfolioConfigInterface $portfolioConfig
+     * @return \Illuminate\Http\Response
+     */
+    public function index(PortfolioConfigInterface $portfolioConfig)
     {
-        $urls = [];
-        
-        $urls[] = [
-            'loc' => url('/'),
-            'lastmod' => now()->format('Y-m-d'),
-            'changefreq' => 'daily',
-            'priority' => '1.0'
-        ];
-        
-        $projects = Project::whereNotNull('title')->get();
-        foreach ($projects as $project) {
-            $urls[] = [
-                'loc' => url('/project/' . $project->id),
-                'lastmod' => $project->updated_at->format('Y-m-d'),
-                'changefreq' => 'monthly',
-                'priority' => '0.8'
-            ];
-        }
-        
-        $services = Service::whereNotNull('title')->get();
-        foreach ($services as $service) {
-            $urls[] = [
-                'loc' => url('/service/' . $service->id),
-                'lastmod' => $service->updated_at->format('Y-m-d'),
-                'changefreq' => 'monthly',
-                'priority' => '0.7'
-            ];
-        }
-        
-        $about = About::first();
-        if ($about) {
-            $urls[] = [
-                'loc' => url('/about'),
-                'lastmod' => $about->updated_at->format('Y-m-d'),
-                'changefreq' => 'monthly',
-                'priority' => '0.9'
-            ];
-        }
-        
-        $urls[] = [
-            'loc' => url('/portfolio'),
-            'lastmod' => now()->format('Y-m-d'),
-            'changefreq' => 'weekly',
-            'priority' => '0.9'
-        ];
-        
-        $urls[] = [
-            'loc' => url('/contact'),
-            'lastmod' => now()->format('Y-m-d'),
-            'changefreq' => 'monthly',
-            'priority' => '0.8'
-        ];
+        $lastmod = collect([
+            About::max('updated_at'),
+            Project::max('updated_at'),
+            Service::max('updated_at'),
+        ])->filter()->max();
 
-        $content = view('frontend.sitemap', compact('urls'));
-        
-        return response($content, 200)
+        $urls = [[
+            'loc' => url('/'),
+            'lastmod' => $lastmod ? date('Y-m-d', strtotime($lastmod)) : now()->format('Y-m-d'),
+        ]];
+
+        $config = $portfolioConfig->getAllConfigData();
+        $config = $config['status'] === CoreConstants::STATUS_CODE_SUCCESS ? $config['payload'] : null;
+
+        if ($config && !empty($config['visibility']['projects']) && ThemeRegistry::hasProjectPages($config['template'])) {
+            foreach (Project::whereNotNull('slug')->orderBy('id')->get(['slug', 'updated_at']) as $project) {
+                $urls[] = [
+                    'loc' => route('project', $project->slug),
+                    'lastmod' => $project->updated_at ? $project->updated_at->format('Y-m-d') : $urls[0]['lastmod'],
+                ];
+            }
+        }
+
+        return response()
+            ->view('frontend.sitemap', compact('urls'))
             ->header('Content-Type', 'application/xml');
+    }
+
+    /**
+     * @return \Illuminate\Http\Response
+     */
+    public function robots()
+    {
+        $content = implode("\n", [
+            'User-agent: *',
+            'Disallow: /admin/',
+            'Disallow: /pixel-tracker',
+            'Disallow: /contact-me',
+            '',
+            'Sitemap: ' . route('sitemap'),
+            '',
+        ]);
+
+        return response($content, 200)->header('Content-Type', 'text/plain; charset=UTF-8');
     }
 }

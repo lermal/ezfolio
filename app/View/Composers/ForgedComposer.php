@@ -22,6 +22,11 @@ class ForgedComposer
     const WIDE_CARD_EVERY = 5;
 
     /**
+     * Project cards under a project page
+     */
+    const OTHER_WORKS = 3;
+
+    /**
      * Span of the small tiles in the 6-column tablet grid, by their count
      */
     const TABLET_SPANS = [
@@ -50,7 +55,10 @@ class ForgedComposer
         $works = $this->works($this->visibleList($data, $visibility, 'projects'));
         $featured = $works->firstWhere('featured', true) ?? $works->first();
         $socials = $this->decodeList($about->social_links);
-        $cta = $this->cta($about, $visibility);
+        $current = isset($data['project']) ? $works->firstWhere('id', $data['project']->id) : null;
+        // Anchors of the home page sections are prefixed with it on other pages
+        $home = $current ? url('/') : '';
+        $cta = $this->cta($about, $visibility, $home);
 
         $hasContacts = $cta !== null || !empty($about->phone) || !empty($socials);
 
@@ -95,7 +103,205 @@ class ForgedComposer
             ], count($tiles)),
             'footer' => $this->isVisible($visibility, 'footer'),
             'assets' => $this->assets(),
+            'home' => $home,
+            'page' => $current ? [
+                'project' => $current,
+                'images' => array_values(array_unique(array_map('asset', array_filter(array_merge([$current['thumbnail']], $current['images']))))),
+                'link' => $current['link'] && preg_match('#^https?://#i', $current['link']) ? $current['link'] : null,
+                'buttons' => $this->projectButtons($current['buttons']),
+                'others' => $this->otherWorks($works, $current),
+            ] : null,
+            'schema' => $current
+                ? $this->projectSchema($about, $current)
+                : $this->schema($about, $socials, $skills, $education, $services, $works),
         ]);
+    }
+
+    /**
+     * Projects suggested under a project page: the ones after it, wrapping around
+     *
+     * @param Collection $works
+     * @param array $current
+     * @return Collection
+     */
+    private function otherWorks(Collection $works, array $current)
+    {
+        $index = $works->search(function ($work) use ($current) {
+            return $work['id'] === $current['id'];
+        });
+
+        return $works->slice($index + 1)
+            ->merge($works->take($index))
+            ->take(self::OTHER_WORKS)
+            ->values()
+            ->map(function ($work, $position) {
+                $work['style'] = '--span-lg: 4; --span-md: 3; --i: ' . $position . ';';
+
+                return $work;
+            });
+    }
+
+    /**
+     * Plain one-line text for structured data
+     *
+     * @param mixed $value
+     * @return string
+     */
+    private function plainText($value)
+    {
+        return trim(preg_replace('/\s+/u', ' ', strip_tags((string) $value)));
+    }
+
+    /**
+     * schema.org graph of a project page
+     *
+     * @param object $about
+     * @param array $work
+     * @return array
+     */
+    private function projectSchema($about, array $work)
+    {
+        $home = url('/');
+        $images = array_values(array_unique(array_map('asset', array_filter(array_merge([$work['thumbnail']], $work['images'])))));
+
+        return [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'WebPage',
+                    '@id' => $work['url'] . '#page',
+                    'url' => $work['url'],
+                    'name' => $work['title'],
+                    'inLanguage' => str_replace('_', '-', app()->getLocale()),
+                    'isPartOf' => ['@id' => $home . '#website'],
+                    'mainEntity' => ['@id' => $work['url'] . '#work'],
+                    'breadcrumb' => ['@id' => $work['url'] . '#breadcrumb'],
+                ],
+                array_filter([
+                    '@type' => 'CreativeWork',
+                    '@id' => $work['url'] . '#work',
+                    'name' => $work['title'],
+                    'url' => $work['url'],
+                    'image' => $images ?: null,
+                    'description' => $this->plainText($work['details']) ?: null,
+                    'keywords' => $work['categories'] ? implode(', ', $work['categories']) : null,
+                    'sameAs' => $work['link'] && preg_match('#^https?://#i', $work['link']) ? $work['link'] : null,
+                    'creator' => ['@type' => 'Person', '@id' => $home . '#person', 'name' => $about->name, 'url' => $home],
+                ]),
+                [
+                    '@type' => 'BreadcrumbList',
+                    '@id' => $work['url'] . '#breadcrumb',
+                    'itemListElement' => [
+                        ['@type' => 'ListItem', 'position' => 1, 'name' => $about->name, 'item' => $home],
+                        ['@type' => 'ListItem', 'position' => 2, 'name' => $work['title']],
+                    ],
+                ],
+                [
+                    '@type' => 'WebSite',
+                    '@id' => $home . '#website',
+                    'url' => $home,
+                    'name' => $about->name,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * schema.org graph of the page: the profile, its person and their works
+     *
+     * @param object $about
+     * @param array $socials
+     * @param Collection $skills
+     * @param Collection $education
+     * @param Collection $services
+     * @param Collection $works
+     * @return array
+     */
+    private function schema($about, array $socials, Collection $skills, Collection $education, Collection $services, Collection $works)
+    {
+        $url = url('/');
+        $personId = $url . '#person';
+        $text = function ($value) {
+            return $this->plainText($value);
+        };
+
+        $person = array_filter([
+            '@type' => 'Person',
+            '@id' => $personId,
+            'name' => $about->name,
+            'url' => $url,
+            'image' => $about->hasCustomAvatar() ? asset($about->avatar) : null,
+            'description' => $text($about->description) ?: null,
+            'email' => $about->email ? 'mailto:' . $about->email : null,
+            'telephone' => $about->phone ?: null,
+            'address' => $about->address ?: null,
+            'sameAs' => array_values(array_filter(array_map(function ($social) {
+                $link = is_array($social) ? ($social['link'] ?? '') : '';
+
+                return preg_match('#^https?://#i', $link) ? $link : null;
+            }, $socials))) ?: null,
+            'knowsAbout' => $skills->pluck('name')->filter()->values()->all() ?: null,
+            'alumniOf' => $education->pluck('institution')->filter()->map(function ($institution) {
+                return ['@type' => 'EducationalOrganization', 'name' => $institution];
+            })->values()->all() ?: null,
+            'makesOffer' => $services->filter(function ($service) {
+                return !empty($service->title);
+            })->map(function ($service) use ($text, $personId) {
+                return [
+                    '@type' => 'Offer',
+                    'itemOffered' => array_filter([
+                        '@type' => 'Service',
+                        'name' => $service->title,
+                        'description' => $text($service->details) ?: null,
+                        'provider' => ['@id' => $personId],
+                    ]),
+                ];
+            })->values()->all() ?: null,
+        ]);
+
+        $graph = [
+            [
+                '@type' => 'WebSite',
+                '@id' => $url . '#website',
+                'url' => $url,
+                'name' => $about->name,
+                'inLanguage' => str_replace('_', '-', app()->getLocale()),
+                'publisher' => ['@id' => $personId],
+            ],
+            [
+                '@type' => 'ProfilePage',
+                '@id' => $url . '#profile',
+                'url' => $url,
+                'isPartOf' => ['@id' => $url . '#website'],
+                'mainEntity' => ['@id' => $personId],
+            ],
+            $person,
+        ];
+
+        if ($works->isNotEmpty()) {
+            $graph[] = [
+                '@type' => 'ItemList',
+                '@id' => $url . '#projects',
+                'itemListElement' => $works->values()->map(function ($work, $index) use ($text, $personId) {
+                    return [
+                        '@type' => 'ListItem',
+                        'position' => $index + 1,
+                        'item' => array_filter([
+                            '@type' => 'CreativeWork',
+                            'name' => $work['title'],
+                            'image' => $work['thumbnail'] ? asset($work['thumbnail']) : null,
+                            'description' => $text($work['details']) ?: null,
+                            'url' => $work['url'],
+                            'sameAs' => $work['link'] && preg_match('#^https?://#i', $work['link']) ? $work['link'] : null,
+                            'keywords' => $work['categories'] ? implode(', ', $work['categories']) : null,
+                            'creator' => ['@id' => $personId],
+                        ]),
+                    ];
+                })->all(),
+            ];
+        }
+
+        return ['@context' => 'https://schema.org', '@graph' => $graph];
     }
 
     /**
@@ -160,6 +366,7 @@ class ForgedComposer
             return [
                 'id' => $project->id,
                 'title' => $project->title,
+                'url' => route('project', $project->slug),
                 'thumbnail' => $project->thumbnail,
                 'categories' => array_values(array_filter($this->decodeList($project->categories), 'is_string')),
                 'images' => array_values(array_filter($this->decodeList($project->images), 'is_string')),
@@ -184,6 +391,7 @@ class ForgedComposer
             return [
                 'id' => $work['id'],
                 'title' => $work['title'],
+                'url' => $work['url'],
                 'categories' => $work['categories'],
                 'cover' => $work['thumbnail'] ? asset($work['thumbnail']) : null,
                 'images' => array_map('asset', $work['images']),
@@ -301,12 +509,13 @@ class ForgedComposer
      *
      * @param object $about
      * @param array $visibility
+     * @param string $home
      * @return array|null
      */
-    private function cta($about, array $visibility)
+    private function cta($about, array $visibility, string $home)
     {
         if ($this->isVisible($visibility, 'contact')) {
-            return ['href' => '#contact', 'email' => $about->email ?: null];
+            return ['href' => $home . '#contact', 'email' => $about->email ?: null];
         }
 
         if (!empty($about->email)) {

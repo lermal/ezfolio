@@ -44,6 +44,14 @@ return [
         'close' => 'Close',
     ],
 
+    'page' => [
+        'breadcrumbs' => 'Breadcrumbs',
+        'home' => 'Home',
+        'all_projects' => 'All projects',
+        'others' => 'More projects',
+        'cta' => 'Need a similar project?',
+    ],
+
     'resume' => [
         'experience' => 'Work experience',
         'education' => 'Education',
