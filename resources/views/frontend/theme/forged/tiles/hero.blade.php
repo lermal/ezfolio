@@ -2,7 +2,7 @@
     @include('frontend.theme.forged.label', ['number' => $tile['number'], 'text' => $about->address ?: 'forged.by'])
 
     <div class="hero-id">
-        @if ($about->avatar)
+        @if ($about->hasCustomAvatar())
             <div class="hero-avatar">
                 {!! \App\Helpers\ImageHelper::optimizedImage($about->avatar, $about->name) !!}
             </div>

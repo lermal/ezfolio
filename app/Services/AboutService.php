@@ -121,7 +121,7 @@ class AboutService implements AboutInterface
                 $existedRecord = $existedRecord['payload'];
                 $result = $existedRecord->update($newData);
             } else {
-                $newData['avatar'] = 'assets/common/img/avatar/default.png';
+                $newData['avatar'] = '';
                 $newData['cover'] = 'assets/common/img/cover/default.png';
                 $result = $this->model->create($newData);
             }
@@ -183,7 +183,7 @@ class AboutService implements AboutInterface
                 //delete previous avatar
                 $oldAvatarResponse = $this->getAll(['avatar', 'id']);
                 try {
-                    if ($oldAvatarResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS && $oldAvatarResponse['payload']->avatar !== 'assets/common/img/avatar/default.png' && file_exists($oldAvatarResponse['payload']->avatar)) {
+                    if ($oldAvatarResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS && $oldAvatarResponse['payload']->hasCustomAvatar() && is_file($oldAvatarResponse['payload']->avatar)) {
                         unlink($oldAvatarResponse['payload']->avatar);
                     }
                 } catch (\Throwable $th) {
@@ -237,50 +237,37 @@ class AboutService implements AboutInterface
     public function processDeleteAvatarRequest(string $file)
     {
         try {
-            if (!file_exists($file)) {
-                return [
-                    'message' => __('services.file_not_found'),
-                    'payload' => $file,
-                    'status' => CoreConstants::STATUS_CODE_NOT_FOUND
-                ];
+            $result = $this->getAll();
+
+            if ($result['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
+                return $result;
             }
 
-            if (unlink($file)) {
-                $defaultAvatar = 'assets/common/img/avatar/default.png';
-                $result = $this->getAll();
+            $about = $result['payload'];
+            $current = (string) $about->avatar;
 
-                if ($result['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
-                    return $result;
-                } else {
-                    $result = $result['payload'];
-                }
+            $matchesCurrent = $file === '' || $file === $current;
+            $inAvatarDir = strpos($current, 'assets/common/img/avatar/') === 0 && strpos($current, '..') === false;
 
-                $updateResponse = $result->update([
-                    'avatar' => $defaultAvatar
-                ]);
+            if ($matchesCurrent && $about->hasCustomAvatar() && $inAvatarDir && is_file($current)) {
+                unlink($current);
+            }
 
-                if ($updateResponse) {
-                    return [
-                        'message' => __('services.file_deleted_successfully'),
-                        'payload' => [
-                            'file' => $defaultAvatar
-                        ],
-                        'status' => CoreConstants::STATUS_CODE_SUCCESS
-                    ];
-                } else {
-                    return [
-                        'message' => __('services.something_went_wrong'),
-                        'payload' => null,
-                        'status' => CoreConstants::STATUS_CODE_ERROR
-                    ];
-                }
-            } else {
+            if (!$about->update(['avatar' => ''])) {
                 return [
-                    'message' => __('services.file_could_not_be_deleted'),
+                    'message' => __('services.something_went_wrong'),
                     'payload' => null,
                     'status' => CoreConstants::STATUS_CODE_ERROR
                 ];
             }
+
+            return [
+                'message' => __('services.file_deleted_successfully'),
+                'payload' => [
+                    'file' => null
+                ],
+                'status' => CoreConstants::STATUS_CODE_SUCCESS
+            ];
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [

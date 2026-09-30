@@ -147,12 +147,14 @@
     <section id="about" class="py-5">
         <div class="container">
             <div class="row align-items-center">
+                @if ($about->hasCustomAvatar())
                 <div class="col-lg-6 mb-5 mb-lg-0">
                     <div class="about-image" data-aos="fade-right">
                         {!! \App\Helpers\ImageHelper::optimizedImage($about->avatar, $about->name, 'img-fluid rounded-3 shadow') !!}
                     </div>
                 </div>
-                <div class="col-lg-6">
+                @endif
+                <div class="{{ $about->hasCustomAvatar() ? 'col-lg-6' : 'col-lg-12' }}">
                     <div class="about-content" data-aos="fade-left">
                         <h2 class="section-title mb-4">{{__('custom.sections.about_me')}}</h2>
                         <p class="lead mb-4">{{ $about->description }}</p>

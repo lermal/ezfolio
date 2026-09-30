@@ -79,11 +79,11 @@ class Utils
             $about = resolve(AboutInterface::class);
             $result = $about->getAll(['avatar']);
 
-            if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
+            if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS && $result['payload']->hasCustomAvatar()) {
                 return asset($result['payload']->avatar);
             }
 
-            return asset('assets/common/img/avatar/default.png');
+            return '';
         } catch (\Throwable $th) {
             return asset('assets/common/img/avatar/default.png');
         }

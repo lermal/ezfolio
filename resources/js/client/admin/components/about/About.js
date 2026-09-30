@@ -75,6 +75,7 @@ i, svg {
 
 const About = () => {
     const [avatar, setAvatar] = useState(null);
+    const [avatarRemoving, setAvatarRemoving] = useState(false);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
@@ -148,14 +149,37 @@ const About = () => {
     }, [focusSocialLinks]);
 
     const avatarUploadCallback = (file) => {
-        setAvatar(file);
+        setAvatar(file || null);
+    }
+
+    const removeAvatar = () => {
+        setAvatarRemoving(true);
+
+        HTTP.delete(Routes.api.admin.avatar, {
+            params: {
+                file: avatar
+            }
+        })
+        .then(response => {
+            Utils.handleSuccessResponse(response, () => {
+                setAvatar(null);
+                Utils.showTinyNotification(response.data.message, 'success');
+            });
+        })
+        .catch(error => {
+            Utils.handleException(error);
+        })
+        .finally(() => {
+            setAvatarRemoving(false);
+        });
     }
 
     const loadData = () => {
         HTTP.get(Routes.api.admin.about)
         .then(response => {
             Utils.handleSuccessResponse(response, () => {
-                setAvatar(response.data.payload.avatar);
+                const storedAvatar = response.data.payload.avatar;
+                setAvatar(storedAvatar && storedAvatar !== 'assets/common/img/avatar/default.png' ? storedAvatar : null);
                 setName(response.data.payload.name);
                 setEmail(response.data.payload.email);
                 setPhone(response.data.payload.phone);
@@ -326,7 +350,7 @@ const About = () => {
                                     <FileUploader
                                         allowRevert={true}
                                         isAvatar={true}
-                                        previewAvatar={avatar && Utils.backend + '/' + avatar}
+                                        previewAvatar={avatar ? Utils.backend + '/' + avatar : ''}
                                         acceptedFileTypes={"image/*"}
                                         allowMultiple={false}
                                         name={'file'}
@@ -334,6 +358,11 @@ const About = () => {
                                         afterUploadCallback={avatarUploadCallback}
                                         afterRevertCallback={avatarUploadCallback}
                                     />
+                                    {avatar && (
+                                        <Button type="link" danger loading={avatarRemoving} onClick={removeAvatar}>
+                                            Remove photo
+                                        </Button>
+                                    )}
                                     <Title level={4}>
                                         {name}
                                         <EditSpan onClick={() => {focusInput('name')}}>

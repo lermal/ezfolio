@@ -10,6 +10,11 @@ class About extends Model
     use HasFactory;
 
     /**
+     * Placeholder used when no photo has been uploaded
+     */
+    const DEFAULT_AVATAR = 'assets/common/img/avatar/default.png';
+
+    /**
      * The table associated with the model.
      *
      * @var string
@@ -33,4 +38,16 @@ class About extends Model
         'social_links',
         'cv',
     ];
+
+    /**
+     * A photo was uploaded, rather than the built-in placeholder
+     *
+     * @return bool
+     */
+    public function hasCustomAvatar()
+    {
+        return is_string($this->avatar)
+            && $this->avatar !== ''
+            && $this->avatar !== self::DEFAULT_AVATAR;
+    }
 }

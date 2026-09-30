@@ -223,10 +223,10 @@ class SettingService implements SettingInterface
             //get avatar
             $result = $about->getAll(['avatar', 'id']);
 
-            if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
+            if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS && $result['payload']->hasCustomAvatar()) {
                 $data['avatar'] = $result['payload']->avatar;
             } else {
-                $data['avatar'] = 'assets/common/img/avatar/default.png';
+                $data['avatar'] = '';
             }
 
             if ($withCredentials) {
