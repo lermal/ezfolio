@@ -15,6 +15,9 @@ const ESLintPlugin = require('eslint-webpack-plugin');
 mix.disableNotifications();
 
 mix.webpackConfig({
+    output: {
+        chunkFilename: 'js/client/admin/roots/[name].[contenthash:8].js',
+    },
     module: {
         rules: [
             {
