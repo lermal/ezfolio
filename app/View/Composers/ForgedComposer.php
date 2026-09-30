@@ -213,11 +213,11 @@ class ForgedComposer
     private function tiles(array $available)
     {
         $tiles = [
-            ['id' => 'hero', 'lg' => $available['featured'] ? 7 : 12, 'md' => 6, 'rows' => 2],
+            ['id' => 'hero', 'lg' => $available['featured'] ? 7 : 12, 'md' => 6, 'rows' => 1],
         ];
 
         if ($available['featured']) {
-            $tiles[] = ['id' => 'featured', 'lg' => 5, 'md' => 6, 'rows' => 2];
+            $tiles[] = ['id' => 'featured', 'lg' => 5, 'md' => 6, 'rows' => 1];
         }
 
         $small = array_keys(array_filter([

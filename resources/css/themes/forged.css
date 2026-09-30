@@ -181,9 +181,7 @@
     @media (min-width: 1200px) {
         .bento {
             grid-template-columns: repeat(12, minmax(0, 1fr));
-            grid-template-rows: repeat(2, minmax(200px, 1fr));
             grid-auto-rows: minmax(190px, auto);
-            min-height: max(640px, calc(100svh - var(--header-h)));
         }
 
         .bento > .tile {
@@ -403,17 +401,6 @@
             var(--metal-bevel) border-box;
     }
 
-    /* Desktop rows set the height: caption stays up, the name sits on the bottom */
-    @media (min-width: 1200px) {
-        .tile--hero {
-            min-height: 0;
-        }
-
-        .tile--hero .hero-title {
-            margin-top: auto;
-        }
-    }
-
     .hero-title {
         @apply font-display font-bold;
         font-size: clamp(2.2rem, 9cqi, 5.25rem);
@@ -554,17 +541,6 @@
                 aspect-ratio: 4 / 3;
                 border-radius: 13px 0 0 13px;
             }
-        }
-    }
-
-    /* On the tall desktop tile the image takes the free height */
-    @media (min-width: 1200px) {
-        .featured-link {
-            grid-template-rows: minmax(0, 1fr) auto;
-        }
-
-        .featured-media {
-            aspect-ratio: auto;
         }
     }
 
