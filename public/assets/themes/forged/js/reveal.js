@@ -1,7 +1,8 @@
 /**
  * One-time reveal of [data-reveal] blocks when they scroll into view.
  * Stagger comes from the --i custom property set in markup.
- * Blocks already on screen at start are left as is, so nothing blinks on load.
+ * Blocks already on screen at start are left as is, so nothing blinks on load:
+ * the first observer callback reports them, and only then the hiding class is added.
  * Without JS, with reduced motion or without IntersectionObserver everything stays visible.
  */
 export default function initReveal({ reduceMotion }) {
@@ -11,29 +12,27 @@ export default function initReveal({ reduceMotion }) {
         return;
     }
 
+    let initial = true;
+
+    // Entry rects are computed by the observer, reading them forces no layout
+    const onScreen = (entry) => entry.boundingClientRect.top < window.innerHeight && entry.boundingClientRect.bottom > 0;
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-in');
+            if (initial && onScreen(entry)) {
                 observer.unobserve(entry.target);
+                entry.target.removeAttribute('data-reveal');
+            } else if (!initial && entry.isIntersecting) {
+                observer.unobserve(entry.target);
+                entry.target.classList.add('is-in');
             }
         });
+
+        if (initial) {
+            initial = false;
+            document.documentElement.classList.add('js-reveal');
+        }
     }, { rootMargin: '0px 0px -8% 0px' });
 
-    const viewportHeight = window.innerHeight;
-    const onScreen = items.map((item) => {
-        const rect = item.getBoundingClientRect();
-
-        return rect.top < viewportHeight && rect.bottom > 0;
-    });
-
-    items.forEach((item, index) => {
-        if (onScreen[index]) {
-            item.removeAttribute('data-reveal');
-        } else {
-            observer.observe(item);
-        }
-    });
-
-    document.documentElement.classList.add('js-reveal');
+    items.forEach((item) => observer.observe(item));
 }

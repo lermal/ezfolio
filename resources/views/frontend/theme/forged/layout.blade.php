@@ -26,7 +26,11 @@
 @endsection
 
 @section('styles')
-    <link href="{{ $forged['assets']['css'] }}" rel="stylesheet">
+    @if ($forged['assets']['inlineCss'])
+        <style>{!! $forged['assets']['inlineCss'] !!}</style>
+    @else
+        <link href="{{ $forged['assets']['css'] }}" rel="stylesheet">
+    @endif
     {{-- Icons are not needed for the first paint --}}
     <link href="{{ asset('assets/common/lib/fontawesome/css/all.min.css') }}" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="{{ asset('assets/common/lib/fontawesome/css/all.min.css') }}" rel="stylesheet"></noscript>

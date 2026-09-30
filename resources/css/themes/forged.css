@@ -75,8 +75,12 @@
         --white-hot: #fff3e0;
         --cool-in: 0.2s;
         --cool-out: 0.6s;
-        /* Brushed metal: horizontally stretched noise, alpha baked in (~4%) */
-        --metal-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.02 .75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        /*
+         * Brushed metal: horizontally stretched noise, alpha baked in (~4%).
+         * A pre-rendered 2x tile of feTurbulence(baseFrequency .02 .75, 2 octaves):
+         * a live SVG filter is re-rasterized for every tile on the main thread.
+         */
+        --metal-noise: url('/assets/themes/forged/img/metal-noise.webp') 0 0 / 180px 180px repeat;
         --metal-fill: linear-gradient(180deg, #16181b, #101215);
         --metal-bevel: linear-gradient(160deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.03) 38%, rgba(0, 0, 0, 0.55));
     }

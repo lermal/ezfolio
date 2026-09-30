@@ -337,8 +337,12 @@ class ForgedComposer
             $modules[asset($path)] = $versioned($path);
         }
 
+        $css = public_path('assets/themes/forged/css/forged.css');
+
         return [
             'css' => $versioned('assets/themes/forged/css/forged.css'),
+            // Printed into <head>: saves the render-blocking request, the stylesheet is ~10 KB gzipped
+            'inlineCss' => is_file($css) ? file_get_contents($css) : null,
             'entry' => $versioned('assets/themes/forged/js/forged.js'),
             'importMap' => ['imports' => (object) $modules],
         ];
