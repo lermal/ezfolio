@@ -1,4 +1,4 @@
-<section class="tile" style="{{ $tile['style'] }}" aria-labelledby="forged-about-title">
+<section class="tile tile--about" style="{{ $tile['style'] }}" aria-labelledby="forged-about-title">
     @include('frontend.theme.forged.label', [
         'tag' => 'h2',
         'id' => 'forged-about-title',

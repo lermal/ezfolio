@@ -191,7 +191,15 @@
         }
 
         .bento > .tile--featured {
-            padding: 0;
+            padding: 18px;
+        }
+
+        .bento--pair > .tile--hero {
+            align-self: start;
+        }
+
+        .bento--pair > .tile--about {
+            align-self: end;
         }
     }
 
@@ -526,6 +534,33 @@
     @media (hover: hover) and (pointer: fine) {
         .tile--featured:hover .featured-more {
             color: var(--accent-color);
+        }
+    }
+
+    /* Desktop: inset screenshot, with room above it and before the caption */
+    @media (min-width: 1200px) {
+        .tile--featured .featured-link {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 18px;
+            min-height: 0;
+        }
+
+        .tile--featured .featured-media {
+            flex: none;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            margin-block: auto;
+            border-radius: 12px;
+        }
+
+        .tile--featured .featured-body {
+            padding: 0 2px;
+        }
+
+        .tile--featured .featured-more {
+            margin-top: 0;
         }
     }
 

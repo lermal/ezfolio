@@ -54,12 +54,14 @@ class ForgedComposer
 
         $hasContacts = $cta !== null || !empty($about->phone) || !empty($socials);
 
-        $tiles = $this->tiles([
+        $tileAvailability = [
             'featured' => $featured !== null,
             'about' => $this->isVisible($visibility, 'about'),
             'stack' => $skills->isNotEmpty(),
             'contact' => $hasContacts,
-        ]);
+        ];
+
+        $tiles = $this->tiles($tileAvailability);
 
         $view->with('forged', [
             'taglines' => array_values(array_filter($this->decodeList($about->taglines), 'is_string')),
@@ -74,6 +76,7 @@ class ForgedComposer
             ],
             'socials' => $socials,
             'tiles' => $tiles,
+            'pair' => $tileAvailability['featured'] && $tileAvailability['about'],
             'works' => $works,
             'categories' => $works->pluck('categories')->flatten()->filter()->unique()->values(),
             'dialog' => $this->dialogData($works),
@@ -205,19 +208,23 @@ class ForgedComposer
     }
 
     /**
-     * Ordered first-screen tiles with their grid spans
+     * Ordered first-screen tiles with their grid spans.
+     * With both a featured project and an about tile, about sits under the hero
+     * and the project covers those two rows.
      *
      * @param array $available tile id => whether it has content
      * @return array
      */
     private function tiles(array $available)
     {
+        $pair = $available['featured'] && $available['about'];
+
         $tiles = [
             ['id' => 'hero', 'lg' => $available['featured'] ? 7 : 12, 'md' => 6, 'rows' => 1],
         ];
 
         if ($available['featured']) {
-            $tiles[] = ['id' => 'featured', 'lg' => 5, 'md' => 6, 'rows' => 1];
+            $tiles[] = ['id' => 'featured', 'lg' => 5, 'md' => 6, 'rows' => $pair ? 2 : 1];
         }
 
         $small = array_keys(array_filter([
@@ -226,10 +233,12 @@ class ForgedComposer
             'contact' => $available['contact'],
         ]));
 
+        $bottomCount = count($small) - ($pair ? 1 : 0);
+
         foreach ($small as $index => $id) {
             $tiles[] = [
                 'id' => $id,
-                'lg' => intdiv(12, count($small)),
+                'lg' => ($pair && $id === 'about') ? 7 : intdiv(12, $bottomCount),
                 'md' => self::TABLET_SPANS[count($small)][$index],
                 'rows' => 1,
             ];
