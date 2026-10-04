@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Service extends Model
 {
-    use HasFactory;
+    use HasFactory, HasSlug;
 
     /**
      * The attributes that are mass assignable.
@@ -16,7 +17,9 @@ class Service extends Model
      */
     protected $fillable = [
         'title',
+        'slug',
         'icon',
-        'details'
+        'details',
+        'content',
     ];
 }

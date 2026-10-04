@@ -85,12 +85,28 @@ class ServiceService implements ServiceInterface
                 ];
             }
 
+            if (array_key_exists('slug', $data)) {
+                $newData['slug'] = Service::normalizeSlug($data['slug']);
+
+                if ($newData['slug'] !== '' && Service::slugTaken($newData['slug'], $data['id'] ?? null)) {
+                    return [
+                        'message' => 'This URL is already used by another service',
+                        'payload' => null,
+                        'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
+                    ];
+                }
+            }
+
             $newData['title'] = $data['title'];
             $newData['icon'] = $data['icon'];
             $newData['details'] = $data['details'];
+
+            if (array_key_exists('content', $data)) {
+                $newData['content'] = trim((string) $data['content']) ?: null;
+            }
             
             if (isset($data['id'])) {
-                $result = $this->getById($data['id'], ['id']);
+                $result = $this->getById($data['id'], ['id', 'slug']);
                 if ($result['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
                     return $result;
                 } else {

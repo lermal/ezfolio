@@ -13,8 +13,8 @@ use CoreConstants;
 class SitemapController extends Controller
 {
     /**
-     * The home page dated by the latest content change, and the project pages
-     * when the active theme has them
+     * The home page dated by the latest content change, and the project and
+     * service pages when the active theme has them
      *
      * @param PortfolioConfigInterface $portfolioConfig
      * @return \Illuminate\Http\Response
@@ -40,6 +40,15 @@ class SitemapController extends Controller
                 $urls[] = [
                     'loc' => route('project', $project->slug),
                     'lastmod' => $project->updated_at ? $project->updated_at->format('Y-m-d') : $urls[0]['lastmod'],
+                ];
+            }
+        }
+
+        if ($config && !empty($config['visibility']['services']) && ThemeRegistry::hasServicePages($config['template'])) {
+            foreach (Service::whereNotNull('slug')->orderBy('id')->get(['slug', 'updated_at']) as $service) {
+                $urls[] = [
+                    'loc' => route('service', $service->slug),
+                    'lastmod' => $service->updated_at ? $service->updated_at->format('Y-m-d') : $urls[0]['lastmod'],
                 ];
             }
         }

@@ -18,6 +18,9 @@ Route::get('/', ['App\Http\Controllers\Frontend\FrontendController', 'index'])->
 Route::get('/projects/{slug}', ['App\Http\Controllers\Frontend\FrontendController', 'project'])
     ->where('slug', '[a-z0-9-]+')
     ->name('project');
+Route::get('/services/{slug}', ['App\Http\Controllers\Frontend\FrontendController', 'service'])
+    ->where('slug', '[a-z0-9-]+')
+    ->name('service');
 Route::get('/pixel-tracker', ['App\Http\Controllers\Frontend\FrontendController', 'pixelTracker'])->name('pixel-tracker');
 Route::get('/sitemap.xml', ['App\Http\Controllers\Frontend\SitemapController', 'index'])->name('sitemap');
 Route::get('/robots.txt', ['App\Http\Controllers\Frontend\SitemapController', 'robots'])->name('robots');

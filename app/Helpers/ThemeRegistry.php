@@ -82,6 +82,28 @@ class ThemeRegistry
     }
 
     /**
+     * Blade view of a service page of a theme
+     *
+     * @param string $id
+     * @return string
+     */
+    public static function serviceView(string $id)
+    {
+        return self::view($id) . '.service';
+    }
+
+    /**
+     * Whether the theme renders a page for every service
+     *
+     * @param string $id
+     * @return bool
+     */
+    public static function hasServicePages(string $id)
+    {
+        return (bool) Config::get('themes.themes.' . self::resolve($id) . '.service_pages', false);
+    }
+
+    /**
      * Whether the theme needs the React projects widget bundle
      *
      * @param string $id

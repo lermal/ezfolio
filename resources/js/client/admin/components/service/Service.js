@@ -25,8 +25,10 @@ const Service = (props) => {
         form.setFieldsValue({
             id: props.itemToEdit ? props.itemToEdit.id : '', 
             title: props.itemToEdit ? props.itemToEdit.title : '', 
+            slug: props.itemToEdit ? props.itemToEdit.slug : '',
             icon: props.itemToEdit ? props.itemToEdit.icon : '',
-            details: props.itemToEdit ? props.itemToEdit.details : ''
+            details: props.itemToEdit ? props.itemToEdit.details : '',
+            content: props.itemToEdit ? props.itemToEdit.content : '',
         });
     }, [props.itemToEdit])
 
@@ -66,8 +68,10 @@ const Service = (props) => {
             HTTP[values.id ? 'put' : 'post'](Routes.api.admin.services+(values.id ? `/${values.id}` : '' ), {
                 id: values.id,
                 title: values.title,
+                slug: values.slug || '',
                 icon: values.icon,
                 details: values.details,
+                content: values.content || '',
             })
             .then(response => {
                 Utils.handleSuccessResponse(response, () => {
@@ -133,6 +137,22 @@ const Service = (props) => {
                         <Input placeholder="Enter Title"/>
                     </Form.Item>
                     <Form.Item
+                        name="slug"
+                        label="URL"
+                        extra="Service page address: /services/your-url. Latin letters, digits and dashes. Leave empty to build it from the title."
+                        rules={[
+                            {
+                                pattern: /^[a-z0-9-]*$/,
+                                message: 'Use lowercase latin letters, digits and dashes',
+                            },
+                            {
+                                max: 120,
+                            },
+                        ]}
+                    >
+                        <Input addonBefore="/services/" placeholder="web-development"/>
+                    </Form.Item>
+                    <Form.Item
                         name="icon"
                         label="Icon Class"
                         extra={<React.Fragment>Find your suitable icon: <a href="https://fontawesome.com/icons" target="_blank" rel="noreferrer">Font Awesome</a>|<a href="http://code.meta-platform.com/assets/mdi/preview.html" target="_blank" rel="noreferrer">Material Design</a></React.Fragment>}
@@ -156,6 +176,13 @@ const Service = (props) => {
                         ]}
                     >
                         <Input.TextArea rows={4} placeholder="Enter Details"/>
+                    </Form.Item>
+                    <Form.Item
+                        name="content"
+                        label="Page text"
+                        extra="Shown only on the service page, under the short details. Separate paragraphs with an empty line. A line starting with &quot;## &quot; is a subheading, lines starting with &quot;- &quot; become a list."
+                    >
+                        <Input.TextArea rows={12} placeholder="What is included, how the work goes, terms, prices..."/>
                     </Form.Item>
                 </Form>
             </Spin>

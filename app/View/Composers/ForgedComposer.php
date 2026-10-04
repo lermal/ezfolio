@@ -64,8 +64,9 @@ class ForgedComposer
         $featured = $works->firstWhere('featured', true) ?? $works->first();
         $socials = $this->decodeList($about->social_links);
         $current = isset($data['project']) ? $works->firstWhere('id', $data['project']->id) : null;
+        $currentService = isset($data['service']) ? $services->firstWhere('id', $data['service']->id) : null;
         // Anchors of the home page sections are prefixed with it on other pages
-        $home = $current ? url('/') : '';
+        $home = $current || $currentService ? url('/') : '';
         $cta = $this->cta($about, $visibility, $home);
 
         $hasContacts = $cta !== null || !empty($about->phone) || !empty($socials);
@@ -112,7 +113,7 @@ class ForgedComposer
             'footer' => $this->isVisible($visibility, 'footer'),
             'assets' => $this->assets(),
             'home' => $home,
-            'lcpImage' => !$current && $featured && $featured['thumbnail']
+            'lcpImage' => $home === '' && $featured && $featured['thumbnail']
                 ? ImageHelper::preloadAttributes($featured['thumbnail'], self::SIZES_FEATURED)
                 : null,
             'page' => $current ? [
@@ -122,10 +123,144 @@ class ForgedComposer
                 'buttons' => $this->projectButtons($current['buttons']),
                 'others' => $this->otherWorks($works, $current),
             ] : null,
+            'servicePage' => $currentService ? [
+                'service' => $currentService,
+                'blocks' => $this->contentBlocks($currentService->content),
+                'works' => $this->worksForService($works, $currentService),
+                'others' => $services->reject(function ($service) use ($currentService) {
+                    return $service->id === $currentService->id;
+                })->values(),
+            ] : null,
             'schema' => $current
                 ? $this->projectSchema($about, $current)
-                : $this->schema($about, $socials, $skills, $education, $services, $works),
+                : ($currentService
+                    ? $this->serviceSchema($about, $currentService)
+                    : $this->schema($about, $socials, $skills, $education, $services, $works)),
         ]);
+    }
+
+    /**
+     * Example projects for a service page: projects with a category named in the
+     * service title first ("SEO" for "SEO-оптимизация"), then the featured and the rest
+     *
+     * @param Collection $works
+     * @param object $service
+     * @return Collection
+     */
+    private function worksForService(Collection $works, $service)
+    {
+        $matches = function ($work) use ($service) {
+            foreach ($work['categories'] as $category) {
+                if (mb_strlen($category) >= 3 && mb_stripos((string) $service->title, $category) !== false) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+
+        return $works->filter($matches)
+            ->merge($works->reject($matches)->sortByDesc('featured'))
+            ->take(self::OTHER_WORKS)
+            ->values()
+            ->map(function ($work, $position) {
+                $work['style'] = '--span-lg: 4; --span-md: 3; --i: ' . $position . ';';
+                $work['sizes'] = self::SIZES_CARD;
+
+                return $work;
+            });
+    }
+
+    /**
+     * Blocks of a plain-text page body: "## " starts a subheading, "- " a list item,
+     * an empty line ends a paragraph or a list
+     *
+     * @param string|null $text
+     * @return array [['type' => 'h2'|'p'|'ul', 'text' => string, 'items' => array]]
+     */
+    private function contentBlocks($text)
+    {
+        $blocks = [];
+        $open = null;
+
+        foreach (preg_split('/\R/u', trim((string) $text)) as $line) {
+            $line = trim($line);
+
+            if ($line === '') {
+                $open = null;
+            } elseif (strpos($line, '## ') === 0) {
+                $blocks[] = ['type' => 'h2', 'text' => trim(substr($line, 3))];
+                $open = null;
+            } elseif (preg_match('/^[-•*]\s+(.+)$/u', $line, $match)) {
+                if ($open === null || $blocks[$open]['type'] !== 'ul') {
+                    $blocks[] = ['type' => 'ul', 'items' => []];
+                    $open = count($blocks) - 1;
+                }
+                $blocks[$open]['items'][] = $match[1];
+            } else {
+                if ($open === null || $blocks[$open]['type'] !== 'p') {
+                    $blocks[] = ['type' => 'p', 'text' => $line];
+                    $open = count($blocks) - 1;
+                } else {
+                    $blocks[$open]['text'] .= "\n" . $line;
+                }
+            }
+        }
+
+        return $blocks;
+    }
+
+    /**
+     * schema.org graph of a service page
+     *
+     * @param object $about
+     * @param object $service
+     * @return array
+     */
+    private function serviceSchema($about, $service)
+    {
+        $home = url('/');
+        $url = route('service', $service->slug);
+
+        return [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'WebPage',
+                    '@id' => $url . '#page',
+                    'url' => $url,
+                    'name' => $service->title,
+                    'inLanguage' => str_replace('_', '-', app()->getLocale()),
+                    'isPartOf' => ['@id' => $home . '#website'],
+                    'mainEntity' => ['@id' => $url . '#service'],
+                    'breadcrumb' => ['@id' => $url . '#breadcrumb'],
+                ],
+                array_filter([
+                    '@type' => 'Service',
+                    '@id' => $url . '#service',
+                    'name' => $service->title,
+                    'serviceType' => $service->title,
+                    'url' => $url,
+                    'description' => $this->plainText($service->details . ' ' . $service->content) ?: null,
+                    'areaServed' => $about->address ?: null,
+                    'provider' => ['@type' => 'Person', '@id' => $home . '#person', 'name' => $about->name, 'url' => $home],
+                ]),
+                [
+                    '@type' => 'BreadcrumbList',
+                    '@id' => $url . '#breadcrumb',
+                    'itemListElement' => [
+                        ['@type' => 'ListItem', 'position' => 1, 'name' => $about->name, 'item' => $home],
+                        ['@type' => 'ListItem', 'position' => 2, 'name' => $service->title],
+                    ],
+                ],
+                [
+                    '@type' => 'WebSite',
+                    '@id' => $home . '#website',
+                    'url' => $home,
+                    'name' => $about->name,
+                ],
+            ],
+        ];
     }
 
     /**
@@ -264,6 +399,7 @@ class ForgedComposer
                     'itemOffered' => array_filter([
                         '@type' => 'Service',
                         'name' => $service->title,
+                        'url' => $service->slug ? route('service', $service->slug) : null,
                         'description' => $text($service->details) ?: null,
                         'provider' => ['@id' => $personId],
                     ]),

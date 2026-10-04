@@ -101,6 +101,44 @@ class FrontendController extends Controller
     }
 
     /**
+     * Page of a single service
+     *
+     * @param string $slug
+     * @return mixed
+     */
+    public function service(string $slug)
+    {
+        $data = $this->pageData();
+
+        if (!is_array($data)) {
+            return $data;
+        }
+
+        $template = $data['portfolioConfig']['template'];
+
+        if (!ThemeRegistry::hasServicePages($template)) {
+            return redirect()->route('frontend');
+        }
+
+        $service = empty($data['portfolioConfig']['visibility']['services'])
+            ? null
+            : collect($data['services'] ?? [])->firstWhere('slug', $slug);
+
+        if (!$service) {
+            abort(404);
+        }
+
+        $data['service'] = $service;
+        $data['seoPage'] = [
+            'title' => $service->title . ' — ' . $data['about']->name,
+            'description' => Str::limit(trim(preg_replace('/\s+/u', ' ', strip_tags((string) $service->details))), 160),
+            'url' => route('service', $service->slug),
+        ];
+
+        return view(ThemeRegistry::serviceView($template), $data);
+    }
+
+    /**
      * Data shared by the portfolio pages, or a response when a page can't be shown
      *
      * @return array|mixed

@@ -19,7 +19,9 @@
 |
 | "project_pages" gives every project its own page at /projects/{slug},
 | rendered by resources/views/frontend/theme/{id}/project.blade.php.
-| Without it these URLs redirect to the home page.
+| "service_pages" does the same for services at /services/{slug}
+| with resources/views/frontend/theme/{id}/service.blade.php.
+| Without them these URLs redirect to the home page.
 |
 */
 
@@ -37,6 +39,7 @@ return [
             'preview' => 'assets/common/img/templates/forged.svg',
             'projects_widget' => false,
             'project_pages' => true,
+            'service_pages' => true,
         ],
     ],
 ];

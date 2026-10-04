@@ -52,6 +52,13 @@ return [
         'cta' => 'Need a similar project?',
     ],
 
+    'service' => [
+        'more' => 'Learn more',
+        'all' => 'All services',
+        'works' => 'Example projects',
+        'others' => 'More services',
+    ],
+
     'resume' => [
         'experience' => 'Work experience',
         'education' => 'Education',
