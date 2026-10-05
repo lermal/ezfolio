@@ -36,11 +36,20 @@ class SitemapController extends Controller
         $config = $config['status'] === CoreConstants::STATUS_CODE_SUCCESS ? $config['payload'] : null;
 
         if ($config && !empty($config['visibility']['projects']) && ThemeRegistry::hasProjectPages($config['template'])) {
-            foreach (Project::whereNotNull('slug')->orderBy('id')->get(['slug', 'updated_at']) as $project) {
-                $urls = array_merge($urls, $this->forLocales(
-                    route('project', $project->slug),
-                    $project->updated_at ? $project->updated_at->format('Y-m-d') : $urls[0]['lastmod']
-                ));
+            foreach (array_keys(LaravelLocalization::getSupportedLocales()) as $locale) {
+                $projects = Project::query()
+                    ->visibleForLocale($locale)
+                    ->whereNotNull('slug')
+                    ->orderBy('id')
+                    ->get(['slug', 'updated_at']);
+
+                foreach ($projects as $project) {
+                    $urls = array_merge($urls, $this->forLocales(
+                        route('project', $project->slug),
+                        $project->updated_at ? $project->updated_at->format('Y-m-d') : $urls[0]['lastmod'],
+                        [$locale]
+                    ));
+                }
             }
         }
 
@@ -83,13 +92,15 @@ class SitemapController extends Controller
      *
      * @param  string  $url
      * @param  string  $lastmod
+     * @param  array|null  $locales
      * @return array
      */
-    private function forLocales($url, $lastmod)
+    private function forLocales($url, $lastmod, ?array $locales = null)
     {
         $entries = [];
+        $locales = $locales ?? array_keys(LaravelLocalization::getSupportedLocales());
 
-        foreach (array_keys(LaravelLocalization::getSupportedLocales()) as $locale) {
+        foreach ($locales as $locale) {
             $entries[] = [
                 'loc' => DetectPreferredLocale::urlFor(request(), $locale, parse_url($url, PHP_URL_PATH) ?: '/'),
                 'lastmod' => $lastmod,

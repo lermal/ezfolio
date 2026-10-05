@@ -26,7 +26,7 @@ const Projects = () => {
             sorter: true,
             width: 170,
             ellipsis:true,
-            render: (value) => localeText(value),
+            render: (_, row) => localeText(row.title, 'en'),
         },
         {
             title: 'Featured',
@@ -38,6 +38,22 @@ const Projects = () => {
             render: (_, row) => (
                 Number(row.is_featured) ? <Tag color="gold">Featured</Tag> : '-'
             ),
+        },
+        {
+            title: 'Audience',
+            dataIndex: 'visible_locales',
+            search: false,
+            sorter: false,
+            width: 140,
+            render: (_, row) => {
+                const locales = Array.isArray(row.visible_locales) && row.visible_locales.length
+                    ? row.visible_locales
+                    : ['ru', 'en'];
+
+                return locales.map((locale) => (
+                    <Tag key={locale}>{locale === 'en' ? 'EN' : 'RU'}</Tag>
+                ));
+            },
         },
         {
             title: 'Thumbnail',
@@ -106,7 +122,7 @@ const Projects = () => {
             search: true,
             ellipsis:true,
             hideInTable: true,
-            render: (value) => localeText(value),
+            render: (_, row) => localeText(row.details, 'en'),
         },
         {
             title: 'Option',

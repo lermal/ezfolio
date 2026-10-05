@@ -25,7 +25,7 @@ const Skills = () => {
             sorter: true,
             width: 170,
             ellipsis:true,
-            render: (value) => localeText(value),
+            render: (_, row) => localeText(row.name, 'en'),
         },
         {
             title: 'Proficiency',

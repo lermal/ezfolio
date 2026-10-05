@@ -43,7 +43,7 @@ class ProjectService implements ProjectInterface
     public function getAll(array $select = ['*'])
     {
         try {
-            $result = $this->model->select($select)->get();
+            $result = $this->model->visibleForLocale()->select($select)->get();
             if ($result) {
                 return [
                     'message' => 'Data is fetched successfully',
@@ -102,6 +102,24 @@ class ProjectService implements ProjectInterface
                     'payload' => $validate->errors(),
                     'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
                 ];
+            }
+
+            $newData = [];
+
+            if (array_key_exists('visible_locales', $data)) {
+                $visibleLocales = Project::normalizeVisibleLocales($data['visible_locales']);
+
+                if ($visibleLocales === []) {
+                    return [
+                        'message' => 'Choose at least one audience',
+                        'payload' => null,
+                        'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
+                    ];
+                }
+
+                $newData['visible_locales'] = $visibleLocales;
+            } elseif (empty($data['id'])) {
+                $newData['visible_locales'] = Project::AUDIENCES;
             }
 
             $translations = [

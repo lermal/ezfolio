@@ -667,7 +667,7 @@ const About = () => {
                                                                 }>
                                                                     <Item.Meta description={
                                                                         <a href={item.link} target="_blank" rel="noreferrer">
-                                                                            <Space><i className={item.iconClass}></i> {localeText(item.title)}</Space>
+                                                                            <Space><i className={item.iconClass}></i> {localeText(item.title, 'en')}</Space>
                                                                         </a>
                                                                     }/>
                                                                 </List.Item>

@@ -25,9 +25,15 @@ LocaleTabs.propTypes = {
     onChange: PropTypes.func.isRequired,
 };
 
-export const localeText = (value) => {
+export const localeText = (value, locale = 'en') => {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-        return value.ru || value.en || '';
+        if ('ru' in value || 'en' in value) {
+            const text = value[locale];
+
+            return text == null ? '' : String(text);
+        }
+
+        return '';
     }
 
     return value == null ? '' : String(value);

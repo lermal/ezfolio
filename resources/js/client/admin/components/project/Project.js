@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Drawer, Button, Spin, Input, Form, Select, Modal, Upload, Switch } from 'antd';
+import { Drawer, Button, Spin, Input, Form, Select, Modal, Upload, Switch, Checkbox } from 'antd';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import HTTP from '../../../common/helpers/HTTP';
@@ -10,6 +10,14 @@ import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { CONTENT_LOCALES, LocaleTabs, listPair, showLocaleError, textPair } from '../locale/contentLocale';
 
 const { Option } = Select;
+
+const audienceLocales = (project) => {
+    const locales = project && Array.isArray(project.visible_locales)
+        ? project.visible_locales.filter((locale) => locale === 'ru' || locale === 'en')
+        : [];
+
+    return locales.length ? locales : ['ru', 'en'];
+};
 
 const StyledDrawer = styled(Drawer)`
     .ant-drawer-content-wrapper {
@@ -62,6 +70,7 @@ const Project = (props) => {
             categories: listPair(props.itemToEdit ? props.itemToEdit.categories : []),
             is_featured: !!(props.itemToEdit && Number(props.itemToEdit.is_featured)),
             buttons: listPair(props.itemToEdit ? props.itemToEdit.buttons : []),
+            visible_locales: audienceLocales(props.itemToEdit),
         });
     }, [props.itemToEdit])
 
@@ -130,6 +139,9 @@ const Project = (props) => {
             values.link && formData.append('link', values.link);
             formData.append('is_featured', values.is_featured ? '1' : '0');
             formData.append('buttons', JSON.stringify(values.buttons || { ru: [], en: [] }));
+            (values.visible_locales || []).forEach((locale) => {
+                formData.append('visible_locales[]', locale);
+            });
 
             HTTP.post(Routes.api.admin.projects+(values.id ? `/${values.id}` : '' ), formData)
             .then(response => {
@@ -348,6 +360,27 @@ const Project = (props) => {
                         extra="Shown in the featured tile. Only one project stays featured."
                     >
                         <Switch/>
+                    </Form.Item>
+                    <Form.Item
+                        name="visible_locales"
+                        label="Audience"
+                        extra="Uncheck an audience to hide this project from that language. At least one stays on."
+                        rules={[
+                            {
+                                validator: (_, value) => (
+                                    value && value.length
+                                        ? Promise.resolve()
+                                        : Promise.reject(new Error('Choose at least one audience'))
+                                ),
+                            },
+                        ]}
+                    >
+                        <Checkbox.Group
+                            options={[
+                                { label: 'Show to Russian audience', value: 'ru' },
+                                { label: 'Show to English audience', value: 'en' },
+                            ]}
+                        />
                     </Form.Item>
                     <Form.Item
                         name="thumbnail"

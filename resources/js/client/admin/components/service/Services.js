@@ -25,7 +25,7 @@ const Services = () => {
             sorter: true,
             width: 170,
             ellipsis:true,
-            render: (value) => localeText(value),
+            render: (_, row) => localeText(row.title, 'en'),
         },
         {
             title: 'Icon',
@@ -48,7 +48,7 @@ const Services = () => {
             search: true,
             width: 200,
             ellipsis:true,
-            render: (value) => localeText(value),
+            render: (_, row) => localeText(row.details, 'en'),
         },
         {
             title: 'Option',

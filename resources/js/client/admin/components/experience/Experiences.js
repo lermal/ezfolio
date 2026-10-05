@@ -25,7 +25,7 @@ const Experiences = () => {
             sorter: true,
             width: 170,
             ellipsis:true,
-            render: (value) => localeText(value),
+            render: (_, row) => localeText(row.company, 'en'),
         },
         {
             title: 'Period',
@@ -34,7 +34,7 @@ const Experiences = () => {
             search: true,
             width: 170,
             ellipsis:true,
-            render: (value) => localeText(value),
+            render: (_, row) => localeText(row.period, 'en'),
         },
         {
             title: 'Position',
@@ -43,7 +43,7 @@ const Experiences = () => {
             search: true,
             width: 170,
             ellipsis:true,
-            render: (value) => localeText(value),
+            render: (_, row) => localeText(row.position, 'en'),
         },
         {
             title: 'Details',
@@ -51,7 +51,7 @@ const Experiences = () => {
             sorter: true,
             search: true,
             ellipsis:true,
-            render: (value) => localeText(value),
+            render: (_, row) => localeText(row.details, 'en'),
             hideInTable: true
         },
         {

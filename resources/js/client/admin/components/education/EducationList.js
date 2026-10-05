@@ -25,7 +25,7 @@ const EducationList = () => {
             sorter: true,
             width: 170,
             ellipsis:true,
-            render: (value) => localeText(value),
+            render: (_, row) => localeText(row.institution, 'en'),
         },
         {
             title: 'Period',
@@ -34,7 +34,7 @@ const EducationList = () => {
             search: true,
             width: 130,
             ellipsis:true,
-            render: (value) => localeText(value),
+            render: (_, row) => localeText(row.period, 'en'),
         },
         {
             title: 'Degree',
@@ -43,7 +43,7 @@ const EducationList = () => {
             search: true,
             width: 170,
             ellipsis:true,
-            render: (value) => localeText(value),
+            render: (_, row) => localeText(row.degree, 'en'),
         },
         {
             title: 'CGPA',
@@ -52,7 +52,7 @@ const EducationList = () => {
             search: true,
             width: 130,
             ellipsis:true,
-            render: (value) => localeText(value),
+            render: (_, row) => row.cgpa == null ? '' : String(row.cgpa),
         },
         {
             title: 'Department',
@@ -61,7 +61,7 @@ const EducationList = () => {
             search: true,
             width: 170,
             ellipsis:true,
-            render: (value) => localeText(value),
+            render: (_, row) => localeText(row.department, 'en'),
         },
         {
             title: 'Thesis',
@@ -70,7 +70,7 @@ const EducationList = () => {
             search: true,
             width: 170,
             ellipsis:true,
-            render: (value) => localeText(value),
+            render: (_, row) => localeText(row.thesis, 'en'),
         },
         {
             title: 'Option',

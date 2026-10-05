@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Project;
 use App\Services\Contracts\FrontendInterface;
 use App\Services\Contracts\MessageInterface;
 use CoreConstants;
@@ -30,12 +31,16 @@ class GeneralController extends Controller
     }
 
     /**
-     * Get all projects
+     * Get all projects for the page that asked. The widget sends ?locale=,
+     * and the referer covers an older bundle that does not.
      *
+     * @param Request $request
      * @return JsonResponse
      */
-    public function getProjects()
+    public function getProjects(Request $request)
     {
+        app()->setLocale(Project::audienceLocale($request->query('locale') ?: $this->localeFromReferer($request)));
+
         $result = $this->frontend->getAllProjects();
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
@@ -63,5 +68,24 @@ class GeneralController extends Controller
             }
         }
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
+    }
+
+    /**
+     * Locale of the portfolio page that loaded the projects widget.
+     *
+     * @param Request $request
+     * @return string|null
+     */
+    private function localeFromReferer(Request $request)
+    {
+        $referer = (string) $request->headers->get('referer');
+
+        if ($referer === '') {
+            return null;
+        }
+
+        $path = parse_url($referer, PHP_URL_PATH) ?: '/';
+
+        return preg_match('#^/en(?:/|$)#', $path) ? 'en' : 'ru';
     }
 }

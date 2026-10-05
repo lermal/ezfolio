@@ -62,8 +62,11 @@ function App() {
     const loadData = () => {
         setLoading(true);
 
+        const pageLocale = (document.documentElement.lang || 'ru').toLowerCase().slice(0, 2);
+
         HTTP.get(Routes.api.frontend.projects, {
-            isPrivate: false
+            isPrivate: false,
+            params: { locale: pageLocale === 'en' ? 'en' : 'ru' },
         })
         .then(response => {
             Utils.handleSuccessResponse(response, () => {
