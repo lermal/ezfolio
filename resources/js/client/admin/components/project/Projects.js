@@ -7,6 +7,7 @@ import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
 import Project from './Project';
+import { listPair, localeText } from '../locale/contentLocale';
 
 const { confirm } = Modal;
 
@@ -24,7 +25,8 @@ const Projects = () => {
             search: true,
             sorter: true,
             width: 170,
-            ellipsis:true
+            ellipsis:true,
+            render: (value) => localeText(value),
         },
         {
             title: 'Featured',
@@ -91,7 +93,7 @@ const Projects = () => {
             search: false,
             render: (_, row) => {
                 return (
-                    JSON.parse(row.categories).map((category, index) => {
+                    listPair(row.categories).ru.map((category, index) => {
                         return <Tag key={index} color="cyan">{category}</Tag>;
                     })
                 )
@@ -103,7 +105,8 @@ const Projects = () => {
             sorter: true,
             search: true,
             ellipsis:true,
-            hideInTable: true
+            hideInTable: true,
+            render: (value) => localeText(value),
         },
         {
             title: 'Option',
@@ -278,7 +281,7 @@ const Projects = () => {
                                     if (response.data.payload.data.length) {
                                         let newCategories = [...categories];
                                         response.data.payload.data.forEach(row => {
-                                            JSON.parse(row.categories).map((category) => {
+                                            listPair(row.categories).ru.map((category) => {
                                                 newCategories.push(category);
                                             })
                                         });

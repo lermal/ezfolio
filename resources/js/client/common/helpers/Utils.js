@@ -151,6 +151,28 @@ const changeAccentColor = (color) => {
 }
 
 /**
+ * A JSON list column, already decoded by the API or still a JSON string.
+ *
+ * @param mixed value
+ */
+const parseList = (value) => {
+    if (Array.isArray(value)) {
+        return value;
+    }
+
+    if (typeof value === 'string' && value) {
+        try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    return [];
+}
+
+/**
  * Utility helper
  */
 const Utils = {
@@ -165,6 +187,7 @@ const Utils = {
     handleBadRequest,
     handleSuccessResponse,
     changeAccentColor,
+    parseList,
 }
 
 export default Utils;

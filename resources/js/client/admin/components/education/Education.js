@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import HTTP from '../../../common/helpers/HTTP';
 import Utils from '../../../common/helpers/Utils';
 import Routes from '../../../common/helpers/Routes';
+import { CONTENT_LOCALES, LocaleTabs, showLocaleError, textPair } from '../locale/contentLocale';
 
 const StyledDrawer = styled(Drawer)`
     .ant-drawer-content-wrapper {
@@ -20,16 +21,17 @@ const Education = (props) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState((typeof props.loading !== 'undefined') ? props.loading : false);
     const [componentLoading, setComponentLoading] = useState((typeof props.componentLoading !== 'undefined') ? props.componentLoading : false);
+    const [locale, setLocale] = useState('ru');
 
     useEffect(() => {
         form.setFieldsValue({
             id: props.itemToEdit ? props.itemToEdit.id : '', 
-            institution: props.itemToEdit ? props.itemToEdit.institution : '', 
-            period: props.itemToEdit ? props.itemToEdit.period : '',
-            degree: props.itemToEdit ? props.itemToEdit.degree : '',
+            institution: textPair(props.itemToEdit ? props.itemToEdit.institution : ''), 
+            period: textPair(props.itemToEdit ? props.itemToEdit.period : ''),
+            degree: textPair(props.itemToEdit ? props.itemToEdit.degree : ''),
             cgpa: props.itemToEdit ? props.itemToEdit.cgpa : '',
-            department: props.itemToEdit ? props.itemToEdit.department : '',
-            thesis: props.itemToEdit ? props.itemToEdit.thesis : '',
+            department: textPair(props.itemToEdit ? props.itemToEdit.department : ''),
+            thesis: textPair(props.itemToEdit ? props.itemToEdit.thesis : ''),
         });
     }, [props.itemToEdit])
 
@@ -89,6 +91,7 @@ const Education = (props) => {
             });
         })
         .catch((info) => {
+            showLocaleError(info, setLocale);
             console.log('Validate Failed:', info);
         });
     }
@@ -126,32 +129,32 @@ const Education = (props) => {
                     <Form.Item name="id" hidden>
                         <Input/>
                     </Form.Item>
-                    <Form.Item
-                        name="institution"
-                        label="Institution"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input the name of institution',
-                            },
-                        ]}
-                    >
-                        <Input placeholder="Enter Institution"/>
-                    </Form.Item>
-                    <Form.Item name="period" label="Period">
-                        <Input placeholder="Enter Period"/>
-                    </Form.Item>
-                    <Form.Item name="degree" label="Degree">
-                        <Input placeholder="Enter Degree"/>
-                    </Form.Item>
+                    <LocaleTabs locale={locale} onChange={setLocale} />
+                    {CONTENT_LOCALES.map((code) => (
+                        <div key={code} style={{ display: locale === code ? 'block' : 'none' }}>
+                            <Form.Item
+                                name={['institution', code]}
+                                label="Institution"
+                                rules={code === 'ru' ? [{ required: true, message: 'Please input the name of institution' }] : []}
+                            >
+                                <Input placeholder="Enter Institution"/>
+                            </Form.Item>
+                            <Form.Item name={['period', code]} label="Period">
+                                <Input placeholder="Enter Period"/>
+                            </Form.Item>
+                            <Form.Item name={['degree', code]} label="Degree">
+                                <Input placeholder="Enter Degree"/>
+                            </Form.Item>
+                            <Form.Item name={['department', code]} label="Department">
+                                <Input placeholder="Enter Department"/>
+                            </Form.Item>
+                            <Form.Item name={['thesis', code]} label="Thesis">
+                                <Input placeholder="Enter Thesis"/>
+                            </Form.Item>
+                        </div>
+                    ))}
                     <Form.Item name="cgpa" label="CGPA">
                         <Input placeholder="Enter CGPA"/>
-                    </Form.Item>
-                    <Form.Item name="department" label="Department">
-                        <Input placeholder="Enter Department"/>
-                    </Form.Item>
-                    <Form.Item name="thesis" label="Thesis">
-                        <Input placeholder="Enter Thesis"/>
                     </Form.Item>
                 </Form>
             </Spin>

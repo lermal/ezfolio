@@ -61,6 +61,13 @@
     @endif
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="{{ $seo['url'] }}">
+    @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $localeMeta)
+        <link rel="alternate" hreflang="{{ $localeCode }}" href="{{ \App\Http\Middleware\DetectPreferredLocale::urlFor(request(), $localeCode, request()->getRequestUri()) }}">
+        @if ($localeCode !== app()->getLocale())
+            <meta property="og:locale:alternate" content="{{ str_replace('-', '_', $localeMeta['regional'] ?? $localeCode) }}">
+        @endif
+    @endforeach
+    <link rel="alternate" hreflang="x-default" href="{{ \App\Http\Middleware\DetectPreferredLocale::urlFor(request(), LaravelLocalization::getDefaultLocale(), request()->getRequestUri()) }}">
     <meta name="theme-color" content="{{ $accentColor }}">
 
     <meta property="og:type" content="{{ $seo['type'] }}">

@@ -145,7 +145,7 @@ const ProjectPopup = (props) => {
                 <Row>
                     <Col span={24}>
                         {
-                            JSON.parse(props.project.categories).map((category, index) => (
+                            Utils.parseList(props.project.categories).map((category, index) => (
                                 <Tag key={index} style={{background: 'var(--z-accent-color)', color: 'white', textTransform: 'capitalize'}}>{category}</Tag>
                             ))
                         }

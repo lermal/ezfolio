@@ -12,6 +12,8 @@
                 </nav>
             @endif
 
+            @include('frontend.theme.forged.locale-switcher')
+
             @if ($forged['cta'])
                 <a href="{{ $forged['cta']['href'] }}" class="btn-forge btn-forge--ghost hidden !min-h-[40px] md:inline-flex">
                     {{ __('forged.cta.write') }}

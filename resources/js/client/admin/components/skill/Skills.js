@@ -7,6 +7,7 @@ import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
 import Skill from './Skill';
+import { localeText } from '../locale/contentLocale';
 
 const { confirm } = Modal;
 
@@ -23,7 +24,8 @@ const Skills = () => {
             search: true,
             sorter: true,
             width: 170,
-            ellipsis:true
+            ellipsis:true,
+            render: (value) => localeText(value),
         },
         {
             title: 'Proficiency',

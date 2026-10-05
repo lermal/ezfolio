@@ -483,7 +483,7 @@
             if ($('#typed-strings').length) {
                 @if($about->taglines)
                     var typed = new Typed('#typed-strings', {
-                        strings: {!! json_encode(json_decode($about->taglines)) !!},
+                        strings: {!! json_encode(is_array($about->taglines) ? $about->taglines : json_decode($about->taglines)) !!},
                         typeSpeed: 50,
                         backSpeed: 30,
                         backDelay: 2000,

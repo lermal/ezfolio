@@ -7,6 +7,7 @@ import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
 import Experience from './Experience';
+import { localeText } from '../locale/contentLocale';
 
 const { confirm } = Modal;
 
@@ -23,7 +24,8 @@ const Experiences = () => {
             search: true,
             sorter: true,
             width: 170,
-            ellipsis:true
+            ellipsis:true,
+            render: (value) => localeText(value),
         },
         {
             title: 'Period',
@@ -31,7 +33,8 @@ const Experiences = () => {
             sorter: true,
             search: true,
             width: 170,
-            ellipsis:true
+            ellipsis:true,
+            render: (value) => localeText(value),
         },
         {
             title: 'Position',
@@ -39,7 +42,8 @@ const Experiences = () => {
             sorter: true,
             search: true,
             width: 170,
-            ellipsis:true
+            ellipsis:true,
+            render: (value) => localeText(value),
         },
         {
             title: 'Details',
@@ -47,6 +51,7 @@ const Experiences = () => {
             sorter: true,
             search: true,
             ellipsis:true,
+            render: (value) => localeText(value),
             hideInTable: true
         },
         {

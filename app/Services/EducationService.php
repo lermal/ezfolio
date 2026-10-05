@@ -5,6 +5,7 @@ namespace App\Services;
 use CoreConstants;
 use App\Models\Education;
 use App\Services\Contracts\EducationInterface;
+use App\Support\LocaleContent;
 use Log;
 use Validator;
 
@@ -70,8 +71,23 @@ class EducationService implements EducationInterface
     public function store(array $data)
     {
         try {
+            $data['institution'] = LocaleContent::text($data['institution'] ?? null);
+            $data['period'] = LocaleContent::text($data['period'] ?? null);
+            $data['degree'] = LocaleContent::text($data['degree'] ?? null);
+            $data['department'] = LocaleContent::text($data['department'] ?? null);
+            $data['thesis'] = LocaleContent::text($data['thesis'] ?? null);
+
             $validate = Validator::make($data, [
-                'institution' => 'required|string',
+                'institution.ru' => 'required|string',
+                'institution.en' => 'nullable|string',
+                'period.ru' => 'nullable|string',
+                'period.en' => 'nullable|string',
+                'degree.ru' => 'nullable|string',
+                'degree.en' => 'nullable|string',
+                'department.ru' => 'nullable|string',
+                'department.en' => 'nullable|string',
+                'thesis.ru' => 'nullable|string',
+                'thesis.en' => 'nullable|string',
             ]);
 
             if ($validate->fails()) {
@@ -82,12 +98,14 @@ class EducationService implements EducationInterface
                 ];
             }
 
-            $newData['institution'] = $data['institution'];
-            $newData['period'] = isset($data['period']) ? $data['period'] : null;
-            $newData['degree'] = isset($data['degree']) ? $data['degree'] : null;
             $newData['cgpa'] = isset($data['cgpa']) ? $data['cgpa'] : null;
-            $newData['department'] = isset($data['department']) ? $data['department'] : null;
-            $newData['thesis'] = isset($data['thesis']) ? $data['thesis'] : null;
+            $translations = [
+                'institution' => $data['institution'],
+                'period' => $data['period'],
+                'degree' => $data['degree'],
+                'department' => $data['department'],
+                'thesis' => $data['thesis'],
+            ];
             
             if (isset($data['id'])) {
                 $result = $this->getById($data['id'], ['id']);
@@ -96,9 +114,12 @@ class EducationService implements EducationInterface
                 } else {
                     $existingData = $result['payload'];
                 }
+                LocaleContent::assign($existingData, $translations);
                 $result = $existingData->update($newData);
             } else {
-                $result = $this->model->create($newData);
+                $result = $this->model->newInstance($newData);
+                LocaleContent::assign($result, $translations);
+                $result->save();
             }
 
             if ($result) {

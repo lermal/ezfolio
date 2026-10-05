@@ -5,6 +5,7 @@ namespace App\Services;
 use CoreConstants;
 use App\Models\Skill;
 use App\Services\Contracts\SkillInterface;
+use App\Support\LocaleContent;
 use Log;
 use Validator;
 
@@ -71,8 +72,11 @@ class SkillService implements SkillInterface
     public function store(array $data)
     {
         try {
+            $data['name'] = LocaleContent::text($data['name'] ?? null);
+
             $validate = Validator::make($data, [
-                'name' => 'required|string',
+                'name.ru' => 'required|string',
+                'name.en' => 'nullable|string',
                 'proficiency' => 'required|numeric',
             ]);
 
@@ -84,8 +88,10 @@ class SkillService implements SkillInterface
                 ];
             }
 
-            $newData['name'] = $data['name'];
             $newData['proficiency'] = $data['proficiency'];
+            $translations = [
+                'name' => $data['name'],
+            ];
             
             if (isset($data['id'])) {
                 $result = $this->getById($data['id'], ['id']);
@@ -94,9 +100,12 @@ class SkillService implements SkillInterface
                 } else {
                     $existingData = $result['payload'];
                 }
+                LocaleContent::assign($existingData, $translations);
                 $result = $existingData->update($newData);
             } else {
-                $result = $this->model->create($newData);
+                $result = $this->model->newInstance($newData);
+                LocaleContent::assign($result, $translations);
+                $result->save();
             }
 
             if ($result) {

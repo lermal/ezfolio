@@ -5,6 +5,7 @@ namespace App\Services;
 use CoreConstants;
 use App\Models\About;
 use App\Services\Contracts\AboutInterface;
+use App\Support\LocaleContent;
 use Log;
 use Str;
 use Validator;
@@ -72,9 +73,21 @@ class AboutService implements AboutInterface
     public function store(array $data)
     {
         try {
+            $data['name'] = LocaleContent::text($data['name'] ?? null);
+            $data['address'] = LocaleContent::text($data['address'] ?? null);
+            $data['description'] = LocaleContent::text($data['description'] ?? null);
+            $data['taglines'] = LocaleContent::lists($data['taglines'] ?? null);
+
             $validate = Validator::make($data, [
-                'name' => 'required|string',
-                'email' => 'required|email'
+                'name.ru' => 'required|string',
+                'name.en' => 'nullable|string',
+                'email' => 'required|email',
+                'address.ru' => 'nullable|string',
+                'address.en' => 'nullable|string',
+                'description.ru' => 'nullable|string',
+                'description.en' => 'nullable|string',
+                'taglines.ru' => 'nullable|array',
+                'taglines.en' => 'nullable|array',
             ]);
 
             if ($validate->fails()) {
@@ -85,45 +98,34 @@ class AboutService implements AboutInterface
                 ];
             }
 
-            $newData['name'] = $data['name'];
             $newData['email'] = $data['email'];
             $newData['phone'] = isset($data['phone']) ? $data['phone'] : null;
-            $newData['address'] = isset($data['address']) ? $data['address'] : null;
-            $newData['description'] = isset($data['description']) ? $data['description'] : null;
 
             if (isset($data['seederCV'])) {
                 $newData['cv'] = $data['seederCV'];
             }
-            
-            $newTagLinesArray = [];
-            if (isset($data['taglines'])) {
-                foreach ($data['taglines'] as $key => $tagline) {
-                    if ($tagline !== null && $tagline !== '') {
-                        array_push($newTagLinesArray, $tagline);
-                    }
-                }
-            }
-            $newData['taglines'] = count($newTagLinesArray) ? json_encode($newTagLinesArray) : null;
-            
-            $newSocialLinksArray = [];
-            if (isset($data['social_links'])) {
-                foreach ($data['social_links'] as $key => $socialLink) {
-                    if ($socialLink !== '' && !empty($socialLink['title']) && !empty($socialLink['link']) && !empty($socialLink['iconClass'])) {
-                        array_push($newSocialLinksArray, $socialLink);
-                    }
-                }
-            }
-            $newData['social_links'] = count($newSocialLinksArray) ? json_encode($newSocialLinksArray) : null;
+
+            $translations = [
+                'name' => $data['name'],
+                'address' => $data['address'],
+                'description' => $data['description'],
+                'taglines' => $data['taglines'],
+            ];
+
+            $newData['social_links'] = $this->socialLinks($data['social_links'] ?? null);
             
             $existedRecord = $this->getAll();
 
             if ($existedRecord['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
                 $existedRecord = $existedRecord['payload'];
+                LocaleContent::assign($existedRecord, $translations);
                 $result = $existedRecord->update($newData);
             } else {
                 $newData['avatar'] = '';
                 $newData['cover'] = 'assets/common/img/cover/default.png';
-                $result = $this->model->create($newData);
+                $result = $this->model->newInstance($newData);
+                LocaleContent::assign($result, $translations);
+                $result->save();
             }
 
             if ($result) {
@@ -147,6 +149,50 @@ class AboutService implements AboutInterface
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
         }
+    }
+
+    /**
+     * Social links stay one list. Only the visible title is translated.
+     *
+     * @param mixed $links
+     * @return string|null
+     */
+    private function socialLinks($links)
+    {
+        if ($links === null || $links === '') {
+            return null;
+        }
+
+        if (is_string($links)) {
+            $decoded = json_decode($links, true);
+            $links = is_array($decoded) ? $decoded : [];
+        }
+
+        if (!is_array($links)) {
+            return null;
+        }
+
+        $normalized = [];
+
+        foreach ($links as $socialLink) {
+            if (!is_array($socialLink)) {
+                continue;
+            }
+
+            $title = LocaleContent::text($socialLink['title'] ?? '');
+
+            if ($title['ru'] === '' || empty($socialLink['link']) || empty($socialLink['iconClass'])) {
+                continue;
+            }
+
+            $socialLink['title'] = [
+                'ru' => $title['ru'],
+                'en' => $title['en'],
+            ];
+            $normalized[] = $socialLink;
+        }
+
+        return count($normalized) ? json_encode($normalized, JSON_UNESCAPED_UNICODE) : null;
     }
 
     /**

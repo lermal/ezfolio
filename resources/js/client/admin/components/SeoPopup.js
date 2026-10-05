@@ -6,6 +6,7 @@ import FileUploaderFormInput from './uploader/FileUploaderFormInput';
 import Utils from '../../common/helpers/Utils';
 import HTTP from '../../common/helpers/HTTP';
 import Routes from '../../common/helpers/Routes';
+import { CONTENT_LOCALES, LocaleTabs, textPair } from './locale/contentLocale';
 
 const StyledDrawer = styled(Drawer)`
     .ant-drawer-content-wrapper {
@@ -20,13 +21,15 @@ const SeoPopup = (props) => {
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
+    const [locale, setLocale] = useState('ru');
 
     useEffect(() => {
         if (props.data) {
+            const translations = props.data.translations || {};
             form.setFieldsValue({
-                title: props.data.title, 
-                author: props.data.author,
-                description: props.data.description,
+                title: textPair(translations.title || props.data.title), 
+                author: textPair(translations.author || props.data.author),
+                description: textPair(translations.description || props.data.description),
                 image: props.data.image,
             });
         }
@@ -60,9 +63,12 @@ const SeoPopup = (props) => {
 
             const formData = new FormData();
             
-            formData.append('title', values.title);
-            formData.append('author', values.author);
-            formData.append('description', values.description);
+            formData.append('title[ru]', values.title.ru || '');
+            formData.append('title[en]', values.title.en || '');
+            formData.append('author[ru]', values.author.ru || '');
+            formData.append('author[en]', values.author.en || '');
+            formData.append('description[ru]', values.description.ru || '');
+            formData.append('description[en]', values.description.en || '');
             formData.append('image', values.image);
 
             HTTP.post(Routes.api.admin.seo, formData)
@@ -112,24 +118,29 @@ const SeoPopup = (props) => {
                 layout="vertical"
                 name="seo"
             >
-                <Form.Item
-                    label={<React.Fragment>Meta Title</React.Fragment>}
-                    name="title"
-                >
-                    <Input placeholder="Enter Meta Title"/>
-                </Form.Item>
-                <Form.Item
-                    label={<React.Fragment>Meta Author</React.Fragment>}
-                    name="author"
-                >
-                    <Input placeholder="Enter Meta Author"/>
-                </Form.Item>
-                <Form.Item
-                    label={<React.Fragment>Meta Description</React.Fragment>}
-                    name="description"
-                >
-                    <Input.TextArea rows={4} placeholder="Enter Meta Description"/>
-                </Form.Item>
+                <LocaleTabs locale={locale} onChange={setLocale} />
+                {CONTENT_LOCALES.map((code) => (
+                    <div key={code} style={{ display: locale === code ? 'block' : 'none' }}>
+                        <Form.Item
+                            label={<React.Fragment>Meta Title</React.Fragment>}
+                            name={['title', code]}
+                        >
+                            <Input placeholder="Enter Meta Title"/>
+                        </Form.Item>
+                        <Form.Item
+                            label={<React.Fragment>Meta Author</React.Fragment>}
+                            name={['author', code]}
+                        >
+                            <Input placeholder="Enter Meta Author"/>
+                        </Form.Item>
+                        <Form.Item
+                            label={<React.Fragment>Meta Description</React.Fragment>}
+                            name={['description', code]}
+                        >
+                            <Input.TextArea rows={4} placeholder="Enter Meta Description"/>
+                        </Form.Item>
+                    </div>
+                ))}
                 <Form.Item 
                     label="Meta Image" 
                     name="image"

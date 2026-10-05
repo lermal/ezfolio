@@ -7,6 +7,7 @@ import Utils from '../../../common/helpers/Utils';
 import Routes from '../../../common/helpers/Routes';
 import FileUploaderFormInput from '../uploader/FileUploaderFormInput';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { CONTENT_LOCALES, LocaleTabs, listPair, showLocaleError, textPair } from '../locale/contentLocale';
 
 const { Option } = Select;
 
@@ -27,6 +28,7 @@ const Project = (props) => {
     const [previewVisible, setPreviewVisible] = useState(false);
     const [imageFileList, setImageFileList] = useState([]);
     const [previewImage, setPreviewImage] = useState('');
+    const [locale, setLocale] = useState('ru');
 
     useEffect(() => {
         if (props.itemToEdit) {
@@ -50,26 +52,16 @@ const Project = (props) => {
             });
         }
 
-        let buttons = [];
-        if (props.itemToEdit && props.itemToEdit.buttons) {
-            try {
-                const parsed = JSON.parse(props.itemToEdit.buttons);
-                buttons = Array.isArray(parsed) ? parsed : [];
-            } catch (error) {
-                buttons = [];
-            }
-        }
-
         form.setFieldsValue({
             id: props.itemToEdit ? props.itemToEdit.id : '', 
-            title: props.itemToEdit ? props.itemToEdit.title : '', 
+            title: textPair(props.itemToEdit ? props.itemToEdit.title : ''), 
             slug: props.itemToEdit ? props.itemToEdit.slug : '',
             thumbnail: props.itemToEdit ? props.itemToEdit.thumbnail : '',
-            details: props.itemToEdit ? props.itemToEdit.details : '',
+            details: textPair(props.itemToEdit ? props.itemToEdit.details : ''),
             link: props.itemToEdit ? props.itemToEdit.link : '',
-            categories: props.itemToEdit ? JSON.parse(props.itemToEdit.categories) : [],
+            categories: listPair(props.itemToEdit ? props.itemToEdit.categories : []),
             is_featured: !!(props.itemToEdit && Number(props.itemToEdit.is_featured)),
-            buttons,
+            buttons: listPair(props.itemToEdit ? props.itemToEdit.buttons : []),
         });
     }, [props.itemToEdit])
 
@@ -116,11 +108,10 @@ const Project = (props) => {
             values.id && formData.append('_method', 'put');
 
             values.id && formData.append('id', values.id);
-            formData.append('title', values.title);
+            formData.append('title[ru]', values.title.ru || '');
+            formData.append('title[en]', values.title.en || '');
             formData.append('slug', values.slug || '');
-            values.categories.forEach(category => {
-                formData.append('categories[]', category);
-            });
+            formData.append('categories', JSON.stringify(values.categories || { ru: [], en: [] }));
             formData.append('thumbnail', values.thumbnail);
             
             for (const file of values.images) {
@@ -133,11 +124,12 @@ const Project = (props) => {
                 formData.append(`images[]`, fileBlob); 
             }
             
-            values.details && formData.append('details', values.details);
+            formData.append('details[ru]', (values.details && values.details.ru) || '');
+            formData.append('details[en]', (values.details && values.details.en) || '');
 
             values.link && formData.append('link', values.link);
             formData.append('is_featured', values.is_featured ? '1' : '0');
-            formData.append('buttons', JSON.stringify(values.buttons || []));
+            formData.append('buttons', JSON.stringify(values.buttons || { ru: [], en: [] }));
 
             HTTP.post(Routes.api.admin.projects+(values.id ? `/${values.id}` : '' ), formData)
             .then(response => {
@@ -154,6 +146,7 @@ const Project = (props) => {
             });
         })
         .catch((info) => {
+            showLocaleError(info, setLocale);
             console.log('Validate Failed:', info);
         });
     }
@@ -249,17 +242,89 @@ const Project = (props) => {
                     <Form.Item name="id" hidden>
                         <Input/>
                     </Form.Item>
-                    <Form.Item
-                        name="title"
-                        label="Title"
-                        rules={[
-                            {
-                                required: true,
-                            },
-                        ]}
-                    >
-                        <Input placeholder="Enter Title"/>
-                    </Form.Item>
+                    <LocaleTabs locale={locale} onChange={setLocale} />
+                    {CONTENT_LOCALES.map((code) => (
+                        <div key={code} style={{ display: locale === code ? 'block' : 'none' }}>
+                            <Form.Item
+                                name={['title', code]}
+                                label="Title"
+                                rules={code === 'ru' ? [{ required: true, message: 'Please input the title' }] : []}
+                            >
+                                <Input placeholder="Enter Title"/>
+                            </Form.Item>
+                            <Form.Item
+                                name={['categories', code]}
+                                label="Category"
+                                rules={code === 'ru' ? [{ required: true, message: 'Please select project category' }] : []}
+                            >
+                                <Select
+                                    mode="tags"
+                                    allowClear
+                                    placeholder="Select Existing or Create New"
+                                >
+                                    {props.categories.map((category, index) => (
+                                        <Option key={index} value={category}>{category}</Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                            <Form.List name={['buttons', code]}>
+                                {(fields, { add, remove }) => (
+                                    <div>
+                                        <div style={{ marginBottom: 8 }}>Buttons</div>
+                                        {fields.map(({ key, name, fieldKey, ...restField }) => (
+                                            <div key={key} style={{ display: 'grid', gap: 8, marginBottom: 12, padding: 12, border: '1px solid #f0f0f0', borderRadius: 8 }}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    name={[name, 'label']}
+                                                    fieldKey={[fieldKey, 'label']}
+                                                    label="Text"
+                                                    rules={[{ required: true, message: 'Enter the button text' }]}
+                                                    style={{ marginBottom: 0 }}
+                                                >
+                                                    <Input placeholder="Button text" maxLength={120}/>
+                                                </Form.Item>
+                                                <Form.Item
+                                                    {...restField}
+                                                    name={[name, 'url']}
+                                                    fieldKey={[fieldKey, 'url']}
+                                                    label="Link"
+                                                    rules={[
+                                                        { required: true, message: 'Enter a link' },
+                                                        { type: 'url', message: 'Please enter a valid link' },
+                                                    ]}
+                                                    style={{ marginBottom: 0 }}
+                                                >
+                                                    <Input placeholder="https://"/>
+                                                </Form.Item>
+                                                <Form.Item
+                                                    {...restField}
+                                                    name={[name, 'color']}
+                                                    fieldKey={[fieldKey, 'color']}
+                                                    label="Color"
+                                                    rules={[{ required: true, message: 'Pick a color' }]}
+                                                    style={{ marginBottom: 0 }}
+                                                >
+                                                    <input type="color" aria-label="Button color" style={{ width: 48, height: 32, padding: 0, border: 'none', background: 'transparent' }}/>
+                                                </Form.Item>
+                                                <Button type="link" danger icon={<MinusCircleOutlined/>} onClick={() => remove(name)} style={{ paddingLeft: 0 }}>
+                                                    Remove
+                                                </Button>
+                                            </div>
+                                        ))}
+                                        <Button type="dashed" onClick={() => add({ color: '#e85d04' })} block icon={<PlusOutlined/>}>
+                                            Add button
+                                        </Button>
+                                    </div>
+                                )}
+                            </Form.List>
+                            <Form.Item
+                                name={['details', code]}
+                                label="Details"
+                            >
+                                <Input.TextArea rows={4} placeholder="Enter Details"/>
+                            </Form.Item>
+                        </div>
+                    ))}
                     <Form.Item
                         name="slug"
                         label="URL"
@@ -283,26 +348,6 @@ const Project = (props) => {
                         extra="Shown in the featured tile. Only one project stays featured."
                     >
                         <Switch/>
-                    </Form.Item>
-                    <Form.Item
-                        name="categories"
-                        label="Category"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please select project category'
-                            },
-                        ]}
-                    >
-                        <Select
-                            mode="tags"
-                            allowClear
-                            placeholder="Select Existing or Create New"
-                        >
-                            {props.categories.map((category, index) => (
-                                <Option key={index} value={category}>{category}</Option>
-                            ))}
-                        </Select>
                     </Form.Item>
                     <Form.Item
                         name="thumbnail"
@@ -356,62 +401,6 @@ const Project = (props) => {
                         ]}
                     >
                         <Input placeholder="Enter Link"/>
-                    </Form.Item>
-                    <Form.List name="buttons">
-                        {(fields, { add, remove }) => (
-                            <div>
-                                <div style={{ marginBottom: 8 }}>Buttons</div>
-                                {fields.map(({ key, name, fieldKey, ...restField }) => (
-                                    <div key={key} style={{ display: 'grid', gap: 8, marginBottom: 12, padding: 12, border: '1px solid #f0f0f0', borderRadius: 8 }}>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, 'label']}
-                                            fieldKey={[fieldKey, 'label']}
-                                            label="Text"
-                                            rules={[{ required: true, message: 'Enter the button text' }]}
-                                            style={{ marginBottom: 0 }}
-                                        >
-                                            <Input placeholder="Button text" maxLength={120}/>
-                                        </Form.Item>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, 'url']}
-                                            fieldKey={[fieldKey, 'url']}
-                                            label="Link"
-                                            rules={[
-                                                { required: true, message: 'Enter a link' },
-                                                { type: 'url', message: 'Please enter a valid link' },
-                                            ]}
-                                            style={{ marginBottom: 0 }}
-                                        >
-                                            <Input placeholder="https://"/>
-                                        </Form.Item>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, 'color']}
-                                            fieldKey={[fieldKey, 'color']}
-                                            label="Color"
-                                            rules={[{ required: true, message: 'Pick a color' }]}
-                                            style={{ marginBottom: 0 }}
-                                        >
-                                            <input type="color" aria-label="Button color" style={{ width: 48, height: 32, padding: 0, border: 'none', background: 'transparent' }}/>
-                                        </Form.Item>
-                                        <Button type="link" danger icon={<MinusCircleOutlined/>} onClick={() => remove(name)} style={{ paddingLeft: 0 }}>
-                                            Remove
-                                        </Button>
-                                    </div>
-                                ))}
-                                <Button type="dashed" onClick={() => add({ color: '#e85d04' })} block icon={<PlusOutlined/>}>
-                                    Add button
-                                </Button>
-                            </div>
-                        )}
-                    </Form.List>
-                    <Form.Item 
-                        name="details" 
-                        label="Details"
-                    >
-                        <Input.TextArea rows={4} placeholder="Enter Details"/>
                     </Form.Item>
                 </Form>
                 <Modal

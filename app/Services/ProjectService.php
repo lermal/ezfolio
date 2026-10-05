@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\About;
 use App\Services\Contracts\ProjectInterface;
 use App\Services\ImageOptimizationService;
+use App\Support\LocaleContent;
 use Illuminate\Http\UploadedFile;
 use Log;
 use Str;
@@ -75,19 +76,25 @@ class ProjectService implements ProjectInterface
     public function store(array $data)
     {
         try {
-            if (isset($data['seeder_thumbnail']) && isset($data['seeder_images'])) {
-                $validate = Validator::make($data, [
-                    'title' => 'required|string',
-                    'categories' => 'required'
-                ]);
-            } else {
-                $validate = Validator::make($data, [
-                    'title' => 'required|string',
-                    'thumbnail' => 'required',
-                    'images' => 'required',
-                    'categories' => 'required'
-                ]);
+            $data['title'] = LocaleContent::text($data['title'] ?? null);
+            $data['categories'] = LocaleContent::lists($data['categories'] ?? null);
+            $data['details'] = LocaleContent::text($data['details'] ?? null);
+
+            $rules = [
+                'title.ru' => 'required|string',
+                'title.en' => 'nullable|string',
+                'categories.ru' => 'required|array|min:1',
+                'categories.en' => 'nullable|array',
+                'details.ru' => 'nullable|string',
+                'details.en' => 'nullable|string',
+            ];
+
+            if (!isset($data['seeder_thumbnail']) || !isset($data['seeder_images'])) {
+                $rules['thumbnail'] = 'required';
+                $rules['images'] = 'required';
             }
+
+            $validate = Validator::make($data, $rules);
 
             if ($validate->fails()) {
                 return [
@@ -97,17 +104,32 @@ class ProjectService implements ProjectInterface
                 ];
             }
 
-            if (array_key_exists('buttons', $data)) {
-                $buttons = $this->buttons($data['buttons']);
-                if (isset($buttons['error'])) {
-                    return [
-                        'message' => $buttons['error'],
-                        'payload' => null,
-                        'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
-                    ];
-                }
+            $translations = [
+                'title' => $data['title'],
+                'categories' => $data['categories'],
+                'details' => $data['details'],
+            ];
 
-                $newData['buttons'] = $buttons['buttons'] ? json_encode($buttons['buttons']) : null;
+            if (array_key_exists('buttons', $data)) {
+                $groups = LocaleContent::buttonGroups($data['buttons']);
+                $translations['buttons'] = ['ru' => [], 'en' => []];
+
+                foreach (['ru', 'en'] as $locale) {
+                    if ($groups[$locale] === []) {
+                        continue;
+                    }
+
+                    $buttons = $this->buttons($groups[$locale]);
+                    if (isset($buttons['error'])) {
+                        return [
+                            'message' => $buttons['error'],
+                            'payload' => null,
+                            'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
+                        ];
+                    }
+
+                    $translations['buttons'][$locale] = $buttons['buttons'];
+                }
             }
 
             if (array_key_exists('slug', $data)) {
@@ -122,10 +144,7 @@ class ProjectService implements ProjectInterface
                 }
             }
 
-            $newData['title'] = $data['title'];
-            $newData['categories'] = json_encode($data['categories']);
             $newData['link'] = isset($data['link']) ? $data['link'] : null;
-            $newData['details'] = isset($data['details']) ? $data['details'] : null;
 
             if (array_key_exists('is_featured', $data)) {
                 $newData['is_featured'] = filter_var($data['is_featured'], FILTER_VALIDATE_BOOLEAN);
@@ -134,7 +153,9 @@ class ProjectService implements ProjectInterface
             if (isset($data['seeder_thumbnail']) && isset($data['seeder_images'])) {
                 $newData['thumbnail'] = $data['seeder_thumbnail'];
                 $newData['images'] = json_encode($data['seeder_images']);
-                $result = $this->model->create($newData);
+                $result = $this->model->newInstance($newData);
+                LocaleContent::assign($result, $translations);
+                $result->save();
             } else {
                 if (!empty($data['id'])) {
                     $result = $this->getById($data['id'], ['*']);
@@ -157,6 +178,7 @@ class ProjectService implements ProjectInterface
                     $newData['thumbnail'] = $processThumbnail['payload']['file'];
                     $newData['images'] = json_encode($processImages['payload']['files']);
 
+                    LocaleContent::assign($existingData, $translations);
                     $result = $existingData->update($newData);
                 } else {
                     //process thumbnail
@@ -173,7 +195,9 @@ class ProjectService implements ProjectInterface
 
                     $newData['thumbnail'] = $processThumbnail['payload']['file'];
                     $newData['images'] = json_encode($processImages['payload']['files']);
-                    $result = $this->model->create($newData);
+                    $result = $this->model->newInstance($newData);
+                    LocaleContent::assign($result, $translations);
+                    $result->save();
                 }
             }
 
@@ -266,10 +290,11 @@ class ProjectService implements ProjectInterface
      */
     private function buttonsHtml($value)
     {
-        $buttons = json_decode($value ?? '[]', true);
-        if (!is_array($buttons)) {
-            return '';
+        if (is_string($value)) {
+            $value = json_decode($value, true);
         }
+
+        $buttons = is_array($value) ? $value : [];
 
         $html = '';
 
@@ -819,7 +844,11 @@ class ProjectService implements ProjectInterface
 
         if ($projects->count() > 0) {
             foreach ($projects as $project) {
-                $categories = json_decode($project->categories, true) ?? [];
+                $categories = $project->categories;
+                if (is_string($categories)) {
+                    $categories = json_decode($categories, true);
+                }
+                $categories = is_array($categories) ? $categories : [];
                 $images = json_decode($project->images, true) ?? [];
                 
                 $categoryTags = '';

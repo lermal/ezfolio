@@ -5,6 +5,7 @@ namespace App\Services;
 use CoreConstants;
 use App\Models\Experience;
 use App\Services\Contracts\ExperienceInterface;
+use App\Support\LocaleContent;
 use Log;
 use Validator;
 
@@ -70,8 +71,20 @@ class ExperienceService implements ExperienceInterface
     public function store(array $data)
     {
         try {
+            $data['company'] = LocaleContent::text($data['company'] ?? null);
+            $data['period'] = LocaleContent::text($data['period'] ?? null);
+            $data['position'] = LocaleContent::text($data['position'] ?? null);
+            $data['details'] = LocaleContent::text($data['details'] ?? null);
+
             $validate = Validator::make($data, [
-                'company' => 'required|string'
+                'company.ru' => 'required|string',
+                'company.en' => 'nullable|string',
+                'period.ru' => 'nullable|string',
+                'period.en' => 'nullable|string',
+                'position.ru' => 'nullable|string',
+                'position.en' => 'nullable|string',
+                'details.ru' => 'nullable|string',
+                'details.en' => 'nullable|string',
             ]);
 
             if ($validate->fails()) {
@@ -82,10 +95,13 @@ class ExperienceService implements ExperienceInterface
                 ];
             }
 
-            $newData['company'] = $data['company'];
-            $newData['period'] = isset($data['period']) ? $data['period'] : null;
-            $newData['position'] = isset($data['position']) ? $data['position'] : null;
-            $newData['details'] = isset($data['details']) ? $data['details'] : null;
+            $newData = [];
+            $translations = [
+                'company' => $data['company'],
+                'period' => $data['period'],
+                'position' => $data['position'],
+                'details' => $data['details'],
+            ];
             
             if (isset($data['id'])) {
                 $result = $this->getById($data['id'], ['id']);
@@ -94,9 +110,12 @@ class ExperienceService implements ExperienceInterface
                 } else {
                     $existingData = $result['payload'];
                 }
+                LocaleContent::assign($existingData, $translations);
                 $result = $existingData->update($newData);
             } else {
-                $result = $this->model->create($newData);
+                $result = $this->model->newInstance($newData);
+                LocaleContent::assign($result, $translations);
+                $result->save();
             }
 
             if ($result) {

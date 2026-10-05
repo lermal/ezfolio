@@ -10,6 +10,7 @@ import QueueAnim from 'rc-queue-anim';
 import SocialLinkPopup from './SocialLinkPopup';
 import { DownloadOutlined } from '@ant-design/icons';
 import PageWrapper from '../layout/PageWrapper';
+import { CONTENT_LOCALES, LocaleTabs, listPair, localeText, textPair } from '../locale/contentLocale';
 
 const pulseAnimation = keyframes`
 0%,
@@ -83,8 +84,9 @@ const About = () => {
     const [description, setDescription] = useState('');
     const [cv, setCv] = useState(null);
     const [cover, setCover] = useState(null);
-    const [taglines, setTagLines] = useState([]);
+    const [taglines, setTagLines] = useState({ ru: [], en: [] });
     const [socialLinks, setSocialLinks] = useState([]);
+    const [locale, setLocale] = useState('ru');
     
     const [focusTaglines, setFocusTaglines] = useState(false);
     const [focusSocialLinks, setFocusSocialLinks] = useState(false);
@@ -114,7 +116,7 @@ const About = () => {
     useEffect(() => {
         console.log(typedElement);
         const options = {
-            strings: taglines && taglines.length ? taglines : [''],
+            strings: taglines[locale] && taglines[locale].length ? taglines[locale] : [''],
             typeSpeed: 70,
             backSpeed: 40,
             smartBackspace: true,
@@ -130,7 +132,7 @@ const About = () => {
                 typed.current.destroy();
             }
         }
-    }, [componentLoading, taglines])
+    }, [componentLoading, taglines, locale])
 
     useEffect(() => {
         if (focusTaglines === true) {
@@ -180,23 +182,26 @@ const About = () => {
             Utils.handleSuccessResponse(response, () => {
                 const storedAvatar = response.data.payload.avatar;
                 setAvatar(storedAvatar && storedAvatar !== 'assets/common/img/avatar/default.png' ? storedAvatar : null);
-                setName(response.data.payload.name);
+                const namePair = textPair(response.data.payload.name);
+                const addressPair = textPair(response.data.payload.address);
+                const descriptionPair = textPair(response.data.payload.description);
+                setName(namePair.ru);
                 setEmail(response.data.payload.email);
                 setPhone(response.data.payload.phone);
-                setAddress(response.data.payload.address);
-                setDescription(response.data.payload.description);
+                setAddress(addressPair.ru);
+                setDescription(descriptionPair.ru);
                 setCv(response.data.payload.cv);
                 setCover(response.data.payload.cover);
-                setTagLines(response.data.payload.taglines ? JSON.parse(response.data.payload.taglines) : []);
+                setTagLines(listPair(response.data.payload.taglines));
                 setSocialLinks(response.data.payload.social_links ? JSON.parse(response.data.payload.social_links) : []);
 
                 //set form values
                 form.setFieldsValue({
-                    name: response.data.payload.name,
+                    name: namePair,
                     email: response.data.payload.email,
                     phone: response.data.payload.phone,
-                    address: response.data.payload.address,
-                    description: response.data.payload.description,
+                    address: addressPair,
+                    description: descriptionPair,
                 });
             })
         })
@@ -208,6 +213,9 @@ const About = () => {
     }
 
     const focusInput = (input) => {
+        if (input === 'name' || input === 'address' || input === 'description' || input === 'taglines') {
+            setLocale('ru');
+        }
         if (input === 'name') {
             nameInput.current.focus();
         } else if (input === 'email') {
@@ -260,38 +268,58 @@ const About = () => {
         });
     }
 
+    const previewText = (field) => {
+        const value = form.getFieldValue(field);
+        if (value && typeof value === 'object') {
+            return value[locale] || '';
+        }
+
+        return value || '';
+    }
+
+    useEffect(() => {
+        setName(previewText('name'));
+        setAddress(previewText('address'));
+        setDescription(previewText('description'));
+    }, [locale])
+
     const onFormValuesChange = (changedValues) => {
         if (typeof changedValues.name !== 'undefined') {
-            setName(changedValues.name);
+            setName(previewText('name'));
         } else if (typeof changedValues.email !== 'undefined') {
             setEmail(changedValues.email);
         } else if (typeof changedValues.phone !== 'undefined') {
             setPhone(changedValues.phone);
         } else if (typeof changedValues.address !== 'undefined') {
-            setAddress(changedValues.address);
+            setAddress(previewText('address'));
         } else if (typeof changedValues.description !== 'undefined') {
-            setDescription(changedValues.description);
+            setDescription(previewText('description'));
         }
     }
 
+    const updateTaglines = (next) => {
+        setTagLines((current) => ({
+            ...current,
+            [locale]: next,
+        }));
+    }
+
     const taglineNewHandler = () => {
-        let array = [...taglines];
-        array.push('');
-        setTagLines(array);
+        updateTaglines([...(taglines[locale] || []), '']);
     }
 
     const taglineDeleteHandler = (index) => {
-        let array = [...taglines];
+        const array = [...(taglines[locale] || [])];
         if (index !== -1) {
             array.splice(index, 1);
-            setTagLines(array);
+            updateTaglines(array);
         }
     }
 
     const taglineEditHandler = (e, index) => {
-        let array = [...taglines];
+        const array = [...(taglines[locale] || [])];
         array[index] = e.target.value;
-        setTagLines(array);
+        updateTaglines(array);
     }
 
     const socialLinksNewHandler = () => {
@@ -513,19 +541,34 @@ const About = () => {
                             name="about"
                             requiredMark
                         >
-                            <Form.Item
-                                name="name"
-                                label={<Text strong>Full Name</Text>}
-                                messageVariables={{ label: 'Name' }}
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please enter your name'
-                                    },
-                                ]}
-                            >
-                                <Input ref={nameInput} placeholder="Full Name"/>
-                            </Form.Item>
+                            <LocaleTabs locale={locale} onChange={setLocale} />
+                            {CONTENT_LOCALES.map((code) => (
+                                <div key={code} style={{ display: locale === code ? 'block' : 'none' }}>
+                                    <Form.Item
+                                        name={['name', code]}
+                                        label={<Text strong>Full Name</Text>}
+                                        messageVariables={{ label: 'Name' }}
+                                        rules={code === 'ru' ? [{ required: true, message: 'Please enter your name' }] : []}
+                                    >
+                                        <Input ref={code === 'ru' ? nameInput : undefined} placeholder="Full Name"/>
+                                    </Form.Item>
+                                    <Form.Item
+                                        name={['address', code]}
+                                        label={<Text strong>Address</Text>}
+                                        messageVariables={{ label: 'Address' }}
+                                    >
+                                        <Input ref={code === 'ru' ? addressInput : undefined} placeholder="Address"/>
+                                    </Form.Item>
+                                    <Form.Item
+                                        name={['description', code]}
+                                        label={<Text strong>Description</Text>}
+                                        messageVariables={{ label: 'Description' }}
+                                        rules={code === 'ru' ? [{ required: true, message: 'Please enter your description' }] : []}
+                                    >
+                                        <Input.TextArea rows="4" ref={code === 'ru' ? descriptionInput : undefined} placeholder="Description"/>
+                                    </Form.Item>
+                                </div>
+                            ))}
                             <Form.Item
                                 name="email"
                                 label={<Text strong>Email</Text>}
@@ -550,26 +593,6 @@ const About = () => {
                             >
                                 <Input ref={phoneInput} placeholder="Phone"/>
                             </Form.Item>
-                            <Form.Item
-                                name="address"
-                                label={<Text strong>Address</Text>}
-                                messageVariables={{ label: 'Address' }}
-                            >
-                                <Input ref={addressInput} placeholder="Address"/>
-                            </Form.Item>
-                            <Form.Item
-                                name="description"
-                                label={<Text strong>Description</Text>}
-                                messageVariables={{ label: 'Description' }}
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please enter your description'
-                                    }
-                                ]}
-                            >
-                                <Input.TextArea rows="4" ref={descriptionInput} placeholder="Description"/>
-                            </Form.Item>
                             <AnimatedDiv animate={focusTaglines} ref={taglinesInput} tabIndex="-1">
                                 <Form.Item
                                     label={<Text strong>
@@ -585,10 +608,10 @@ const About = () => {
                                         bordered
                                     >
                                         {
-                                            taglines.length ? (
+                                            (taglines[locale] || []).length ? (
                                                 <QueueAnim type={['right', 'left']} leaveReverse>
                                                     {
-                                                        taglines.map((item, index) => (
+                                                        (taglines[locale] || []).map((item, index) => (
                                                             <div key={index}>
                                                                 <List.Item actions={
                                                                     [
@@ -644,7 +667,7 @@ const About = () => {
                                                                 }>
                                                                     <Item.Meta description={
                                                                         <a href={item.link} target="_blank" rel="noreferrer">
-                                                                            <Space><i className={item.iconClass}></i> {item.title}</Space>
+                                                                            <Space><i className={item.iconClass}></i> {localeText(item.title)}</Space>
                                                                         </a>
                                                                     }/>
                                                                 </List.Item>

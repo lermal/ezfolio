@@ -18,7 +18,9 @@
         "jenssegers/agent": "^2.6",
         "laravel/framework": "^8.65",
         "laravel/tinker": "^2.5",
+        "mcamara/laravel-localization": "1.8.*",
         "rap2hpoutre/laravel-log-viewer": "^1.7",
+        "spatie/laravel-translatable": "5.2.0",
         "stevebauman/location": "^6.1",
         "tymon/jwt-auth": "^1.0"
     },

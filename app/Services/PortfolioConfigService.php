@@ -6,6 +6,7 @@ use CoreConstants;
 use App\Helpers\ThemeRegistry;
 use App\Models\PortfolioConfig;
 use App\Services\Contracts\PortfolioConfigInterface;
+use App\Support\LocaleContent;
 use Illuminate\Validation\Rule;
 use Log;
 use Str;
@@ -273,25 +274,19 @@ class PortfolioConfigService implements PortfolioConfigInterface
             }
 
             if ($seo) {
-                $result = $this->getConfigByKey(CoreConstants::PORTFOLIO_CONFIG__META_TITLE, ['setting_value']);
-                if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                    $data['seo']['title'] = $result['payload']->setting_value;
-                } else {
-                    $data['seo']['title'] = '';
-                }
+                $data['seo']['translations'] = [];
 
-                $result = $this->getConfigByKey(CoreConstants::PORTFOLIO_CONFIG__META_AUTHOR, ['setting_value']);
-                if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                    $data['seo']['author'] = $result['payload']->setting_value;
-                } else {
-                    $data['seo']['author'] = '';
-                }
-
-                $result = $this->getConfigByKey(CoreConstants::PORTFOLIO_CONFIG__META_DESCRIPTION, ['setting_value']);
-                if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                    $data['seo']['description'] = $result['payload']->setting_value;
-                } else {
-                    $data['seo']['description'] = '';
+                foreach ([
+                    'title' => CoreConstants::PORTFOLIO_CONFIG__META_TITLE,
+                    'author' => CoreConstants::PORTFOLIO_CONFIG__META_AUTHOR,
+                    'description' => CoreConstants::PORTFOLIO_CONFIG__META_DESCRIPTION,
+                ] as $field => $key) {
+                    $result = $this->getConfigByKey($key, ['setting_value']);
+                    $pair = $result['status'] === CoreConstants::STATUS_CODE_SUCCESS
+                        ? LocaleContent::decodeStoredText($result['payload']->setting_value)
+                        : ['ru' => '', 'en' => ''];
+                    $data['seo'][$field] = LocaleContent::pick($pair);
+                    $data['seo']['translations'][$field] = $pair;
                 }
 
                 $result = $this->getConfigByKey(CoreConstants::PORTFOLIO_CONFIG__META_IMAGE, ['setting_value']);
@@ -369,6 +364,28 @@ class PortfolioConfigService implements PortfolioConfigInterface
     }
 
     /**
+     * Keep an existing English value when a legacy client sends one plain string.
+     *
+     * @param int $settingKey
+     * @param mixed $incoming
+     * @return array{ru: string, en: string}
+     */
+    private function metaPair(int $settingKey, $incoming): array
+    {
+        $current = $this->getConfigByKey($settingKey, ['setting_value']);
+        $existing = $current['status'] === CoreConstants::STATUS_CODE_SUCCESS
+            ? LocaleContent::decodeStoredText($current['payload']->setting_value)
+            : ['ru' => '', 'en' => ''];
+        $pair = LocaleContent::text($incoming ?? '');
+
+        if (is_string($incoming) || is_numeric($incoming)) {
+            $pair['en'] = $existing['en'];
+        }
+
+        return $pair;
+    }
+
+    /**
      * Store meta data
      *
      * @param array $data
@@ -380,43 +397,26 @@ class PortfolioConfigService implements PortfolioConfigInterface
             $count = 0;
             $inserted = [];
 
+            $inserted['translations'] = [];
+
             foreach ($data as $key => $value) {
-                if ($key === 'title') {
+                if (in_array($key, ['title', 'author', 'description'], true)) {
+                    $settingKey = [
+                        'title' => CoreConstants::PORTFOLIO_CONFIG__META_TITLE,
+                        'author' => CoreConstants::PORTFOLIO_CONFIG__META_AUTHOR,
+                        'description' => CoreConstants::PORTFOLIO_CONFIG__META_DESCRIPTION,
+                    ][$key];
+                    $pair = $this->metaPair($settingKey, $value);
                     $newData = [
-                        'setting_key' => CoreConstants::PORTFOLIO_CONFIG__META_TITLE,
-                        'setting_value' => isset($value) ? $value : '',
+                        'setting_key' => $settingKey,
+                        'setting_value' => json_encode($pair, JSON_UNESCAPED_UNICODE),
                     ];
                     $result = $this->insertOrUpdate($newData);
 
                     if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
                         $count++;
-                        $inserted['title'] = $result['payload']->setting_value;
-                    } else {
-                        Log::error($result['payload']);
-                    }
-                } elseif ($key === 'author') {
-                    $newData = [
-                        'setting_key' => CoreConstants::PORTFOLIO_CONFIG__META_AUTHOR,
-                        'setting_value' => isset($value) ? $value : '',
-                    ];
-                    $result = $this->insertOrUpdate($newData);
-
-                    if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                        $count++;
-                        $inserted['author'] = $result['payload']->setting_value;
-                    } else {
-                        Log::error($result['payload']);
-                    }
-                } elseif ($key === 'description') {
-                    $newData = [
-                        'setting_key' => CoreConstants::PORTFOLIO_CONFIG__META_DESCRIPTION,
-                        'setting_value' => isset($value) ? $value : '',
-                    ];
-                    $result = $this->insertOrUpdate($newData);
-
-                    if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                        $count++;
-                        $inserted['description'] = $result['payload']->setting_value;
+                        $inserted[$key] = LocaleContent::pick($pair);
+                        $inserted['translations'][$key] = $pair;
                     } else {
                         Log::error($result['payload']);
                     }

@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Helpers\ThemeRegistry;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\DetectPreferredLocale;
 use App\Models\About;
 use App\Models\Project;
 use App\Models\Service;
 use App\Services\Contracts\PortfolioConfigInterface;
 use CoreConstants;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class SitemapController extends Controller
 {
@@ -27,29 +29,27 @@ class SitemapController extends Controller
             Service::max('updated_at'),
         ])->filter()->max();
 
-        $urls = [[
-            'loc' => url('/'),
-            'lastmod' => $lastmod ? date('Y-m-d', strtotime($lastmod)) : now()->format('Y-m-d'),
-        ]];
+        $lastmodDate = $lastmod ? date('Y-m-d', strtotime($lastmod)) : now()->format('Y-m-d');
+        $urls = $this->forLocales(url('/'), $lastmodDate);
 
         $config = $portfolioConfig->getAllConfigData();
         $config = $config['status'] === CoreConstants::STATUS_CODE_SUCCESS ? $config['payload'] : null;
 
         if ($config && !empty($config['visibility']['projects']) && ThemeRegistry::hasProjectPages($config['template'])) {
             foreach (Project::whereNotNull('slug')->orderBy('id')->get(['slug', 'updated_at']) as $project) {
-                $urls[] = [
-                    'loc' => route('project', $project->slug),
-                    'lastmod' => $project->updated_at ? $project->updated_at->format('Y-m-d') : $urls[0]['lastmod'],
-                ];
+                $urls = array_merge($urls, $this->forLocales(
+                    route('project', $project->slug),
+                    $project->updated_at ? $project->updated_at->format('Y-m-d') : $urls[0]['lastmod']
+                ));
             }
         }
 
         if ($config && !empty($config['visibility']['services']) && ThemeRegistry::hasServicePages($config['template'])) {
             foreach (Service::whereNotNull('slug')->orderBy('id')->get(['slug', 'updated_at']) as $service) {
-                $urls[] = [
-                    'loc' => route('service', $service->slug),
-                    'lastmod' => $service->updated_at ? $service->updated_at->format('Y-m-d') : $urls[0]['lastmod'],
-                ];
+                $urls = array_merge($urls, $this->forLocales(
+                    route('service', $service->slug),
+                    $service->updated_at ? $service->updated_at->format('Y-m-d') : $urls[0]['lastmod']
+                ));
             }
         }
 
@@ -68,11 +68,34 @@ class SitemapController extends Controller
             'Disallow: /admin/',
             'Disallow: /pixel-tracker',
             'Disallow: /contact-me',
+            'Disallow: /en/contact-me',
+            'Disallow: /locale/',
             '',
             'Sitemap: ' . route('sitemap'),
             '',
         ]);
 
         return response($content, 200)->header('Content-Type', 'text/plain; charset=UTF-8');
+    }
+
+    /**
+     * One sitemap entry per public locale. The default locale stays unprefixed.
+     *
+     * @param  string  $url
+     * @param  string  $lastmod
+     * @return array
+     */
+    private function forLocales($url, $lastmod)
+    {
+        $entries = [];
+
+        foreach (array_keys(LaravelLocalization::getSupportedLocales()) as $locale) {
+            $entries[] = [
+                'loc' => DetectPreferredLocale::urlFor(request(), $locale, parse_url($url, PHP_URL_PATH) ?: '/'),
+                'lastmod' => $lastmod,
+            ];
+        }
+
+        return $entries;
     }
 }

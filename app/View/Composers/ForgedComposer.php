@@ -3,6 +3,7 @@
 namespace App\View\Composers;
 
 use App\Helpers\ImageHelper;
+use App\Support\LocaleContent;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
@@ -62,7 +63,7 @@ class ForgedComposer
         $services = $this->visibleList($data, $visibility, 'services');
         $works = $this->works($this->visibleList($data, $visibility, 'projects'));
         $featured = $works->firstWhere('featured', true) ?? $works->first();
-        $socials = $this->decodeList($about->social_links);
+        $socials = $this->socials($about->social_links);
         $current = isset($data['project']) ? $works->firstWhere('id', $data['project']->id) : null;
         $currentService = isset($data['service']) ? $services->firstWhere('id', $data['service']->id) : null;
         // Anchors of the home page sections are prefixed with it on other pages
@@ -738,6 +739,31 @@ class ForgedComposer
         }
 
         return $buttons;
+    }
+
+    /**
+     * Social link titles are {"ru","en"} inside the shared link list.
+     *
+     * @param mixed $value
+     * @return array
+     */
+    private function socials($value)
+    {
+        $socials = [];
+
+        foreach ($this->decodeList($value) as $social) {
+            if (!is_array($social)) {
+                continue;
+            }
+
+            if (array_key_exists('title', $social)) {
+                $social['title'] = LocaleContent::pick($social['title']);
+            }
+
+            $socials[] = $social;
+        }
+
+        return $socials;
     }
 
     /**

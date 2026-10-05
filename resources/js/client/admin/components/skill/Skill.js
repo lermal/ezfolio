@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import HTTP from '../../../common/helpers/HTTP';
 import Utils from '../../../common/helpers/Utils';
 import Routes from '../../../common/helpers/Routes';
+import { CONTENT_LOCALES, LocaleTabs, showLocaleError, textPair } from '../locale/contentLocale';
 
 const StyledDrawer = styled(Drawer)`
     .ant-drawer-content-wrapper {
@@ -24,11 +25,12 @@ const Skill = (props) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState((typeof props.loading !== 'undefined') ? props.loading : false);
     const [componentLoading, setComponentLoading] = useState((typeof props.componentLoading !== 'undefined') ? props.componentLoading : false);
+    const [locale, setLocale] = useState('ru');
 
     useEffect(() => {
         form.setFieldsValue({
             id: props.itemToEdit ? props.itemToEdit.id : '', 
-            name: props.itemToEdit ? props.itemToEdit.name : '', 
+            name: textPair(props.itemToEdit ? props.itemToEdit.name : ''), 
             proficiency: props.itemToEdit ? props.itemToEdit.proficiency : 0
         });
     }, [props.itemToEdit])
@@ -84,6 +86,7 @@ const Skill = (props) => {
             });
         })
         .catch((info) => {
+            showLocaleError(info, setLocale);
             console.log('Validate Failed:', info);
         });
     }
@@ -121,18 +124,18 @@ const Skill = (props) => {
                     <Form.Item name="id" hidden>
                         <Input/>
                     </Form.Item>
-                    <Form.Item
-                        name="name"
-                        label="Skill Name"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please enter skill name',
-                            },
-                        ]}
-                    >
-                        <Input placeholder="Enter Skill Name"/>
-                    </Form.Item>
+                    <LocaleTabs locale={locale} onChange={setLocale} />
+                    {CONTENT_LOCALES.map((code) => (
+                        <div key={code} style={{ display: locale === code ? 'block' : 'none' }}>
+                            <Form.Item
+                                name={['name', code]}
+                                label="Skill Name"
+                                rules={code === 'ru' ? [{ required: true, message: 'Please enter skill name' }] : []}
+                            >
+                                <Input placeholder="Enter Skill Name"/>
+                            </Form.Item>
+                        </div>
+                    ))}
                     <Form.Item
                         name="proficiency"
                         label="Skill Proficiency"

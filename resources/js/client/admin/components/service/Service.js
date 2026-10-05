@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import HTTP from '../../../common/helpers/HTTP';
 import Utils from '../../../common/helpers/Utils';
 import Routes from '../../../common/helpers/Routes';
+import { CONTENT_LOCALES, LocaleTabs, showLocaleError, textPair } from '../locale/contentLocale';
 
 const StyledDrawer = styled(Drawer)`
     .ant-drawer-content-wrapper {
@@ -20,15 +21,16 @@ const Service = (props) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState((typeof props.loading !== 'undefined') ? props.loading : false);
     const [componentLoading, setComponentLoading] = useState((typeof props.componentLoading !== 'undefined') ? props.componentLoading : false);
+    const [locale, setLocale] = useState('ru');
 
     useEffect(() => {
         form.setFieldsValue({
             id: props.itemToEdit ? props.itemToEdit.id : '', 
-            title: props.itemToEdit ? props.itemToEdit.title : '', 
+            title: textPair(props.itemToEdit ? props.itemToEdit.title : ''), 
             slug: props.itemToEdit ? props.itemToEdit.slug : '',
             icon: props.itemToEdit ? props.itemToEdit.icon : '',
-            details: props.itemToEdit ? props.itemToEdit.details : '',
-            content: props.itemToEdit ? props.itemToEdit.content : '',
+            details: textPair(props.itemToEdit ? props.itemToEdit.details : ''),
+            content: textPair(props.itemToEdit ? props.itemToEdit.content : ''),
         });
     }, [props.itemToEdit])
 
@@ -87,6 +89,7 @@ const Service = (props) => {
             });
         })
         .catch((info) => {
+            showLocaleError(info, setLocale);
             console.log('Validate Failed:', info);
         });
     }
@@ -124,18 +127,32 @@ const Service = (props) => {
                     <Form.Item name="id" hidden>
                         <Input/>
                     </Form.Item>
-                    <Form.Item
-                        name="title"
-                        label="Title"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input the title',
-                            },
-                        ]}
-                    >
-                        <Input placeholder="Enter Title"/>
-                    </Form.Item>
+                    <LocaleTabs locale={locale} onChange={setLocale} />
+                    {CONTENT_LOCALES.map((code) => (
+                        <div key={code} style={{ display: locale === code ? 'block' : 'none' }}>
+                            <Form.Item
+                                name={['title', code]}
+                                label="Title"
+                                rules={code === 'ru' ? [{ required: true, message: 'Please input the title' }] : []}
+                            >
+                                <Input placeholder="Enter Title"/>
+                            </Form.Item>
+                            <Form.Item
+                                name={['details', code]}
+                                label="Details"
+                                rules={code === 'ru' ? [{ required: true, message: 'Please input the details' }] : []}
+                            >
+                                <Input.TextArea rows={4} placeholder="Enter Details"/>
+                            </Form.Item>
+                            <Form.Item
+                                name={['content', code]}
+                                label="Page text"
+                                extra={code === 'ru' ? 'Shown only on the service page, under the short details. Separate paragraphs with an empty line. A line starting with "## " is a subheading, lines starting with "- " become a list.' : undefined}
+                            >
+                                <Input.TextArea rows={12} placeholder="What is included, how the work goes, terms, prices..."/>
+                            </Form.Item>
+                        </div>
+                    ))}
                     <Form.Item
                         name="slug"
                         label="URL"
@@ -164,25 +181,6 @@ const Service = (props) => {
                         ]}
                     >
                         <Input placeholder="Enter Icon Class"/>
-                    </Form.Item>
-                    <Form.Item 
-                        name="details" 
-                        label="Details"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input the details',
-                            },
-                        ]}
-                    >
-                        <Input.TextArea rows={4} placeholder="Enter Details"/>
-                    </Form.Item>
-                    <Form.Item
-                        name="content"
-                        label="Page text"
-                        extra="Shown only on the service page, under the short details. Separate paragraphs with an empty line. A line starting with &quot;## &quot; is a subheading, lines starting with &quot;- &quot; become a list."
-                    >
-                        <Input.TextArea rows={12} placeholder="What is included, how the work goes, terms, prices..."/>
                     </Form.Item>
                 </Form>
             </Spin>

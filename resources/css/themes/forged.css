@@ -749,6 +749,37 @@
         color: theme('colors.forge.text');
     }
 
+    .forge-locale {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .forge-locale a {
+        @apply font-mono text-forge-muted;
+        font-size: 12px;
+        line-height: 1;
+        letter-spacing: 0.06em;
+        padding: 6px 7px;
+        text-decoration: none;
+        transition: color var(--cool-in) ease-out;
+    }
+
+    .forge-locale a:hover,
+    .forge-locale a.is-active {
+        color: theme('colors.forge.text');
+    }
+
+    .forge-locale a.is-active {
+        color: var(--accent-color);
+    }
+
+    .forge-locale a + a::before {
+        content: '/';
+        margin-right: 8px;
+        color: theme('colors.forge.muted');
+    }
+
     .section-head {
         display: grid;
         gap: 10px;
@@ -1664,10 +1695,16 @@
         color: theme('colors.forge.text');
     }
 
-    /* The dialog sheet laid out in the page flow, without the height limits */
+    /*
+     * The dialog sheet in normal flow, without the height cap.
+     * overflow:clip keeps the rounded corners without a scrollport.
+     * overflow:hidden would keep overscroll-behavior:contain from the dialog
+     * and the card would swallow the mouse wheel instead of scrolling the page.
+     */
     .project-page .project-dialog__sheet {
         max-height: none;
-        overflow: hidden;
+        overflow: clip;
+        overscroll-behavior: auto;
     }
 
     .project-page .project-dialog__title {

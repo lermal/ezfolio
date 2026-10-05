@@ -7,6 +7,7 @@ import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
 import Education from './Education';
+import { localeText } from '../locale/contentLocale';
 
 const { confirm } = Modal;
 
@@ -23,7 +24,8 @@ const EducationList = () => {
             search: true,
             sorter: true,
             width: 170,
-            ellipsis:true
+            ellipsis:true,
+            render: (value) => localeText(value),
         },
         {
             title: 'Period',
@@ -31,7 +33,8 @@ const EducationList = () => {
             sorter: true,
             search: true,
             width: 130,
-            ellipsis:true
+            ellipsis:true,
+            render: (value) => localeText(value),
         },
         {
             title: 'Degree',
@@ -39,7 +42,8 @@ const EducationList = () => {
             sorter: true,
             search: true,
             width: 170,
-            ellipsis:true
+            ellipsis:true,
+            render: (value) => localeText(value),
         },
         {
             title: 'CGPA',
@@ -47,7 +51,8 @@ const EducationList = () => {
             sorter: true,
             search: true,
             width: 130,
-            ellipsis:true
+            ellipsis:true,
+            render: (value) => localeText(value),
         },
         {
             title: 'Department',
@@ -55,7 +60,8 @@ const EducationList = () => {
             sorter: true,
             search: true,
             width: 170,
-            ellipsis:true
+            ellipsis:true,
+            render: (value) => localeText(value),
         },
         {
             title: 'Thesis',
@@ -63,7 +69,8 @@ const EducationList = () => {
             sorter: true,
             search: true,
             width: 170,
-            ellipsis:true
+            ellipsis:true,
+            render: (value) => localeText(value),
         },
         {
             title: 'Option',

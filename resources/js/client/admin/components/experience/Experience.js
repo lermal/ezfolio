@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import HTTP from '../../../common/helpers/HTTP';
 import Utils from '../../../common/helpers/Utils';
 import Routes from '../../../common/helpers/Routes';
+import { CONTENT_LOCALES, LocaleTabs, showLocaleError, textPair } from '../locale/contentLocale';
 
 const StyledDrawer = styled(Drawer)`
     .ant-drawer-content-wrapper {
@@ -20,14 +21,15 @@ const Experience = (props) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState((typeof props.loading !== 'undefined') ? props.loading : false);
     const [componentLoading, setComponentLoading] = useState((typeof props.componentLoading !== 'undefined') ? props.componentLoading : false);
+    const [locale, setLocale] = useState('ru');
 
     useEffect(() => {
         form.setFieldsValue({
             id: props.itemToEdit ? props.itemToEdit.id : '', 
-            company: props.itemToEdit ? props.itemToEdit.company : '', 
-            period: props.itemToEdit ? props.itemToEdit.period : '',
-            position: props.itemToEdit ? props.itemToEdit.position : '',
-            details: props.itemToEdit ? props.itemToEdit.details : ''
+            company: textPair(props.itemToEdit ? props.itemToEdit.company : ''), 
+            period: textPair(props.itemToEdit ? props.itemToEdit.period : ''),
+            position: textPair(props.itemToEdit ? props.itemToEdit.position : ''),
+            details: textPair(props.itemToEdit ? props.itemToEdit.details : '')
         });
     }, [props.itemToEdit])
 
@@ -85,6 +87,7 @@ const Experience = (props) => {
             });
         })
         .catch((info) => {
+            showLocaleError(info, setLocale);
             console.log('Validate Failed:', info);
         });
     }
@@ -122,36 +125,31 @@ const Experience = (props) => {
                     <Form.Item name="id" hidden>
                         <Input/>
                     </Form.Item>
-                    <Form.Item
-                        name="company"
-                        label="Company"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input the name of company',
-                            },
-                        ]}
-                    >
-                        <Input placeholder="Enter Company"/>
-                    </Form.Item>
-                    <Form.Item name="period" label="Period">
-                        <Input placeholder="Enter Period"/>
-                    </Form.Item>
-                    <Form.Item
-                        name="position"
-                        label="Position"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input position',
-                            },
-                        ]}
-                    >
-                        <Input placeholder="Enter Position"/>
-                    </Form.Item>
-                    <Form.Item name="details" label="Details">
-                        <Input.TextArea rows={4} placeholder="Enter Details"/>
-                    </Form.Item>
+                    <LocaleTabs locale={locale} onChange={setLocale} />
+                    {CONTENT_LOCALES.map((code) => (
+                        <div key={code} style={{ display: locale === code ? 'block' : 'none' }}>
+                            <Form.Item
+                                name={['company', code]}
+                                label="Company"
+                                rules={code === 'ru' ? [{ required: true, message: 'Please input the name of company' }] : []}
+                            >
+                                <Input placeholder="Enter Company"/>
+                            </Form.Item>
+                            <Form.Item name={['period', code]} label="Period">
+                                <Input placeholder="Enter Period"/>
+                            </Form.Item>
+                            <Form.Item
+                                name={['position', code]}
+                                label="Position"
+                                rules={code === 'ru' ? [{ required: true, message: 'Please input position' }] : []}
+                            >
+                                <Input placeholder="Enter Position"/>
+                            </Form.Item>
+                            <Form.Item name={['details', code]} label="Details">
+                                <Input.TextArea rows={4} placeholder="Enter Details"/>
+                            </Form.Item>
+                        </div>
+                    ))}
                 </Form>
             </Spin>
         </StyledDrawer>

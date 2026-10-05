@@ -72,7 +72,7 @@ function App() {
                 if (response.data.payload.length) {
                     let newCategories = [...categories];
                     response.data.payload.forEach(row => {
-                        JSON.parse(row.categories).map((category) => {
+                        Utils.parseList(row.categories).map((category) => {
                             newCategories.push(category);
                         })
                     });
@@ -118,7 +118,7 @@ function App() {
                         <Col span={24} className="text-center">
                             <Row justify='center' gutter={32}>
                                 {
-                                    data.filter(project => selectedCategory === null || (selectedCategory !== null && JSON.parse(project.categories).includes(selectedCategory))).map((item, index) => (
+                                    data.filter(project => selectedCategory === null || (selectedCategory !== null && Utils.parseList(project.categories).includes(selectedCategory))).map((item, index) => (
                                         <Col
                                             key={index}
                                             xl={6}

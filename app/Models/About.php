@@ -2,12 +2,30 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasLocaleTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class About extends Model
 {
-    use HasFactory;
+    use HasFactory, HasLocaleTranslations;
+
+    /**
+     * @var array
+     */
+    public $translatable = [
+        'name',
+        'address',
+        'description',
+        'taglines',
+    ];
+
+    /**
+     * @var array
+     */
+    public $translatableLists = [
+        'taglines',
+    ];
 
     /**
      * Placeholder used when no photo has been uploaded

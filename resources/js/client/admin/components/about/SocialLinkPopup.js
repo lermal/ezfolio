@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Drawer, Button, Spin, Input, Form } from 'antd';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import { CONTENT_LOCALES, LocaleTabs, showLocaleError, textPair } from '../locale/contentLocale';
 
 const StyledDrawer = styled(Drawer)`
     .ant-drawer-content-wrapper {
@@ -17,14 +18,19 @@ const SocialLinkPopup = (props) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState((typeof props.loading !== 'undefined') ? props.loading : false);
     const [componentLoading, setComponentLoading] = useState((typeof props.componentLoading !== 'undefined') ? props.componentLoading : false);
+    const [locale, setLocale] = useState('ru');
 
     useEffect(() => {
         if (typeof props.socialLink !== 'undefined' && props.socialLink) {
             form.setFieldsValue({
                 index: props.socialLink.index,
-                title: props.socialLink.data.title,
+                title: textPair(props.socialLink.data.title),
                 iconClass: props.socialLink.data.iconClass,
                 link: props.socialLink.data.link,
+            });
+        } else {
+            form.setFieldsValue({
+                title: textPair(''),
             });
         }
     }, [props.socialLink])
@@ -66,6 +72,7 @@ const SocialLinkPopup = (props) => {
             })
         })
         .catch((info) => {
+            showLocaleError(info, setLocale);
             console.log('Validate Failed:', info);
         });
     }
@@ -103,18 +110,18 @@ const SocialLinkPopup = (props) => {
                     <Form.Item name="index" hidden>
                         <Input/>
                     </Form.Item>
-                    <Form.Item
-                        name="title"
-                        label="Title"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please enter title'
-                            },
-                        ]}
-                    >
-                        <Input placeholder="Enter Title"/>
-                    </Form.Item>
+                    <LocaleTabs locale={locale} onChange={setLocale} />
+                    {CONTENT_LOCALES.map((code) => (
+                        <div key={code} style={{ display: locale === code ? 'block' : 'none' }}>
+                            <Form.Item
+                                name={['title', code]}
+                                label="Title"
+                                rules={code === 'ru' ? [{ required: true, message: 'Please enter title' }] : []}
+                            >
+                                <Input placeholder="Enter Title"/>
+                            </Form.Item>
+                        </div>
+                    ))}
                     <Form.Item
                         name="iconClass"
                         label="Icon Class"

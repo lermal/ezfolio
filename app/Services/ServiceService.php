@@ -5,6 +5,7 @@ namespace App\Services;
 use CoreConstants;
 use App\Models\Service;
 use App\Services\Contracts\ServiceInterface;
+use App\Support\LocaleContent;
 use Log;
 use Validator;
 
@@ -71,10 +72,19 @@ class ServiceService implements ServiceInterface
     public function store(array $data)
     {
         try {
+            $hasContent = array_key_exists('content', $data);
+            $data['title'] = LocaleContent::text($data['title'] ?? null);
+            $data['details'] = LocaleContent::text($data['details'] ?? null);
+            $data['content'] = LocaleContent::text($data['content'] ?? null);
+
             $validate = Validator::make($data, [
-                'title' => 'required|string',
+                'title.ru' => 'required|string',
+                'title.en' => 'nullable|string',
                 'icon' => 'required',
-                'details' => 'required',
+                'details.ru' => 'required|string',
+                'details.en' => 'nullable|string',
+                'content.ru' => 'nullable|string',
+                'content.en' => 'nullable|string',
             ]);
 
             if ($validate->fails()) {
@@ -97,12 +107,17 @@ class ServiceService implements ServiceInterface
                 }
             }
 
-            $newData['title'] = $data['title'];
             $newData['icon'] = $data['icon'];
-            $newData['details'] = $data['details'];
 
-            if (array_key_exists('content', $data)) {
-                $newData['content'] = trim((string) $data['content']) ?: null;
+            $translations = [
+                'title' => $data['title'],
+                'details' => $data['details'],
+            ];
+
+            if ($hasContent) {
+                $data['content']['ru'] = trim($data['content']['ru']);
+                $data['content']['en'] = trim($data['content']['en']);
+                $translations['content'] = $data['content'];
             }
             
             if (isset($data['id'])) {
@@ -112,9 +127,12 @@ class ServiceService implements ServiceInterface
                 } else {
                     $existingData = $result['payload'];
                 }
+                LocaleContent::assign($existingData, $translations);
                 $result = $existingData->update($newData);
             } else {
-                $result = $this->model->create($newData);
+                $result = $this->model->newInstance($newData);
+                LocaleContent::assign($result, $translations);
+                $result->save();
             }
 
             if ($result) {
