@@ -61,13 +61,25 @@
     @endif
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="{{ $seo['url'] }}">
+    @php
+        $hrefLocales = array_keys(LaravelLocalization::getSupportedLocales());
+        if (isset($project)) {
+            $hrefLocales = $project->audiences();
+        }
+        $xDefaultLocale = in_array(LaravelLocalization::getDefaultLocale(), $hrefLocales, true)
+            ? LaravelLocalization::getDefaultLocale()
+            : $hrefLocales[0];
+    @endphp
     @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $localeMeta)
+        @if (!in_array($localeCode, $hrefLocales, true))
+            @continue
+        @endif
         <link rel="alternate" hreflang="{{ $localeCode }}" href="{{ \App\Http\Middleware\DetectPreferredLocale::urlFor(request(), $localeCode, request()->getRequestUri()) }}">
         @if ($localeCode !== app()->getLocale())
             <meta property="og:locale:alternate" content="{{ str_replace('-', '_', $localeMeta['regional'] ?? $localeCode) }}">
         @endif
     @endforeach
-    <link rel="alternate" hreflang="x-default" href="{{ \App\Http\Middleware\DetectPreferredLocale::urlFor(request(), LaravelLocalization::getDefaultLocale(), request()->getRequestUri()) }}">
+    <link rel="alternate" hreflang="x-default" href="{{ \App\Http\Middleware\DetectPreferredLocale::urlFor(request(), $xDefaultLocale, request()->getRequestUri()) }}">
     <meta name="theme-color" content="{{ $accentColor }}">
 
     <meta property="og:type" content="{{ $seo['type'] }}">

@@ -1,7 +1,7 @@
 <nav class="forge-locale" aria-label="{{ __('locale.label') }}">
     @foreach (LaravelLocalization::getSupportedLocales() as $code => $locale)
         <a
-            href="{{ route('locale.switch', ['locale' => $code, 'to' => request()->getRequestUri()]) }}"
+            href="{{ route('locale.switch', ['locale' => $code, 'to' => (isset($project) && !in_array($code, $project->audiences(), true)) ? '/' : request()->getRequestUri()]) }}"
             hreflang="{{ $code }}"
             lang="{{ $code }}"
             @class(['is-active' => app()->getLocale() === $code])

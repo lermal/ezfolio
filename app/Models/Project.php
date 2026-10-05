@@ -106,6 +106,18 @@ class Project extends Model
     }
 
     /**
+     * Audiences that may open this project. Null and an empty set mean both.
+     *
+     * @return array
+     */
+    public function audiences(): array
+    {
+        $locales = static::normalizeVisibleLocales($this->visible_locales);
+
+        return $locales === [] ? self::AUDIENCES : $locales;
+    }
+
+    /**
      * A supported audience code, or the active locale when the given one is not.
      *
      * @param mixed $locale
