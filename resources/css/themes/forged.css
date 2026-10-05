@@ -454,6 +454,25 @@
         }
     }
 
+    /* Two name parts are blocks, so the break does not depend on the card width. */
+    .hero-title--split {
+        background: none;
+        -webkit-background-clip: border-box;
+        background-clip: border-box;
+        color: #f6f1ea;
+        -webkit-text-fill-color: currentColor;
+    }
+
+    .hero-title__given,
+    .hero-title__family {
+        display: block;
+    }
+
+    .hero-title__family {
+        color: var(--accent-color);
+        -webkit-text-fill-color: currentColor;
+    }
+
     .hero-role {
         @apply text-forge-text;
         max-width: 38ch;

@@ -7,7 +7,18 @@
                 {!! \App\Helpers\ImageHelper::optimizedImage($about->avatar, $about->name, '', ['loading' => 'eager', 'sizes' => '92px']) !!}
             </div>
         @endif
-        <h1 id="forged-hero-title" class="hero-title">{{ $about->name }}</h1>
+        {{-- Always break after the first name so the hero tile stays the same height in every locale. --}}
+        @php
+            $heroName = trim((string) preg_replace('/\s+/u', ' ', (string) $about->name));
+            $heroBreak = $heroName === '' ? false : mb_strpos($heroName, ' ');
+        @endphp
+        <h1 id="forged-hero-title" class="hero-title{{ $heroBreak === false ? '' : ' hero-title--split' }}">
+            @if ($heroBreak === false)
+                {{ $heroName }}
+            @else
+                <span class="hero-title__given">{{ mb_substr($heroName, 0, $heroBreak) }}</span><span class="hero-title__family">{{ mb_substr($heroName, $heroBreak + 1) }}</span>
+            @endif
+        </h1>
     </div>
 
     @if (!empty($forged['taglines']))
